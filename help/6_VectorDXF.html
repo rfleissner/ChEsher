@@ -1,0 +1,43 @@
+<html><head>
+<title>ChEsher - VectorDXF</title></head>
+<body>
+<h1>Module VectorDXF</h1>
+<p>
+This module extracts vectors on a given grid from a 2D T3 Vector Mesh (*.t3v) to a DXF file. At first, the U and V components of the 2D T3 Vector Mesh have to be saved as 2D T3 Scalar Mesh (*.t3s). For this the calculator tool from Blue Kenue can be used. The grid spacing can be selected for both x- and y-direction. A bound can be defined to just extract values in the given range. 
+</p>
+
+<h2>Example 6: Create velocity field</h2>
+
+<p>
+The velocity field from the Telemac 2d validation test case <b>donau</b> (case A) should be generated.
+</p>
+<p>
+Open the results file from the test case with Blue Kenue and save the last step from the velocity components U and V to a 2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s) by using the calculator tool. Load the U and V meshes by use of the according lines. Assign grid spacing values and minimum and maximum values to be extracted, set a vector scale factor and give a name for the output file.
+</p>
+<p>
+
+</p>
+<p>
+<center>
+<a href="pics/6_input.png" target="_blank">
+<img src="pics/6_input.png" height="355"/>
+</a>
+</center>
+</p>
+Start the process by pressing the <b>Let's go!</b> button. When the progress is done, some information about the results is given.
+<p>
+<center>
+<a href="pics/6_info.png" target="_blank">
+<img src="pics/6_info.png" height="97"/>
+</a>
+</center>
+</p>
+The resulting DXF file can now be imported to a CAD software. The following picture shows a part from the domain with the grid vectors. The mesh in the background comes from a LandXML import after using module <b>LandXML.</b>
+<p>
+<center>
+<a href="pics/6_results_map.png" target="_blank">
+<img src="pics/6_results_map.png" width="481"/>
+</a>
+</center>
+</p>
+</body></html>

@@ -1,0 +1,15 @@
+<RCC>
+  <qresource prefix="icon">
+    <file>icon_256x256.ico</file>
+    <file>icon_256x256.png</file>
+  </qresource>
+  <qresource prefix="html">
+    <file>1_DXF2BK.html</file>
+    <file>index.html</file>
+  </qresource>
+  <qresource prefix="pics">
+    <file>1_info.png</file>
+    <file>1_input.png</file>
+    <file>1_results.png</file>
+  </qresource>
+</RCC>

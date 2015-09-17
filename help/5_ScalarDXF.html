@@ -1,0 +1,43 @@
+<html><head>
+<title>ChEsher - ScalarDXF</title></head>
+<body>
+<h1>Module ScalarDXF</h1>
+<p>
+This module extracts scalar values on a given grid from a 2D T3 Mesh (*.t3s) to a DXF file. A major and minor mesh can be defined, e.g. the water surface for the major and the water depth for the minor mesh. Both scalar values are then extracted for each grid point. The grid spacing can be selected for both x- and y-direction. A bound can be defined to just extract values in the given range. If <b>Use monochrome colors</b> is not checked, positive values are extracted in red, negative ones in green.
+</p>
+
+<h2>Example 5: Comparing results</h2>
+
+<p>
+The results from two simulation cases (case A and case B from the Telemac 2d validation test case <b>donau</b>) should be compared.
+</p>
+<p>
+Open the results file from the test cases with Blue Kenue and save the last step from the water depths to a 2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s). Assign the mesh from case A to the major and the mesh from case B to the minor mesh. Assign grid spacing values and minimum and maximum values to be extracted, select a symbol for the grid points and give a name for the output file.
+</p>
+<p>
+
+</p>
+<p>
+<center>
+<a href="pics/5_input.png" target="_blank">
+<img src="pics/5_input.png" height="355"/>
+</a>
+</center>
+</p>
+Start the process by pressing the <b>Let's go!</b> button. When the progress is done, some information about the results is given.
+<p>
+<center>
+<a href="pics/5_info.png" target="_blank">
+<img src="pics/5_info.png" height="97"/>
+</a>
+</center>
+</p>
+The resulting DXF file can now be imported to a CAD software. The following picture shows a part from the domain with the grid values. The upper values are the water depths from the major mesh (case A) and the lower values are the water depths from the minor mesh (case B). The mesh in the background comes from a LandXML import after using module <b>LandXML.</b>
+<p>
+<center>
+<a href="pics/5_results_map.png" target="_blank">
+<img src="pics/5_results_map.png" width="481"/>
+</a>
+</center>
+</p>
+</body></html>

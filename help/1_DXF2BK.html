@@ -1,0 +1,58 @@
+<html><head>
+<title>ChEsher - DXF2BK module</title></head>
+<body>
+<h1>Module DXF2BK</h1>
+<p>
+This module transforms objects from a DXF file to Blue Kenue files. The geometric entities can be from type
+
+<ul>
+<li>point,</li>
+<li>line,</li>
+<li>2d polyline and</li>
+<li>3d polyline.</li>
+</ul>
+
+They can be converted to
+
+<ul>
+<li>Data Point Sets (*.xyz),</li>
+<li>2D Line Sets (*.i2s) or</li>
+<li>3D Line Sets (*.i3s),</li>
+</ul>
+
+which can be red by Blue Kenue. The geometric entities to be transformed can be selected by DXF layers.
+</p>
+
+<h2>Example 1: Converting DXF entities</h2>
+
+<p>
+Different geometric entities from a given DXF file should be transformed to Blue Kenue formats.
+</p>
+<p>
+After starting ChEsher with the module <b>DXF2BK</b> the DXF file can be imported through the therefor designated line.
+By pressing the button <b>add</b> rows in the table are displayed. The button <b>refresh</b> updates the rows with the layers of the DXF file. This also works, if the DXF file was changed meanwhile. Each row stands for a layer from the DXF file, where a file name for each layer has to be entered.
+</p>
+<p>
+<center>
+<a href="pics/1_input.png" target="_blank">
+<img src="pics/1_input.png" height="355"/>
+</a>
+</center>
+</p>
+By pressing the <b>Let's go!</b> button the transformation is started. When the progress is done, some information about the converted geometric entities is given.
+<p>
+<center>
+<a href="pics/1_info.png" target="_blank">
+<img src="pics/1_info.png" height="97"/>
+</a>
+</center>
+</p>
+The converted geometric entities can now be loaded with Blue Kenue as shown in the following picture.
+<p>
+<center>
+<a href="pics/1_results.png" target="_blank">
+<img src="pics/1_results.png" width="481"/>
+</a>
+</center>
+</p>
+</body></html>

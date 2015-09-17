@@ -1,6 +1,10 @@
 import sys
 from cx_Freeze import setup, Executable
 
+# Use of the file to create a msi-installer:
+# python setup_cx_freeze.py bdist_msi
+
+
 # Dependencies are automatically detected, but it might need fine tuning.
 includefiles = ['geos_c.dll']
 build_exe_options = {"compressed":True, "packages": ["os"], "include_files":includefiles, "excludes": ["tkinter", "tk", "tcl"], "includes": ["shapely","shapely.geos","shapely.geometry","shapely.coords", "scipy.special._ufuncs_cxx", "scipy", "scipy.integrate" ,"scipy.sparse", "scipy.sparse.csgraph._validation", "scipy.integrate.vode", "scipy.integrate.lsoda"]}

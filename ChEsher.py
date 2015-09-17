@@ -752,25 +752,36 @@ class ChEsher(QtGui.QMainWindow):
         self.ui.lineEditCSOutputFormatted.setText(self.directory + "example_7/output/cs_formatted.txt")
         self.ui.lineEditCSOutputCS.setText(self.directory + "example_7/output/cs.dxf")
 
-        # module 2dm
-        self.ui.checkBox2dmBottom.setChecked(True)
-        self.ui.checkBox2dmBottomFriction.setChecked(True)
-        self.ui.lineEdit2dmBottom.setEnabled(True)
-        self.ui.lineEdit2dmBottomFriction.setEnabled(True)
-        
+        ###   ~   module 2DM   ~   ###
+
         self.ui.lineEdit2dmInput.setText(self.directory + "Modell_Sulm_HW30.2dm")
         self.ui.lineEdit2dmInputData.setText(self.directory + "WSPL_max_HW30.dat")
         
-        self.ui.lineEdit2dmBottom.setText(self.directory + "output/bottom.t3s")
-        self.ui.lineEdit2dmBottomFriction.setText(self.directory + "output/bottom_friction.t3s")
-        self.ui.lineEdit2dmCulvertHeight.setText(self.directory + "output/culvert.xyz")
-        self.ui.lineEdit2dmNS1.setText(self.directory + "output/NS1.i2s")
-        self.ui.lineEdit2dmNS2.setText(self.directory + "output/NS2.i2s")
-        self.ui.lineEdit2dmNS3.setText(self.directory + "output/NS3.i2s")
-        self.ui.lineEdit2dmNS4.setText(self.directory + "output/NS4.i2s")
-        self.ui.lineEdit2dmNS5.setText(self.directory + "output/NS5.i2s")
-        self.ui.lineEdit2dmNS6.setText(self.directory + "output/NS6.i2s")
-        self.ui.lineEdit2dmNS7.setText(self.directory + "output/NS7.i2s")
+        setEnabled(self.ui.checkBox2dmBottom, self.ui.pushButton2dmBottom, self.ui.lineEdit2dmBottom)
+        setEnabled(self.ui.checkBox2dmBottomFriction, self.ui.pushButton2dmBottomFriction, self.ui.lineEdit2dmBottomFriction)
+        setEnabled(self.ui.checkBox2dmWaterSurface, self.ui.pushButton2dmWaterSurface, self.ui.lineEdit2dmWaterSurface)
+        setEnabled(self.ui.checkBox2dmWaterDepth, self.ui.pushButton2dmWaterDepth, self.ui.lineEdit2dmWaterDepth)                
+        setEnabled(self.ui.checkBox2dmCulvertHeight, self.ui.pushButton2dmCulvertHeight, self.ui.lineEdit2dmCulvertHeight)
+        setEnabled(self.ui.checkBox2dmNS1, self.ui.pushButton2dmNS1, self.ui.lineEdit2dmNS1)
+        setEnabled(self.ui.checkBox2dmNS2, self.ui.pushButton2dmNS2, self.ui.lineEdit2dmNS2)
+        setEnabled(self.ui.checkBox2dmNS3, self.ui.pushButton2dmNS3, self.ui.lineEdit2dmNS3)
+        setEnabled(self.ui.checkBox2dmNS4, self.ui.pushButton2dmNS4, self.ui.lineEdit2dmNS4)
+        setEnabled(self.ui.checkBox2dmNS5, self.ui.pushButton2dmNS5, self.ui.lineEdit2dmNS5)
+        setEnabled(self.ui.checkBox2dmNS6, self.ui.pushButton2dmNS6, self.ui.lineEdit2dmNS6)
+        setEnabled(self.ui.checkBox2dmNS7, self.ui.pushButton2dmNS7, self.ui.lineEdit2dmNS7)
+                                                                                             
+        self.ui.lineEdit2dmBottom.setText(self.directory + "example_8/output/BOTTOM.t3s")
+        self.ui.lineEdit2dmBottomFriction.setText(self.directory + "example_8/output/BOTTOM FRICTION.t3s")
+        self.ui.lineEdit2dmWaterSurface.setText(self.directory + "example_8/output/WATER SURFACE.t3s")
+        self.ui.lineEdit2dmWaterDepth.setText(self.directory + "example_8/output/WATER DEPTH.t3s")
+        self.ui.lineEdit2dmCulvertHeight.setText(self.directory + "example_8/output/culvert.xyz")
+        self.ui.lineEdit2dmNS1.setText(self.directory + "example_8/output/NS1.i2s")
+        self.ui.lineEdit2dmNS2.setText(self.directory + "example_8/output/NS2.i2s")
+        self.ui.lineEdit2dmNS3.setText(self.directory + "example_8/output/NS3.i2s")
+        self.ui.lineEdit2dmNS4.setText(self.directory + "example_8/output/NS4.i2s")
+        self.ui.lineEdit2dmNS5.setText(self.directory + "example_8/output/NS5.i2s")
+        self.ui.lineEdit2dmNS6.setText(self.directory + "example_8/output/NS6.i2s")
+        self.ui.lineEdit2dmNS7.setText(self.directory + "example_8/output/NS7.i2s")
 
 
   

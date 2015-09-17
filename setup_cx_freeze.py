@@ -15,3 +15,11 @@ if sys.platform == "win32":
         author = "Fleissner Reinhard",
         options = {"build_exe": build_exe_options},
         executables = [Executable("ChEsher.py", icon="icon_256x256.ico", base="Win32GUI")])
+
+if sys.platform == "win64":
+
+	setup(  name = "ChEsher",
+        version = "1.0",
+        author = "Fleissner Reinhard",
+        options = {"build_exe": build_exe_options},
+        executables = [Executable("ChEsher.py", icon="icon_256x256.ico", base="Win64GUI")])

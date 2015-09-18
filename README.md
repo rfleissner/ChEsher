@@ -1,2 +1,2 @@
 # ChEsher
-Pre- and postprocessing tool
+Pre- and postprocessing

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'uiChEsher.ui'
 #
-# Created: Sun Sep 13 21:49:30 2015
+# Created: Sat Sep 19 10:47:29 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -28,7 +28,7 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
         MainWindow.resize(556, 680)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/icon/icon_256x256.ico")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/resource/resource/icon.ico")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))

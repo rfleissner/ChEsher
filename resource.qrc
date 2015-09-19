@@ -1,22 +1,6 @@
 <RCC>
-  <qresource prefix="icon">
-    <file>icon_256x256.ico</file>
-    <file>icon_256x256.png</file>
-  </qresource>
-  <qresource prefix="html">
-    <file alias="index.html">help/index.html</file>
-    <file alias="1_DXF2BK.html">help/1_DXF2BK.html</file>
-    <file alias="2_Mesh.html">help/2_Mesh.html</file>
-    <file alias="3_LandXML.html">help/3_LandXML.html</file>
-    <file alias="4_2DM.html">help/4_2DM.html</file>
-    <file alias="5_RasterDXF.html">help/5_RasterDXF.html</file>
-    <file alias="6_VectorDXF.html">help/6_VectorDXF.html</file>
-    <file alias="7_CS.html">help/7_CS.html</file>
-    <file alias="8_BK2DXF.html">help/8_BK2DXF.html</file>
-  </qresource>
-  <qresource prefix="pics">
-    <file>help/pics/1_results.png</file>
-    <file>help/pics/1_input.png</file>
-    <file>help/pics/1_info.png</file>
+  <qresource prefix="resource">
+    <file>resource/icon.ico</file>
+    <file>resource/icon.png</file>
   </qresource>
 </RCC>

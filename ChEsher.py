@@ -655,7 +655,6 @@ class ChEsher(QtGui.QMainWindow):
         abs_path = pth.abspath('.')
         self.directory = pth.join(abs_path, 'examples/').replace('\\', '/')
         
-        print self.directory
         ###   ~   module DXF2BK   ~   ###
         
         self.ui.tableWidgetDXF2BK.setRowCount(0)
@@ -756,8 +755,8 @@ class ChEsher(QtGui.QMainWindow):
 
         ###   ~   module 2DM   ~   ###
 
-        self.ui.lineEdit2dmInput.setText(self.directory + "input.2dm")
-        self.ui.lineEdit2dmInputData.setText(self.directory + "water_depth.dat")
+        self.ui.lineEdit2dmInput.setText(self.directory + "example_8/input.2dm")
+        self.ui.lineEdit2dmInputData.setText(self.directory + "example_8/water_depth.dat")
         
         setEnabled(self.ui.checkBox2dmBottom, self.ui.pushButton2dmBottom, self.ui.lineEdit2dmBottom)
         setEnabled(self.ui.checkBox2dmBottomFriction, self.ui.pushButton2dmBottomFriction, self.ui.lineEdit2dmBottomFriction)
@@ -1449,7 +1448,7 @@ class ChEsher(QtGui.QMainWindow):
         """
         action = QAction(text, self)
         if icon is not None:
-            action.setIcon(QIcon(":/icons/resource/{0}.png".format(icon)))
+            action.setIcon(QIcon(":/resource/{0}.png".format(icon)))
         if shortcut is not None:
             action.setShortcut(shortcut)
         if tip is not None:
@@ -1478,13 +1477,13 @@ class ChEsher(QtGui.QMainWindow):
     def help(self):
         
         abs_path = pth.abspath('.')
-        filename = pth.join(abs_path, 'help/index.html')
+        filename = pth.join(abs_path, 'documentation/0_index.html')
         webbrowser.open(filename)
 
     def helpAbout(self):
         """Setup the About-dialog."""
         msg = u"""<p><b>ChEsher</b> V 1.0</p>
-                    <p>Tool to create linear structure meshes like channels out of cross section profiles, breaklines and boundary lines.</p>
+                    <p>Interface tool between BlueKenue and dxf file format.</p>
                     <p>Copyright \u00A9 2015 <a href="mailto:reinhard.fleissner@gmail.com?subject=ChEsher">Reinhard Flei\xdfner</a></p>
                     <hr/>
                     <p>Python {0} - Qt {1} - PyQt {2} - {3}</p>""".format(

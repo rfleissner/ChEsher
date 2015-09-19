@@ -650,10 +650,12 @@ class ChEsher(QtGui.QMainWindow):
             checkBox.setChecked(True)
             pushButton.setEnabled(True)
             lineEdit.setEnabled(True)
-            
-        self.directory = "C:/ChEsher/"
-#        self.directory = pth.abspath('.')
+          
+#        self.directory = "C:/ChEsher/"
+        abs_path = pth.abspath('.')
+        self.directory = pth.join(abs_path, 'examples/').replace('\\', '/')
         
+        print self.directory
         ###   ~   module DXF2BK   ~   ###
         
         self.ui.tableWidgetDXF2BK.setRowCount(0)
@@ -754,8 +756,8 @@ class ChEsher(QtGui.QMainWindow):
 
         ###   ~   module 2DM   ~   ###
 
-        self.ui.lineEdit2dmInput.setText(self.directory + "Modell_Sulm_HW30.2dm")
-        self.ui.lineEdit2dmInputData.setText(self.directory + "WSPL_max_HW30.dat")
+        self.ui.lineEdit2dmInput.setText(self.directory + "input.2dm")
+        self.ui.lineEdit2dmInputData.setText(self.directory + "water_depth.dat")
         
         setEnabled(self.ui.checkBox2dmBottom, self.ui.pushButton2dmBottom, self.ui.lineEdit2dmBottom)
         setEnabled(self.ui.checkBox2dmBottomFriction, self.ui.pushButton2dmBottomFriction, self.ui.lineEdit2dmBottomFriction)
@@ -782,9 +784,6 @@ class ChEsher(QtGui.QMainWindow):
         self.ui.lineEdit2dmNS5.setText(self.directory + "example_8/output/NS5.i2s")
         self.ui.lineEdit2dmNS6.setText(self.directory + "example_8/output/NS6.i2s")
         self.ui.lineEdit2dmNS7.setText(self.directory + "example_8/output/NS7.i2s")
-
-
-  
 
         
     def setDXF2BK(self):

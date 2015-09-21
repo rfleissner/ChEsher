@@ -58,7 +58,7 @@
 :EndViewType CEnSim3DView
 
 :ObjectType CLine3DSet
-:FullFileName C:\ChEsher\examples\example_3\PROFILES.i3s
+:FullFileName C:\Users\rfleissner\Desktop\ChEsher\examples\example_3\PROFILES.i3s
 :ClipContours 1
 :IsMonochrome 1
 :IsTransparent 0
@@ -134,7 +134,7 @@
 :EndObjectType CLine3DSet
 
 :ObjectType CLine2DSet
-:FullFileName C:\ChEsher\examples\example_3\AXIS.i2s
+:FullFileName C:\Users\rfleissner\Desktop\ChEsher\examples\example_3\AXIS.i2s
 :ClipContours 1
 :IsMonochrome 1
 :IsTransparent 0
@@ -210,7 +210,7 @@
 :EndObjectType CLine2DSet
 
 :ObjectType CLine3DSet
-:FullFileName C:\ChEsher\examples\example_3\LEFT_BOUNDARY.i3s
+:FullFileName C:\Users\rfleissner\Desktop\ChEsher\examples\example_3\LEFT_BOUNDARY.i3s
 :ClipContours 1
 :IsMonochrome 1
 :IsTransparent 0
@@ -286,7 +286,7 @@
 :EndObjectType CLine3DSet
 
 :ObjectType CLine3DSet
-:FullFileName C:\ChEsher\examples\example_3\RIGHT_BOUNDARY.i3s
+:FullFileName C:\Users\rfleissner\Desktop\ChEsher\examples\example_3\RIGHT_BOUNDARY.i3s
 :ClipContours 1
 :IsMonochrome 1
 :IsTransparent 0
@@ -362,7 +362,7 @@
 :EndObjectType CLine3DSet
 
 :ObjectType CT32DScalar
-:FullFileName C:\ChEsher\examples\example_3\output\MESH.t3s
+:FullFileName C:\Users\rfleissner\Desktop\ChEsher\examples\example_3\output\MESH.t3s
 :ClipContours 1
 :IsMonochrome 1
 :IsTransparent 0
@@ -438,7 +438,7 @@
 :EndObjectType CT32DScalar
 
 :ObjectType CT32DScalar
-:FullFileName C:\ChEsher\examples\example_3\output\MESH.t3s
+:FullFileName C:\Users\rfleissner\Desktop\ChEsher\examples\example_3\output\MESH.t3s
 :ClipContours 1
 :IsMonochrome 1
 :IsTransparent 0

@@ -203,7 +203,12 @@ def readI2S(filename):
     return readI3S(filename, 2)
 
 def readI3S(filename, dim=3):
-
+    def num(s):
+        try:
+            return int(s)
+        except ValueError:
+            return float(s)
+        
     nodestrings = {}
     nodes = {}
 
@@ -214,17 +219,15 @@ def readI3S(filename, dim=3):
     endheader = False
     nodecounter = 0
     profilecounter = 0
-
+    from types import IntType
     for line in range(len(content)):
         keyword = ''
         if len(content[line].split()) > 0:
             keyword = content[line].split()[0]
             values = content[line].split()
             if endheader is True:
-                line = content[line].split('.')
-                chars = len(line[0])
-                size = len(line)
-                if size == 1 and chars > 2:
+                line = content[line].split()
+                if type(num(line[0])) is IntType:
                     profilecounter += 1
                     nodestrings[profilecounter] = []
                 else:
@@ -847,6 +850,9 @@ def readDXF(dxf, layer):
     
     layer_entities = [entity for entity in dxf.entities if entity.layer == layer]
 
+#    print layer_entities[0].points
+    
+
     for e in layer_entities:
         dxftype = e.dxftype
         if dxftype == 'POINT':
@@ -859,12 +865,19 @@ def readDXF(dxf, layer):
             strings[stringcounter] = [nodecounter, nodecounter+1]
             nodecounter += 2
             stringcounter += 1
-        elif dxftype in ['POLYLINE', 'LWPOLYLINE']:
+        elif dxftype == 'LWPOLYLINE':
             strings[stringcounter] = []
-            for point in e.points:
-                if len(point) == 2:
+            for point in e.points:             
+                nodes[nodecounter] = convertTuple(point, 2)
+                strings[stringcounter].append(nodecounter)
+                nodecounter +=1
+            stringcounter += 1
+        elif dxftype == 'POLYLINE':
+            strings[stringcounter] = []
+            for point in e.points():             
+                if e.mode == "polyline2d":
                     nodes[nodecounter] = convertTuple(point, 2)
-                elif len(point) == 3:
+                elif e.mode == "polyline3d":
                     nodes[nodecounter] = convertTuple(point, 3)
                 strings[stringcounter].append(nodecounter)
                 nodecounter +=1

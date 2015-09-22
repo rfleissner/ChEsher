@@ -81,7 +81,7 @@ class ChEsher(QtGui.QMainWindow):
         self.setScalarAction = self.createAction("ScalarDXF", slot=self.setScalarDXF, shortcut="F6")
         self.setVectorAction = self.createAction("VectorDXF", slot=self.setVectorDXF, shortcut="F7")
         self.setCSAction = self.createAction("CS", slot=self.setCS, shortcut="F8")
-        self.set2DMAction = self.createAction("2DM", slot=self.set2DM, shortcut="F9")
+        self.set2DMAction = self.createAction("2DM", slot=self.set2DM2BK, shortcut="F9")
 
         self.helpAboutAction = self.createAction("&About", \
             self.helpAbout)
@@ -377,7 +377,7 @@ class ChEsher(QtGui.QMainWindow):
         self.callbackSave2dmNS7 = functools.partial(self.getSaveFileName, "Save Node String As", "Line Sets (*.i2s)", self.ui.lineEdit2dmNS7)
         QtCore.QObject.connect(self.ui.pushButton2dmNS7, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSave2dmNS7)
 
-        QtCore.QObject.connect(self.ui.pushButton2dmConvert, QtCore.SIGNAL("clicked()"), self.create2DM)
+        QtCore.QObject.connect(self.ui.pushButton2dmConvert, QtCore.SIGNAL("clicked()"), self.create2DM2BK)
 
         self.setDXF2BK()        
 
@@ -399,7 +399,7 @@ class ChEsher(QtGui.QMainWindow):
             QMessageBox.critical(self, "Error", "Not able to write LandXML!")
             return
 
-    def create2DM(self):
+    def create2DM2BK(self):
     
         SMS_elements, \
             SMS_nodes,\
@@ -589,7 +589,7 @@ class ChEsher(QtGui.QMainWindow):
             except:
                 info += " - ERROR: Not able to write node string 7!\n"
 
-        QMessageBox.information(self, "Module 2DM", info)
+        QMessageBox.information(self, "Module 2DM2BK", info)
         
     def createDXF2BK(self):
         info = ""
@@ -813,8 +813,8 @@ class ChEsher(QtGui.QMainWindow):
         self.ui.labelModule.setText("~   Module CS   ~")
         self.ui.stackedWidget.setCurrentIndex(6)
         
-    def set2DM(self):
-        self.ui.labelModule.setText("~   Module 2DM   ~")
+    def set2DM2BK(self):
+        self.ui.labelModule.setText("~   Module 2DM2BK   ~")
         self.ui.stackedWidget.setCurrentIndex(7)
                 
     def setDirectory(self):

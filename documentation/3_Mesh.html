@@ -3,7 +3,7 @@
 <body>
 <h1>Module Mesh</h1>
 <p>
-This module can be used to create linear interpolated meshes (e.g. dams, structures, road corridors, embankments, channels, etc.) out of profiles, boundary and break lines. Module DXF2BK can be used to convert the geometry from a CAD model. An axis defines the order of the profiles, if they are not defined consecutively. 
+This module can be used to create linear interpolated meshes (e.g. dams, structures, road corridors, embankments, channels, etc.) out of profiles, boundary and break lines. Module DXF2BK can be used to convert the geometry from a CAD model. An axis defines the order of the profiles, if they are not defined consecutively.
 
 The following conventions have to be considered:
 <ul>
@@ -16,15 +16,15 @@ The following conventions have to be considered:
 The profiles have to be from type 3D Line Set (*.i3s). The boundary or break lines can be from type 2D Line Set (*.i2s) or 3D Line Set (*.i3s). In case of 2D Line Sets the mesh is just interpolated between the profiles. In case of 3D Line Sets also the elevation of the boundary or break lines can be considered by checking <b>Elevation correction.</b> The element length and the number of nodes can be varied.<br>
 Besides generating the mesh also the interpolated profiles, the left and right edge of the mesh and the outline of the mesh can be generated. By generating a workspace file, the results can easily be loaded into Blue Kenue.
 </p>
-<h2>Example 2: Spillway</h2>
+<h2>Example 3: Spillway</h2>
 
 <p>
 A spillway section with stilling basin from a hydropower plant as shown in the following picture should be meshed. The geometry could be obtained from a CAD model by module <b>DXF2BK.</b>
 </p>
 <p>
 <center>
-<a href="pics/2_contours.png" target="_blank">
-<img src="pics/2_contours.png" width="459"/>
+<a href="pics/example_3/3_contours.png" target="_blank">
+<img src="pics/example_3/3_contours.png"/>
 </a>
 </center>
 </p>
@@ -34,24 +34,24 @@ After starting ChEsher with the module <b>Mesh</b> the profiles are loaded throu
 </p>
 <p>
 <center>
-<a href="pics/2_input.png" target="_blank">
-<img src="pics/2_input.png" height="355"/>
+<a href="pics/example_3/3_input.png" target="_blank">
+<img src="pics/example_3/3_input.png"/>
 </a>
 </center>
 </p>
 By pressing the <b>Let's go!</b> button the meshing process is started. When the procress is done, some information about the results is given.
 <p>
 <center>
-<a href="pics/2_info.png" target="_blank">
-<img src="pics/2_info.png" width="321"/>
+<a href="pics/example_3/3_info.png" target="_blank">
+<img src="pics/example_3/3_info.png"/>
 </a>
 </center>
 </p>
 The converted geometric entities can now be loaded with Blue Kenue as shown in the following picture.
 <p>
 <center>
-<a href="pics/2_results.png" target="_blank">
-<img src="pics/2_results.png" width="662"/>
+<a href="pics/example_3/3_output.png" target="_blank">
+<img src="pics/example_3/3_output.png"/>
 </a>
 </center>
 </p>

@@ -1,7 +1,45 @@
 <html><head>
-<title>Image Changer - Edit Menu</title></head>
+<title>ChEsher - BK2DXF</title></head>
 <body>
+<h1>Module BK2DXF</h1>
 <p>
-<font color=red><i>Work in progress...</i></font>
+This module converts meshes (2D T3 Scalar Mesh) and line sets (2D and 3D Line Set) from BlueKenue to a dxf file. The type of the mesh can be selected between
+<ul>
+<li>3D Face and</li>
+<li>polyline.</li>
+</ul>
+</p>
+
+<h2>Example 2: Converting BK geometries to DXF</h2>
+
+<p>
+The water depths and the zero depth contour line from the simulation case A from the Telemac 2d validation test case <b>donau</b> should be converted to dxf file format.
+</p>
+<p>
+Open the results file from the test case A with BlueKenue and save the last step from the water depths to a 2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s). Extract an isoline from the water depth mesh and specify the isolevel value to 0.0 and save it to a 2D Line Set (*.i2s).
+Load the mesh and the line set into the corresponding lines and select the type of mesh to be generated. Define the output file names.
+</p>
+<p>
+<center>
+<a href="pics/example_2/2_input.png" target="_blank">
+<img src="pics/example_2/2_input.png"/>
+</a>
+</center>
+</p>
+Start the process by pressing the <b>Let's go!</b> button. When the process is done, some information about the results is given.
+<p>
+<center>
+<a href="pics/example_2/2_info.png" target="_blank">
+<img src="pics/example_2/2_info.png"/>
+</a>
+</center>
+</p>
+The resulting DXF file can now be imported to a CAD software. The following picture shows a part from the domain with the mesh and the contour.
+<p>
+<center>
+<a href="pics/example_2/2_output.png" target="_blank">
+<img src="pics/example_2/2_output.png"/>
+</a>
+</center>
 </p>
 </body></html>

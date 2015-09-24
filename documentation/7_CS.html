@@ -1,7 +1,43 @@
 <html><head>
-<title>Image Changer - Edit Menu</title></head>
+<title>ChEsher - CS</title></head>
 <body>
+<h1>Module CS</h1>
 <p>
-<font color=red><i>Work in progress...</i></font>
+This module creates a formatted data file from the sections input and output files, that can further be processed by a spreadsheet software. The sections can also be extracted to a dxf file, where the names of the sections and the minimum and maximum flows are displayed.
+The decimal points for the time steps and the flow can be varied. The size factor influences the symbol and text size in the dxf file. A flow prefix and suffix can be specified.
+</p>
+
+<h2>Example 7: Processing section results</h2>
+
+<p>
+The section results from the simulation case A from the Telemac 2d validation test case <b>donau</b> should be converted to a formatted text file and the sections should be converted to a dxf file.
+</p>
+<p>
+Select the
+Open the results file from the test case A with BlueKenue and save the last step from the water depths to a 2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s). Extract an isoline from the water depth mesh and specify the isolevel value to 0.0 and save it to a 2D Line Set (*.i2s).
+Load the mesh and the line set into the corresponding lines and define the decimal points for the time steps and the flow, the size factor for the dxf symbols and the flow pre- and suffix.
+</p>
+<p>
+<center>
+<a href="pics/example_7/7_input.png" target="_blank">
+<img src="pics/example_7/7_input.png"/>
+</a>
+</center>
+</p>
+Start the process by pressing the <b>Let's go!</b> button. When the process is done, some information about the results is given.
+<p>
+<center>
+<a href="pics/example_7/7_info.png" target="_blank">
+<img src="pics/example_7/7_info.png"/>
+</a>
+</center>
+</p>
+The resulting formatted data file can now be processed by a spreadsheet software. The obtained DXF file can now be imported to a CAD software. The following picture shows a part from the domain with the sections. The mesh in the background can be obtained by module <b>BK2DXF</b> or <b>LandXML</b>
+<p>
+<center>
+<a href="pics/example_7/7_output_txt.png" target="_blank">
+<img src="pics/example_7/7_output_txt.png"/>
+</a>
+</center>
 </p>
 </body></html>

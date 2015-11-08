@@ -3,7 +3,9 @@
 <body>
 <h1>Module ScalarDXF</h1>
 <p>
-This module extracts scalar values on a given grid from a 2D T3 Mesh (*.t3s) to a DXF file. A major and minor mesh can be defined, e.g. the water surface for the major and the water depth for the minor mesh. Both scalar values are then extracted for each grid point. The grid spacing can be selected for both x- and y-direction. A bound can be defined to just extract values in the given range. If <b>Use monochrome colors</b> is not checked, positive values are extracted in red, negative ones in green.
+The influence of flood protection measures in form of differences of the water surface and the change in flood areas between the actual and the future state often are relevant. Therefore colour ranges of water surface differences are mostly less accurate and concrete values are demanded, which can be produced with this module. The module can also be used to extract values from a major and a minor mesh to a rasterized grid. For example, the water surface could be the major mesh and the water depths could be the minor mesh. Both scalar values are then extracted for each grid point.
+<br>
+The given grids have the 2D T3 Mesh (*.t3s) file format. The scalar values are written to a DXF file. The grid spacing can be selected for both x- and y-direction. A bound can be defined to just extract values in the given range. If <b>Use monochrome colors</b> is not checked, positive values are extracted in red, negative ones in green.
 </p>
 
 <h2>Example 5: Comparing results</h2>

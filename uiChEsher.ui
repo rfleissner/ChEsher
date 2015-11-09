@@ -118,6 +118,9 @@
               <height>16777215</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string>load content from dxf file</string>
+            </property>
             <property name="text">
              <string>refresh</string>
             </property>
@@ -137,6 +140,9 @@
               <height>16777215</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string>add layer to table</string>
+            </property>
             <property name="text">
              <string>add</string>
             </property>
@@ -155,6 +161,9 @@
               <width>100</width>
               <height>16777215</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>delete selected layer from table</string>
             </property>
             <property name="text">
              <string>delete</string>
@@ -865,6 +874,9 @@
             <height>16777215</height>
            </size>
           </property>
+          <property name="toolTip">
+           <string>approximate along channel interval</string>
+          </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
@@ -924,6 +936,9 @@
             <width>100</width>
             <height>16777215</height>
            </size>
+          </property>
+          <property name="toolTip">
+           <string>cross right overbank node count</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1061,6 +1076,9 @@
             <height>16777215</height>
            </size>
           </property>
+          <property name="toolTip">
+           <string>cross left overbank node count</string>
+          </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
@@ -1085,6 +1103,9 @@
             <width>100</width>
             <height>16777215</height>
            </size>
+          </property>
+          <property name="toolTip">
+           <string>cross channel node count</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1362,6 +1383,9 @@
         </item>
         <item row="8" column="0" colspan="2">
          <widget class="QCheckBox" name="checkBoxScalarDXFMonochrome">
+          <property name="toolTip">
+           <string>monochrome symbols and values, otherwise red for positive values and green for negative values</string>
+          </property>
           <property name="text">
            <string>Use monochrome colors</string>
           </property>
@@ -1394,6 +1418,9 @@
             <height>16777215</height>
            </size>
           </property>
+          <property name="toolTip">
+           <string>higher values are ignored</string>
+          </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
@@ -1410,7 +1437,7 @@
            <double>1.000000000000000</double>
           </property>
           <property name="value">
-           <double>100.000000000000000</double>
+           <double>10000.000000000000000</double>
           </property>
          </widget>
         </item>
@@ -1427,6 +1454,9 @@
             <width>100</width>
             <height>16777215</height>
            </size>
+          </property>
+          <property name="toolTip">
+           <string>lower values are ignored</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1461,6 +1491,9 @@
             <width>100</width>
             <height>16777215</height>
            </size>
+          </property>
+          <property name="toolTip">
+           <string>grid interval in y-direction</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1502,6 +1535,9 @@
             <width>100</width>
             <height>16777215</height>
            </size>
+          </property>
+          <property name="toolTip">
+           <string>grid interval in x-direction</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1553,6 +1589,9 @@
             <width>100</width>
             <height>16777215</height>
            </size>
+          </property>
+          <property name="toolTip">
+           <string>text size</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1741,6 +1780,9 @@
         </item>
         <item row="7" column="3">
          <widget class="QDoubleSpinBox" name="doubleSpinBoxScalarDXFLessThan">
+          <property name="toolTip">
+           <string>ignore values less than given difference from zero</string>
+          </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
@@ -1776,6 +1818,9 @@
             <height>16777215</height>
            </size>
           </property>
+          <property name="toolTip">
+           <string>factor from amplitude to vector length</string>
+          </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
@@ -1810,6 +1855,9 @@
             <height>16777215</height>
            </size>
           </property>
+          <property name="toolTip">
+           <string>higher values are ignored</string>
+          </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
@@ -1843,6 +1891,9 @@
             <width>100</width>
             <height>16777215</height>
            </size>
+          </property>
+          <property name="toolTip">
+           <string>grid interval in y-direction</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1897,6 +1948,9 @@
             <width>100</width>
             <height>16777215</height>
            </size>
+          </property>
+          <property name="toolTip">
+           <string>lower values are ignored</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -2065,6 +2119,9 @@
             <height>16777215</height>
            </size>
           </property>
+          <property name="toolTip">
+           <string>grid interval in x-direction</string>
+          </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
@@ -2104,6 +2161,9 @@
         </item>
         <item row="6" column="3">
          <widget class="QDoubleSpinBox" name="doubleSpinBoxVectorDXFLessThan">
+          <property name="toolTip">
+           <string>ignore values less than given difference from zero</string>
+          </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
@@ -2483,6 +2543,9 @@
             <width>100</width>
             <height>16777215</height>
            </size>
+          </property>
+          <property name="toolTip">
+           <string>text size</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3137,6 +3200,163 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>pushButtonDXF2BKInput</tabstop>
+  <tabstop>lineEditDXF2BKInput</tabstop>
+  <tabstop>pushButtonRefresh</tabstop>
+  <tabstop>pushButtonAdd</tabstop>
+  <tabstop>pushButtonDelete</tabstop>
+  <tabstop>pushButtonOpen</tabstop>
+  <tabstop>tableWidgetDXF2BK</tabstop>
+  <tabstop>pushButtonDXF2BKConvert</tabstop>
+  <tabstop>pushButtonBK2DXFInputMesh</tabstop>
+  <tabstop>lineEditBK2DXFInputMesh</tabstop>
+  <tabstop>pushButtonBK2DXFInputLineSet</tabstop>
+  <tabstop>lineEditBK2DXFInputLineSet</tabstop>
+  <tabstop>radioButtonBK2DXF3DFace</tabstop>
+  <tabstop>radioButtonBK2DXFPolyline</tabstop>
+  <tabstop>checkBoxBK2DXFOutputMesh</tabstop>
+  <tabstop>pushButtonBK2DXFOutputMesh</tabstop>
+  <tabstop>lineEditBK2DXFOutputMesh</tabstop>
+  <tabstop>checkBoxBK2DXFOutputLineSet</tabstop>
+  <tabstop>pushButtonBK2DXFOutputLineSet</tabstop>
+  <tabstop>lineEditBK2DXFOutputLineSet</tabstop>
+  <tabstop>pushButtonBK2DXFCreate</tabstop>
+  <tabstop>pushButtonProfiles</tabstop>
+  <tabstop>lineEditProfiles</tabstop>
+  <tabstop>pushButtonReach</tabstop>
+  <tabstop>lineEditReach</tabstop>
+  <tabstop>checkBoxLBL</tabstop>
+  <tabstop>pushButtonLBL</tabstop>
+  <tabstop>lineEditLBL</tabstop>
+  <tabstop>checkBoxRBL</tabstop>
+  <tabstop>pushButtonRBL</tabstop>
+  <tabstop>lineEditRBL</tabstop>
+  <tabstop>checkBoxLBO</tabstop>
+  <tabstop>pushButtonLBO</tabstop>
+  <tabstop>lineEditLBO</tabstop>
+  <tabstop>checkBoxRBO</tabstop>
+  <tabstop>pushButtonRBO</tabstop>
+  <tabstop>lineEditRBO</tabstop>
+  <tabstop>checkBoxEC</tabstop>
+  <tabstop>doubleSpinBoxEL</tabstop>
+  <tabstop>spinBoxNNL</tabstop>
+  <tabstop>spinBoxNNC</tabstop>
+  <tabstop>spinBoxNNR</tabstop>
+  <tabstop>checkBoxMesh</tabstop>
+  <tabstop>pushButtonMesh</tabstop>
+  <tabstop>lineEditMesh</tabstop>
+  <tabstop>checkBoxIP</tabstop>
+  <tabstop>pushButtonIP</tabstop>
+  <tabstop>lineEditIP</tabstop>
+  <tabstop>checkBoxLE</tabstop>
+  <tabstop>pushButtonLE</tabstop>
+  <tabstop>lineEditLE</tabstop>
+  <tabstop>checkBoxRE</tabstop>
+  <tabstop>pushButtonRE</tabstop>
+  <tabstop>lineEditRE</tabstop>
+  <tabstop>checkBoxOL</tabstop>
+  <tabstop>pushButtonOL</tabstop>
+  <tabstop>lineEditOL</tabstop>
+  <tabstop>checkBoxWS</tabstop>
+  <tabstop>pushButtonWS</tabstop>
+  <tabstop>lineEditWS</tabstop>
+  <tabstop>pushButtonCreate</tabstop>
+  <tabstop>pushButtonLandXMLInputMesh</tabstop>
+  <tabstop>lineEditLandXMLInputMesh</tabstop>
+  <tabstop>lineEditLandXMLSurfaceName</tabstop>
+  <tabstop>pushButtonLandXMLOutput</tabstop>
+  <tabstop>lineEditLandXMLOutput</tabstop>
+  <tabstop>pushButtonLandXMLCreate</tabstop>
+  <tabstop>pushButtonScalarDXFInputT3SMajor</tabstop>
+  <tabstop>lineEditScalarDXFInputT3SMajor</tabstop>
+  <tabstop>pushButtonScalarDXFInputT3SMinor</tabstop>
+  <tabstop>lineEditScalarDXFInputT3SMinor</tabstop>
+  <tabstop>doubleSpinBoxScalarDXFDX</tabstop>
+  <tabstop>doubleSpinBoxScalarDXFDY</tabstop>
+  <tabstop>doubleSpinBoxScalarDXFSMin</tabstop>
+  <tabstop>doubleSpinBoxScalarDXFSMax</tabstop>
+  <tabstop>doubleSpinBoxScalarDXFSizeFactor</tabstop>
+  <tabstop>doubleSpinBoxScalarDXFLessThan</tabstop>
+  <tabstop>checkBoxScalarDXFMonochrome</tabstop>
+  <tabstop>radioButtonScalarDXFCircle</tabstop>
+  <tabstop>radioButtonScalarDXFCross</tabstop>
+  <tabstop>radioButtonScalarDXFCrosshairs</tabstop>
+  <tabstop>radioButtonScalarDXFNone</tabstop>
+  <tabstop>pushButtonScalarDXFOutput</tabstop>
+  <tabstop>lineEditScalarDXFOutput</tabstop>
+  <tabstop>pushButtonScalarDXFCreate</tabstop>
+  <tabstop>pushButtonVectorDXFInput</tabstop>
+  <tabstop>lineEditVectorDXFInput</tabstop>
+  <tabstop>doubleSpinBoxVectorDXFDX</tabstop>
+  <tabstop>doubleSpinBoxVectorDXFDY</tabstop>
+  <tabstop>doubleSpinBoxVectorDXFVMin</tabstop>
+  <tabstop>doubleSpinBoxVectorDXFVMax</tabstop>
+  <tabstop>doubleSpinBoxVectorDXFScale</tabstop>
+  <tabstop>doubleSpinBoxVectorDXFLessThan</tabstop>
+  <tabstop>pushButtonVectorDXFOutput</tabstop>
+  <tabstop>lineEditVectorDXFOutput</tabstop>
+  <tabstop>pushButtonVectorDXFCreate</tabstop>
+  <tabstop>pushButtonCSInputMesh</tabstop>
+  <tabstop>lineEditCSInputMesh</tabstop>
+  <tabstop>pushButtonCSInputDefinition</tabstop>
+  <tabstop>lineEditCSInputDefinition</tabstop>
+  <tabstop>pushButtonCSInputResults</tabstop>
+  <tabstop>lineEditCSInputResults</tabstop>
+  <tabstop>spinBoxCSTime</tabstop>
+  <tabstop>spinBoxCSFlow</tabstop>
+  <tabstop>doubleSpinBoxCSSizeFactor</tabstop>
+  <tabstop>lineEditCSInputPrefix</tabstop>
+  <tabstop>lineEditCSInputSuffix</tabstop>
+  <tabstop>checkBoxCSOutputFormatted</tabstop>
+  <tabstop>pushButtonCSOutputFormatted</tabstop>
+  <tabstop>lineEditCSOutputFormatted</tabstop>
+  <tabstop>checkBoxCSOutputCS</tabstop>
+  <tabstop>pushButtonCSOutputCS</tabstop>
+  <tabstop>lineEditCSOutputCS</tabstop>
+  <tabstop>pushButtonCSCreate</tabstop>
+  <tabstop>pushButton2dmInput</tabstop>
+  <tabstop>lineEdit2dmInput</tabstop>
+  <tabstop>pushButton2dmInputData</tabstop>
+  <tabstop>lineEdit2dmInputData</tabstop>
+  <tabstop>checkBox2dmBottom</tabstop>
+  <tabstop>pushButton2dmBottom</tabstop>
+  <tabstop>lineEdit2dmBottom</tabstop>
+  <tabstop>checkBox2dmBottomFriction</tabstop>
+  <tabstop>pushButton2dmBottomFriction</tabstop>
+  <tabstop>lineEdit2dmBottomFriction</tabstop>
+  <tabstop>checkBox2dmWaterSurface</tabstop>
+  <tabstop>pushButton2dmWaterSurface</tabstop>
+  <tabstop>lineEdit2dmWaterSurface</tabstop>
+  <tabstop>checkBox2dmWaterDepth</tabstop>
+  <tabstop>pushButton2dmWaterDepth</tabstop>
+  <tabstop>lineEdit2dmWaterDepth</tabstop>
+  <tabstop>checkBox2dmCulvertHeight</tabstop>
+  <tabstop>pushButton2dmCulvertHeight</tabstop>
+  <tabstop>lineEdit2dmCulvertHeight</tabstop>
+  <tabstop>checkBox2dmNS1</tabstop>
+  <tabstop>pushButton2dmNS1</tabstop>
+  <tabstop>lineEdit2dmNS1</tabstop>
+  <tabstop>checkBox2dmNS2</tabstop>
+  <tabstop>pushButton2dmNS2</tabstop>
+  <tabstop>lineEdit2dmNS2</tabstop>
+  <tabstop>checkBox2dmNS3</tabstop>
+  <tabstop>pushButton2dmNS3</tabstop>
+  <tabstop>lineEdit2dmNS3</tabstop>
+  <tabstop>checkBox2dmNS4</tabstop>
+  <tabstop>pushButton2dmNS4</tabstop>
+  <tabstop>lineEdit2dmNS4</tabstop>
+  <tabstop>checkBox2dmNS5</tabstop>
+  <tabstop>pushButton2dmNS5</tabstop>
+  <tabstop>lineEdit2dmNS5</tabstop>
+  <tabstop>checkBox2dmNS6</tabstop>
+  <tabstop>pushButton2dmNS6</tabstop>
+  <tabstop>lineEdit2dmNS6</tabstop>
+  <tabstop>checkBox2dmNS7</tabstop>
+  <tabstop>pushButton2dmNS7</tabstop>
+  <tabstop>lineEdit2dmNS7</tabstop>
+  <tabstop>pushButton2dmConvert</tabstop>
+ </tabstops>
  <resources>
   <include location="resource.qrc"/>
  </resources>

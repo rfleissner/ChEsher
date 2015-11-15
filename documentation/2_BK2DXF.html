@@ -1,28 +1,32 @@
 <html><head>
+<center>
+<a href="0_index.html">main page</a>
+<hr>
+</center>
 <title>ChEsher - BK2DXF</title></head>
 <body>
 <h1>Module BK2DXF</h1>
 <p>
-This module converts meshes (2D T3 Scalar Mesh) and line sets (2D and 3D Line Set) from BlueKenue to a dxf file. The type of the mesh can be selected between
+This module converts 2D T3 Scalar Meshes (*.t3s) and 2D or 3D Line Sets (*.i2s, *.i3s) from Blue Kenue&trade; to a DXF file. The type of the mesh elements can be selected between the types
 <ul>
 <li>3D Face and</li>
 <li>polyline.</li>
 </ul>
 </p>
 
-<h2>Example 2: Converting BK geometries to DXF</h2>
+<h2>Example 2: Converting geometries from Blue Kenue&trade; to DXF file</h2>
 
 <p>
-The water depths and the zero depth contour line from the simulation case A from the Telemac 2d validation test case <b>donau</b> should be converted to dxf file format.
+The water depths and the zero depth contour line from the simulation case A from the Telemac 2d validation test case <b><i>donau</i></b> should be converted to dxf file format.
 </p>
 <p>
-Open the results file from the test case A with BlueKenue and save the last step from the water depths to a 2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s). Extract an isoline from the water depth mesh and specify the isolevel value to 0.0 and save it to a 2D Line Set (*.i2s).
-Load the mesh and the line set into the corresponding lines and select the type of mesh to be generated. Define the output file names.
+Open the results file from the test case A with Blue Kenue&trade; and save the last step from the water depths to a 2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s). Extract an isoline from the water depth mesh and specify the isolevel value to 0.0 and save it to a 2D Line Set (*.i2s).
+Go to ChEsher module <b>BK2DXF</b> and load the mesh and the line set into the corresponding lines. Select the type of mesh to be generated. Define the output file names.
 </p>
 <p>
 <center>
 <a href="pics/example_2/2_input.png" target="_blank">
-<img src="pics/example_2/2_input.png"/>
+<img src="pics/example_2/thumbnails/2_input.png"/>
 </a>
 </center>
 </p>
@@ -30,7 +34,7 @@ Start the process by pressing the <b>Let's go!</b> button. When the process is d
 <p>
 <center>
 <a href="pics/example_2/2_info.png" target="_blank">
-<img src="pics/example_2/2_info.png"/>
+<img src="pics/example_2/thumbnails/2_info.png"/>
 </a>
 </center>
 </p>
@@ -38,8 +42,12 @@ The resulting DXF file can now be imported to a CAD software. The following pict
 <p>
 <center>
 <a href="pics/example_2/2_output.png" target="_blank">
-<img src="pics/example_2/2_output.png"/>
+<img src="pics/example_2/thumbnails/2_output.png"/>
 </a>
 </center>
 </p>
+<center>
+<hr>
+<a href="0_index.html">main page</a>
+</center>
 </body></html>

@@ -1,3 +1,4 @@
-- correct documentation, continue at 6_VectorDXF
-- license in xource files
+- correct documentation, continue at 7_CS
+- license in source files
 - results pictures
+- packages in source files

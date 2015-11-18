@@ -1483,7 +1483,7 @@ class ChEsher(QtGui.QMainWindow):
     def helpAbout(self):
         """Setup the About-dialog."""
         msg = u"""<p><b>ChEsher</b> V 1.0</p>
-                    <p>Interface tool between BlueKenue and dxf file format.</p>
+                    <p>Additional tool to <a href="http://www.nrc-cnrc.gc.ca/eng/solutions/advisory/blue_kenue_index.html">Blue Kenue&trade;</a> that is a pre and post processing software for the <a href="http://www.opentelemac.org/">open TELEMAC-MASCARET</a> system - an integrated suite of solvers for use in the field of free-surface flow of hydraulic modeling. </p>
                     <p>Copyright \u00A9 2015 <a href="mailto:reinhard.fleissner@gmail.com?subject=ChEsher">Reinhard Flei\xdfner</a></p>
                     <hr/>
                     <p>Python {0} - Qt {1} - PyQt {2} - {3}</p>""".format(

@@ -2,3 +2,4 @@
 - license in source files
 - results pictures
 - packages in source files
+- help about

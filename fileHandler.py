@@ -1,18 +1,16 @@
 #!/usr/bin/python -d
-# Copyright (c) 2014 Reinhard Fleissner. All rights reserved.
-# This program or module is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published
-# by the Free Software Foundation, either version 2 of the License, or
-# version 3 of the License, or (at your option) any later version.
-# This program or module and its documentation is provided for engineers,
-# educational purposes, research and for non-profit consulting purposes and
-# is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-# PARTICULAR PURPOSE. In no event shall TU Graz be liable to any party for
-# direct, indirect, special, incidental, or consequential damages, including
-# lost profits, arising out of the use of this software and its documentation,
-# even if TU Graz has been advised of the possibility of such damage.
-# See the GNU General Public License for more details.
+#
+# Copyright (C) 2015  Reinhard Fleissner
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
 
 """Module with functins for reading and writing files."""
 
@@ -97,9 +95,7 @@ def read2DM(filename):
             for i in range(len(values)-2):
                 node_vec.append(int(values[i+2]))
 
-            # if material is not disabled
-            if material_id != 0:
-                SMS_elements[element_id] = node_vec
+            SMS_elements[element_id] = node_vec
 
         # read nodes
         elif keyword == 'ND':

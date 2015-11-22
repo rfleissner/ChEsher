@@ -1,20 +1,18 @@
 #!/usr/bin/python -d
-# Copyright (c) 2014 Reinhard Fleissner. All rights reserved.
-# This program or module is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published
-# by the Free Software Foundation, either version 2 of the License, or
-# version 3 of the License, or (at your option) any later version.
-# This program or module and its documentation is provided for engineers,
-# educational purposes, research and for non-profit consulting purposes and
-# is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-# PARTICULAR PURPOSE. In no event shall TU Graz be liable to any party for
-# direct, indirect, special, incidental, or consequential damages, including
-# lost profits, arising out of the use of this software and its documentation,
-# even if TU Graz has been advised of the possibility of such damage.
-# See the GNU General Public License for more details.
+#
+# Copyright (C) 2015  Reinhard Fleissner
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
 
-"""Main window"""
+"""Main module"""
 
 __author__="Reinhard Fleissner"
 __date__ ="$31.03.2015 18:21:40$"
@@ -304,6 +302,10 @@ class ChEsher(QtGui.QMainWindow):
 
         self.callbackOpen2dmInputData = functools.partial(self.getOpenFileName, "Open Dataset File", "ASCII Dataset Files (*.dat)", self.ui.lineEdit2dmInputData)
         QtCore.QObject.connect(self.ui.pushButton2dmInputData, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpen2dmInputData)
+
+        self.callback2dmImpermeable = functools.partial(self.setEnabled, self.ui.checkBox2dmImpermeable, self.ui.spinBox2dmImpermeable, self.ui.spinBox2dmImpermeable)
+        QtCore.QObject.connect(self.ui.checkBox2dmImpermeable, QtCore.SIGNAL("clicked()"), self.callback2dmImpermeable)
+
         
         self.callback2dmBottom = functools.partial(self.setEnabled, self.ui.checkBox2dmBottom, self.ui.pushButton2dmBottom, self.ui.lineEdit2dmBottom)
         QtCore.QObject.connect(self.ui.checkBox2dmBottom, QtCore.SIGNAL("clicked()"), self.callback2dmBottom)
@@ -435,37 +437,62 @@ class ChEsher(QtGui.QMainWindow):
 
         # convert SMS mesh to BK mesh
         i = 0
+        impermeableMaterialID = self.ui.spinBox2dmImpermeable.value()
+        material_added = False
+#        print SMS_materials
         for key in SMS_elements:
             if len(SMS_elements[key]) == 4:
                 node_0 = SMS_elements[key][0]
                 node_1 = SMS_elements[key][1]
                 node_2 = SMS_elements[key][2]
                 material = SMS_elements[key][3]
+                
+                if material_added is False:
+                    if material not in SMS_materials:
+                        SMS_materials[material] = 0.0
+                        material_added = True
+                    
                 BK_materials[MAP_node_id[node_0]] = SMS_materials[material]
                 BK_materials[MAP_node_id[node_1]] = SMS_materials[material]
                 BK_materials[MAP_node_id[node_2]] = SMS_materials[material]
                 
-                if material != 0:
-
+                if self.ui.checkBox2dmImpermeable.isChecked():
+                    if material != impermeableMaterialID:
+                        i += 1
+                        BK_elements[i] = [MAP_node_id[node_0], MAP_node_id[node_1], MAP_node_id[node_2]]
+                else:
                     i += 1
                     BK_elements[i] = [MAP_node_id[node_0], MAP_node_id[node_1], MAP_node_id[node_2]]
-
+                        
             elif len(SMS_elements[key]) == 5:
                 node_0 = SMS_elements[key][0]
                 node_1 = SMS_elements[key][1]
                 node_2 = SMS_elements[key][2]
                 node_3 = SMS_elements[key][3]
                 material = SMS_elements[key][4]
+                
+                if material_added is False:
+                    if material not in SMS_materials:
+                        SMS_materials[material] = 0.0
+                        material_added = True
+                        
                 BK_materials[MAP_node_id[node_0]] = SMS_materials[material]
                 BK_materials[MAP_node_id[node_1]] = SMS_materials[material]
                 BK_materials[MAP_node_id[node_2]] = SMS_materials[material]
                 BK_materials[MAP_node_id[node_3]] = SMS_materials[material]
-                if material != 0:
+                
+                if self.ui.checkBox2dmImpermeable.isChecked():
+                    if material != impermeableMaterialID:
+                        i += 1
+                        BK_elements[i] = [MAP_node_id[node_0], MAP_node_id[node_1], MAP_node_id[node_2]]
+                        i += 1
+                        BK_elements[i] = [MAP_node_id[node_0], MAP_node_id[node_2], MAP_node_id[node_3]]
+                else:
                     i += 1
                     BK_elements[i] = [MAP_node_id[node_0], MAP_node_id[node_1], MAP_node_id[node_2]]
                     i += 1
                     BK_elements[i] = [MAP_node_id[node_0], MAP_node_id[node_2], MAP_node_id[node_3]]
-        
+                        
         def getStrings(allstrings, strings):
             i = 1
             profiles = {}

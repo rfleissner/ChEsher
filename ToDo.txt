@@ -1,5 +1,3 @@
 - correct documentation, continue at 7_CS
-- license in source files
 - results pictures
 - packages in source files
-- help about

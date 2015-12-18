@@ -667,6 +667,44 @@ class ChEsher(QtGui.QMainWindow):
     def createCont2DXF(self):
         print "create"
     
+        info = ""
+        
+        # read input meshes
+        x, y, z, triangles = fh.readT3STriangulation(self.ui.lineEditCont2DXFInput.text())
+        triang = tri.Triangulation(x, y, triangles)
+        
+        import matplotlib.pyplot as plt
+        cs = plt.tricontourf(triang, z, 2)
+        
+        
+        
+        print len(cs.collections)
+        
+        for i in range(len(cs.collections)):
+            p = cs.collections[i].get_paths()[0]
+            v = p.vertices
+            
+            x = v[:,0]
+            y = v[:,1]
+            print "iiiiiiiiiiiiiiii", i
+            print x
+            print y
+            
+        
+        plt.show()
+        
+        # Interpolate to regularly-spaced quad grid.
+
+
+   
+#        fname = self.ui.lineEditCont2DXFOutput.text()
+#        info += "\n - Number of interpolated values: {0}".format(len(vectorNodes))
+#        fh.writeContourDXF(fname)
+#        info += "\n - {0} values written to {1}".format(nOfVectors, fname)
+        
+        QMessageBox.information(self, "Module VectorDXF", info)
+            
+    
     def getSaveLayerName(self):
         row = self.ui.tableWidgetDXF2BK.currentRow()
         filetype = ("2D Line Set (*.i2s);;3D Line Set (*.i3s);;Point Set (*.xyz)")
@@ -885,10 +923,10 @@ class ChEsher(QtGui.QMainWindow):
 
     def setColour(self):
         row = self.ui.tableWidgetCont2DXF.currentRow()
-        coldia = QtGui.QColorDialog(QtGui.QColor(2,3,4,255))
+        rows = self.ui.tableWidgetCont2DXF.rowCount()
+        coldia = QtGui.QColorDialog()
         col = coldia.getColor()
-        
-        row = self.ui.tableWidgetCont2DXF.currentRow()
+
         item = QtGui.QTableWidgetItem()
         item.setBackground(col)
         item.setFlags(QtCore.Qt.ItemIsEnabled)

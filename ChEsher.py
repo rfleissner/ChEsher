@@ -80,6 +80,7 @@ class ChEsher(QtGui.QMainWindow):
         self.setVectorAction = self.createAction("VectorDXF", slot=self.setVectorDXF, shortcut="F7")
         self.setCSAction = self.createAction("CS", slot=self.setCS, shortcut="F8")
         self.set2DMAction = self.createAction("2DM", slot=self.set2DM2BK, shortcut="F9")
+        self.setCont2DXFAction = self.createAction("Cont2DXF", slot=self.setCont2DXF, shortcut="F10")
 
         self.helpAboutAction = self.createAction("&About", \
             self.helpAbout)
@@ -89,7 +90,7 @@ class ChEsher(QtGui.QMainWindow):
         self.helpMenu = self.menuBar().addMenu("Help")
         # add actions to menu
         self.addActions(self.fileMenu, (self.fileSetDirectory, self.fileSetExamples, None, self.fileQuitAction))
-        self.addActions(self.moduleMenu, (self.setDXFtoBKAction, self.setBK2DXFAction, self.setMeshAction, self.setXMLAction, self.setScalarAction, self.setVectorAction, self.setCSAction, self.set2DMAction ))
+        self.addActions(self.moduleMenu, (self.setDXFtoBKAction, self.setBK2DXFAction, self.setMeshAction, self.setXMLAction, self.setScalarAction, self.setVectorAction, self.setCSAction, self.set2DMAction, self.setCont2DXFAction ))
         self.addActions(self.helpMenu, (self.helpAction, None, self.helpAboutAction))
 
         # variables
@@ -381,6 +382,21 @@ class ChEsher(QtGui.QMainWindow):
 
         QtCore.QObject.connect(self.ui.pushButton2dmConvert, QtCore.SIGNAL("clicked()"), self.create2DM2BK)
 
+# module Cont2DXF
+        self.callbackCont2DXFOpenMeshFile = functools.partial(self.getOpenFileName, "Open T3S-file", "2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s)", self.ui.lineEditCont2DXFInput)
+        QtCore.QObject.connect(self.ui.pushButtonCont2DXFInput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackCont2DXFOpenMeshFile)
+
+        QtCore.QObject.connect(self.ui.pushButtonCont2DXFAdd, QtCore.SIGNAL(_fromUtf8("clicked()")), self.addLevel)
+        QtCore.QObject.connect(self.ui.pushButtonCont2DXFDelete, QtCore.SIGNAL(_fromUtf8("clicked()")), self.deleteLevel)
+
+        self.callbackCont2DXFOut = functools.partial(self.getSaveFileName, "Save Control Sections As", "Drawing Interchange File (*.dxf)", self.ui.lineEditCont2DXFOutput)
+        QtCore.QObject.connect(self.ui.pushButtonCont2DXFOutput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackCont2DXFOut)
+
+        QtCore.QObject.connect(self.ui.pushButtonCont2DXFCreate, QtCore.SIGNAL("clicked()"), self.createCont2DXF)
+
+        header = self.ui.tableWidgetCont2DXF.horizontalHeader()
+        header.setStretchLastSection(True)
+
         self.setDXF2BK()        
 
     def setSymbol(self, i):
@@ -648,6 +664,9 @@ class ChEsher(QtGui.QMainWindow):
                     continue
         QMessageBox.information(self, "Module DXF2BK", info)
         
+    def createCont2DXF(self):
+        print "create"
+    
     def getSaveLayerName(self):
         row = self.ui.tableWidgetDXF2BK.currentRow()
         filetype = ("2D Line Set (*.i2s);;3D Line Set (*.i3s);;Point Set (*.xyz)")
@@ -665,13 +684,21 @@ class ChEsher(QtGui.QMainWindow):
         self.ui.tableWidgetDXF2BK.insertRow(rows)
         self.ui.tableWidgetDXF2BK.setCellWidget(rows, 0, dropdownLayer)
         item = QtGui.QTableWidgetItem()
-        item.setText("")
+        item.setText("33")
         self.ui.tableWidgetDXF2BK.setItem(rows, 1, item)
+
+    def addLevel(self):
+        rows = self.ui.tableWidgetCont2DXF.rowCount()
+        self.ui.tableWidgetCont2DXF.insertRow(rows)
 
     def deleteLayer(self):
         row = self.ui.tableWidgetDXF2BK.currentRow()
         self.ui.tableWidgetDXF2BK.removeRow(row)
 
+    def deleteLevel(self):
+        row = self.ui.tableWidgetCont2DXF.currentRow()
+        self.ui.tableWidgetCont2DXF.removeRow(row)
+        
     def initialize(self):
         def setEnabled(checkBox, pushButton, lineEdit):
             checkBox.setChecked(True)
@@ -843,6 +870,10 @@ class ChEsher(QtGui.QMainWindow):
     def set2DM2BK(self):
         self.ui.labelModule.setText("~   Module 2DM2BK   ~")
         self.ui.stackedWidget.setCurrentIndex(7)
+
+    def setCont2DXF(self):
+        self.ui.labelModule.setText("~   Module Cont2DXF   ~")
+        self.ui.stackedWidget.setCurrentIndex(8)
                 
     def setDirectory(self):
         self.directory = QFileDialog.getExistingDirectory(self, "Select directory", self.directory)

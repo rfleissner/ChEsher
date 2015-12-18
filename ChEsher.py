@@ -293,7 +293,6 @@ class ChEsher(QtGui.QMainWindow):
         self.callbacCSOutCS = functools.partial(self.getSaveFileName, "Save Control Sections As", "Drawing Interchange File (*.dxf)", self.ui.lineEditCSOutputCS)
         QtCore.QObject.connect(self.ui.pushButtonCSOutputCS, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbacCSOutCS)
 
-
         QtCore.QObject.connect(self.ui.pushButtonCSCreate, QtCore.SIGNAL("clicked()"), self.createCS)
         
 # module 2DM
@@ -388,6 +387,7 @@ class ChEsher(QtGui.QMainWindow):
 
         QtCore.QObject.connect(self.ui.pushButtonCont2DXFAdd, QtCore.SIGNAL(_fromUtf8("clicked()")), self.addLevel)
         QtCore.QObject.connect(self.ui.pushButtonCont2DXFDelete, QtCore.SIGNAL(_fromUtf8("clicked()")), self.deleteLevel)
+        QtCore.QObject.connect(self.ui.pushButtonCont2DXFColour, QtCore.SIGNAL(_fromUtf8("clicked()")), self.setColour)
 
         self.callbackCont2DXFOut = functools.partial(self.getSaveFileName, "Save Control Sections As", "Drawing Interchange File (*.dxf)", self.ui.lineEditCont2DXFOutput)
         QtCore.QObject.connect(self.ui.pushButtonCont2DXFOutput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackCont2DXFOut)
@@ -684,13 +684,18 @@ class ChEsher(QtGui.QMainWindow):
         self.ui.tableWidgetDXF2BK.insertRow(rows)
         self.ui.tableWidgetDXF2BK.setCellWidget(rows, 0, dropdownLayer)
         item = QtGui.QTableWidgetItem()
-        item.setText("33")
+        item.setText("")
         self.ui.tableWidgetDXF2BK.setItem(rows, 1, item)
 
     def addLevel(self):
-        rows = self.ui.tableWidgetCont2DXF.rowCount()
-        self.ui.tableWidgetCont2DXF.insertRow(rows)
-
+        row = self.ui.tableWidgetCont2DXF.currentRow()
+        item = QtGui.QTableWidgetItem()
+        item.setFlags(QtCore.Qt.ItemIsEnabled)
+        if row == -1:
+            row = 0
+        self.ui.tableWidgetCont2DXF.insertRow(row)
+        self.ui.tableWidgetCont2DXF.setItem(row, 2, item)
+        
     def deleteLayer(self):
         row = self.ui.tableWidgetDXF2BK.currentRow()
         self.ui.tableWidgetDXF2BK.removeRow(row)
@@ -877,6 +882,18 @@ class ChEsher(QtGui.QMainWindow):
                 
     def setDirectory(self):
         self.directory = QFileDialog.getExistingDirectory(self, "Select directory", self.directory)
+
+    def setColour(self):
+        row = self.ui.tableWidgetCont2DXF.currentRow()
+        coldia = QtGui.QColorDialog(QtGui.QColor(2,3,4,255))
+        col = coldia.getColor()
+        
+        row = self.ui.tableWidgetCont2DXF.currentRow()
+        item = QtGui.QTableWidgetItem()
+        item.setBackground(col)
+        item.setFlags(QtCore.Qt.ItemIsEnabled)
+        item.setText(str(col.red()) + ", " + str(col.green()) + ", " + str(col.blue()))
+        self.ui.tableWidgetCont2DXF.setItem(row, 2, item)
 
     def interpolatePoint(self, xa, ya, za, xb, yb, zb, xc, yc, zc, xp, yp):
         dot1 = (yb - ya)*(xp - xa) + (-xb + xa)*(yp - ya)

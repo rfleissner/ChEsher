@@ -24,6 +24,8 @@ import dxfgrabber
 import os.path as pth
 from math import ceil, floor
 import matplotlib.tri as tri
+import triangle
+import triangle.plot
 import numpy as np
 import webbrowser 
 
@@ -398,7 +400,8 @@ class ChEsher(QtGui.QMainWindow):
         header.setStretchLastSection(True)
 
         self.setDXF2BK()        
-
+        self.initialize()
+        
     def setSymbol(self, i):
         self.scalarSymbol = i
         
@@ -665,45 +668,145 @@ class ChEsher(QtGui.QMainWindow):
         QMessageBox.information(self, "Module DXF2BK", info)
         
     def createCont2DXF(self):
-        print "create"
-    
+            
         info = ""
         
         # read input meshes
         x, y, z, triangles = fh.readT3STriangulation(self.ui.lineEditCont2DXFInput.text())
         triang = tri.Triangulation(x, y, triangles)
+
         
+        # get levels
+        levels = []
+        colours = []
+        rows = self.ui.tableWidgetCont2DXF.rowCount()
+        from matplotlib import colors
+        if rows > 0:
+            for row in range(rows):
+                
+                levelFrom = float(self.ui.tableWidgetCont2DXF.item(row, 0).text())
+                levelTo = float(self.ui.tableWidgetCont2DXF.item(row, 1).text())
+                rgb = str(self.ui.tableWidgetCont2DXF.item(row, 2).text()).split(",")
+                
+                level = [levelFrom, levelTo]
+                col = (float(rgb[0])/255.0, float(rgb[1])/255.0, float(rgb[2])/255.0)
+                hex_ = colors.rgb2hex(col)
+                
+                
         import matplotlib.pyplot as plt
-        cs = plt.tricontourf(triang, z, 2)
         
+        plt.figure(1)
+        cs = plt.tricontourf(triang, z, level, colors=hex_)
         
-        
-        print len(cs.collections)
-        
-        for i in range(len(cs.collections)):
-            p = cs.collections[i].get_paths()[0]
-            v = p.vertices
+        geometry = {}
+        geometry["vertices"] = []
+        geometry["segments"] = []
+
+        # loop ueber alle farben
+        nodeID = -1
+
+        p = cs.collections[0].get_paths()[0]
+        print p.codes
+        print p.vertices
+
+        c = p.codes
+        v = p.vertices
+
+        firstNode = True
+
+        for j in range(len(c)):
+            if c[j] == 1:
+                if not firstNode:
+
+                    geometry["segments"].append([nodeID, startID])
+                    startID = nodeID+1
+                    firstNode = True
+                if firstNode:
+                    startID = nodeID+1
+                    firstNode = False
+            elif c[j] == 2:
+                geometry["segments"].append([nodeID, nodeID+1])
+
+            geometry["vertices"].append([v[j][0],v[j][1]])    
+            nodeID += 1
+
+        geometry["segments"].append([nodeID, startID])
+        print geometry
             
-            x = v[:,0]
-            y = v[:,1]
-            print "iiiiiiiiiiiiiiii", i
-            print x
-            print y
-            
-        
         plt.show()
         
-        # Interpolate to regularly-spaced quad grid.
+        plt.figure(2)
+      
+        t = triangle.triangulate(geometry, 'p')
+        ax1 = plt.subplot(111, aspect='equal')
 
+        triangle.plot.plot(ax1, **t)
+        
+        plt.show()
 
-   
-#        fname = self.ui.lineEditCont2DXFOutput.text()
-#        info += "\n - Number of interpolated values: {0}".format(len(vectorNodes))
-#        fh.writeContourDXF(fname)
-#        info += "\n - {0} values written to {1}".format(nOfVectors, fname)
         
         QMessageBox.information(self, "Module VectorDXF", info)
             
+
+        
+#        import matplotlib.pyplot as plt
+#        plt.figure(1)
+#        cs = plt.tricontourf(triang, z, levels, colour)
+#        
+#        geometry = {}
+#        geometry["vertices"] = []
+#        geometry["segments"] = []
+#
+#        # loop ueber alle farben
+#        nodeID = -1
+#        for i in range(len(cs.collections)):
+#            "kontur", i
+#            p = cs.collections[i].get_paths()[0]
+#            print p.codes
+#            print p.vertices
+#            
+#            c = p.codes
+#            v = p.vertices
+#            
+#            # loop ueber alle polygone einer farbe
+#            
+#            firstNode = True
+#            
+#            for j in range(len(c)):
+#                if c[j] == 1:
+#                    if not firstNode:
+#                        
+#                        geometry["segments"].append([nodeID, startID])
+#                        startID = nodeID+1
+#                        firstNode = True
+#                    if firstNode:
+#                        startID = nodeID+1
+#                        firstNode = False
+#                elif c[j] == 2:
+#                    geometry["segments"].append([nodeID, nodeID+1])
+#                    
+#                geometry["vertices"].append([v[j][0],v[j][1]])    
+#                nodeID += 1
+#                
+#            geometry["segments"].append([nodeID, startID])
+#            print geometry
+#            
+#        plt.show()
+#        
+#        
+#        
+#        plt.figure(2)
+#      
+#        t = triangle.triangulate(geometry, 'p')
+#        ax1 = plt.subplot(111, aspect='equal')
+#
+#        triangle.plot.plot(ax1, **t)
+#        
+#        plt.show()
+#    
+    
+    
+    
     
     def getSaveLayerName(self):
         row = self.ui.tableWidgetDXF2BK.currentRow()
@@ -881,6 +984,9 @@ class ChEsher(QtGui.QMainWindow):
         self.ui.lineEdit2dmNS6.setText(self.directory + "example_8/output/NS6.i2s")
         self.ui.lineEdit2dmNS7.setText(self.directory + "example_8/output/NS7.i2s")
 
+        ###   ~   module Cont2DXF   ~   ###
+        
+        self.ui.lineEditCont2DXFInput.setText(self.directory + "example_9/test.t3s")
         
     def setDXF2BK(self):
         self.ui.labelModule.setText("~   Module DXF2BK   ~")

@@ -3220,7 +3220,7 @@
        </layout>
       </widget>
       <widget class="QWidget" name="pageCont2DXF">
-       <layout class="QGridLayout" name="gridLayout_11">
+       <layout class="QGridLayout" name="gridLayout_12">
         <item row="0" column="0">
          <widget class="QLabel" name="label_57">
           <property name="font">
@@ -3284,7 +3284,7 @@
         </item>
         <item row="3" column="0" colspan="3">
          <layout class="QGridLayout" name="gridLayout_10">
-          <item row="0" column="0">
+          <item row="0" column="1">
            <widget class="QPushButton" name="pushButtonCont2DXFAdd">
             <property name="minimumSize">
              <size>
@@ -3306,7 +3306,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="0" column="2">
            <widget class="QPushButton" name="pushButtonCont2DXFDelete">
             <property name="minimumSize">
              <size>
@@ -3328,7 +3328,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
+          <item row="0" column="3">
            <widget class="QPushButton" name="pushButtonCont2DXFColour">
             <property name="minimumSize">
              <size>
@@ -3350,7 +3350,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="3">
+          <item row="0" column="4">
            <spacer name="horizontalSpacer_3">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -3363,28 +3363,19 @@
             </property>
            </spacer>
           </item>
-          <item row="0" column="4">
-           <widget class="QComboBox" name="comboBoxCont2DXF"/>
-          </item>
-          <item row="0" column="5">
-           <widget class="QPushButton" name="pushButtonCont2DXFDefault">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_60">
             <property name="minimumSize">
              <size>
-              <width>50</width>
+              <width>70</width>
               <height>0</height>
              </size>
             </property>
-            <property name="maximumSize">
-             <size>
-              <width>100</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>delete selected layer from table</string>
-            </property>
             <property name="text">
-             <string>default</string>
+             <string>Level:</string>
+            </property>
+            <property name="indent">
+             <number>18</number>
             </property>
            </widget>
           </item>
@@ -3395,7 +3386,7 @@
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>300</height>
+            <height>250</height>
            </size>
           </property>
           <column>
@@ -3416,6 +3407,115 @@
          </widget>
         </item>
         <item row="5" column="0" colspan="3">
+         <layout class="QGridLayout" name="gridLayout_11">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_59">
+            <property name="minimumSize">
+             <size>
+              <width>70</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Legend:</string>
+            </property>
+            <property name="indent">
+             <number>18</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QPushButton" name="pushButtonCont2DXFLoad">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>add layer to table</string>
+            </property>
+            <property name="text">
+             <string>load</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QPushButton" name="pushButtonCont2DXFSave">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>add layer to table</string>
+            </property>
+            <property name="text">
+             <string>save</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="4">
+           <widget class="QComboBox" name="comboBoxCont2DXF">
+            <property name="minimumSize">
+             <size>
+              <width>120</width>
+              <height>0</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="5">
+           <widget class="QPushButton" name="pushButtonCont2DXFDefault">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>delete selected layer from table</string>
+            </property>
+            <property name="text">
+             <string>set default</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="6" column="0" colspan="3">
          <spacer name="verticalSpacer_19">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -3428,7 +3528,7 @@
           </property>
          </spacer>
         </item>
-        <item row="6" column="0">
+        <item row="7" column="0">
          <widget class="QLabel" name="label_58">
           <property name="font">
            <font>
@@ -3441,7 +3541,7 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="0">
+        <item row="8" column="0">
          <widget class="QLabel" name="label_48">
           <property name="text">
            <string>DXF file:</string>
@@ -3451,7 +3551,7 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="1">
+        <item row="8" column="1">
          <widget class="QPushButton" name="pushButtonCont2DXFOutput">
           <property name="minimumSize">
            <size>
@@ -3470,10 +3570,10 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="2">
+        <item row="8" column="2">
          <widget class="QLineEdit" name="lineEditCont2DXFOutput"/>
         </item>
-        <item row="8" column="0" colspan="3">
+        <item row="9" column="0" colspan="3">
          <spacer name="verticalSpacer_20">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -3486,7 +3586,7 @@
           </property>
          </spacer>
         </item>
-        <item row="9" column="0" colspan="3">
+        <item row="10" column="0" colspan="3">
          <widget class="QPushButton" name="pushButtonCont2DXFCreate">
           <property name="text">
            <string>Let's go!</string>

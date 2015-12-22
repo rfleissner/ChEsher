@@ -24,14 +24,18 @@ import dxfgrabber
 import os.path as pth
 from math import ceil, floor
 import matplotlib.tri as tri
+from matplotlib import colors
+import matplotlib.pyplot as plt
 import triangle
 import triangle.plot
 import numpy as np
 import webbrowser 
+from random import uniform
+from shapely.geometry import LinearRing, Polygon, Point
 
 # libraries
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QFileDialog, QAction, QMessageBox, QIcon, QMessageBox
+from PyQt4.QtGui import QFileDialog, QAction, QMessageBox, QIcon, QMessageBox, QColor
 from PyQt4.QtCore import PYQT_VERSION_STR, QT_VERSION_STR, Qt, SIGNAL
 
 # modules and classes
@@ -114,7 +118,7 @@ class ChEsher(QtGui.QMainWindow):
         self.mesh = None
 
         self.logcounter = 0
-
+        
 # module DXF2BK
         self.callbackOpenDXFFile = functools.partial(self.openDXFFile, "Open DXF-file", "Drawing Interchange File (*.dxf)", self.ui.lineEditDXF2BKInput)
         QtCore.QObject.connect(self.ui.pushButtonDXF2BKInput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenDXFFile)
@@ -390,7 +394,14 @@ class ChEsher(QtGui.QMainWindow):
         QtCore.QObject.connect(self.ui.pushButtonCont2DXFAdd, QtCore.SIGNAL(_fromUtf8("clicked()")), self.addLevel)
         QtCore.QObject.connect(self.ui.pushButtonCont2DXFDelete, QtCore.SIGNAL(_fromUtf8("clicked()")), self.deleteLevel)
         QtCore.QObject.connect(self.ui.pushButtonCont2DXFColour, QtCore.SIGNAL(_fromUtf8("clicked()")), self.setColour)
-
+        QtCore.QObject.connect(self.ui.pushButtonCont2DXFLoad, QtCore.SIGNAL(_fromUtf8("clicked()")), self.loadLegend)
+        QtCore.QObject.connect(self.ui.pushButtonCont2DXFSave, QtCore.SIGNAL(_fromUtf8("clicked()")), self.saveLegend)
+        QtCore.QObject.connect(self.ui.pushButtonCont2DXFDefault, QtCore.SIGNAL(_fromUtf8("clicked()")), self.defaultLegend)
+        
+        legends = ["water depths", "differences", "velocities"]
+        self.ui.comboBoxCont2DXF.addItems(legends)
+#        QtCore.QObject.connect(self.ui.comboBoxCont2DXF, QtCore.SIGNAL(_fromUtf8("clicked()")), self.defaultLegend)
+        
         self.callbackCont2DXFOut = functools.partial(self.getSaveFileName, "Save Control Sections As", "Drawing Interchange File (*.dxf)", self.ui.lineEditCont2DXFOutput)
         QtCore.QObject.connect(self.ui.pushButtonCont2DXFOutput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackCont2DXFOut)
 
@@ -666,148 +677,136 @@ class ChEsher(QtGui.QMainWindow):
                 else:
                     continue
         QMessageBox.information(self, "Module DXF2BK", info)
+    
+    def getLevels(self):
+        levels = []
+        colours = []
+        rows = self.ui.tableWidgetCont2DXF.rowCount()
         
-    def createCont2DXF(self):
+        if rows > 0:
+            for row in range(rows):
+                
+                levels.append(float(self.ui.tableWidgetCont2DXF.item(row, 0).text()))
+                colRGB = str(self.ui.tableWidgetCont2DXF.item(row, 2).text()).split(",")
+                
+                colFloat = (float(colRGB[0])/255.0, float(colRGB[1])/255.0, float(colRGB[2])/255.0)
+                colHex = colors.rgb2hex(colFloat)
+                colours.append(colHex)
+            levels.append(float(self.ui.tableWidgetCont2DXF.item(row, 1).text()))
             
+        return levels, colours
+    
+    def createCont2DXF(self):
+        
+        def hole(polycoord):
+            """"""
+            ring = LinearRing(polycoord)
+            if ring.is_ccw is False:
+                return True
+            else:
+                return False
+                
+        def getHole(polycoord):
+            """Create random point inside polygon."""
+            
+            polygon = Polygon(polycoord)
+            bounds = polygon.bounds
+            
+            while True:
+                randX = uniform(bounds[0], bounds[2])
+                randY = uniform(bounds[1], bounds[3])
+                randPoint = Point(randX,randY)
+
+                if randPoint.within(polygon):
+                    geometry["holes"].append([randX, randY])
+                    break
+            return [randX, randY]
+        
         info = ""
         
         # read input meshes
         x, y, z, triangles = fh.readT3STriangulation(self.ui.lineEditCont2DXFInput.text())
         triang = tri.Triangulation(x, y, triangles)
 
+        # get levels and colours
+        levels, colours = self.getLevels()
         
-        # get levels
-        levels = []
-        colours = []
-        rows = self.ui.tableWidgetCont2DXF.rowCount()
-        from matplotlib import colors
-        if rows > 0:
-            for row in range(rows):
-                
-                levelFrom = float(self.ui.tableWidgetCont2DXF.item(row, 0).text())
-                levelTo = float(self.ui.tableWidgetCont2DXF.item(row, 1).text())
-                rgb = str(self.ui.tableWidgetCont2DXF.item(row, 2).text()).split(",")
-                
-                level = [levelFrom, levelTo]
-                col = (float(rgb[0])/255.0, float(rgb[1])/255.0, float(rgb[2])/255.0)
-                hex_ = colors.rgb2hex(col)
-                
-                
-        import matplotlib.pyplot as plt
+        print levels
+        print colours
         
-        plt.figure(1)
-        cs = plt.tricontourf(triang, z, level, colors=hex_)
+        contours = []
         
-        geometry = {}
-        geometry["vertices"] = []
-        geometry["segments"] = []
-
-        # loop ueber alle farben
-        nodeID = -1
-
-        p = cs.collections[0].get_paths()[0]
-        print p.codes
-        print p.vertices
-
-        c = p.codes
-        v = p.vertices
-
-        firstNode = True
-
-        for j in range(len(c)):
-            if c[j] == 1:
-                if not firstNode:
-
-                    geometry["segments"].append([nodeID, startID])
-                    startID = nodeID+1
-                    firstNode = True
-                if firstNode:
-                    startID = nodeID+1
-                    firstNode = False
-            elif c[j] == 2:
-                geometry["segments"].append([nodeID, nodeID+1])
-
-            geometry["vertices"].append([v[j][0],v[j][1]])    
-            nodeID += 1
-
-        geometry["segments"].append([nodeID, startID])
-        print geometry
+        for level in range(len(levels)):
+        
             
-        plt.show()
-        
-        plt.figure(2)
-      
-        t = triangle.triangulate(geometry, 'p')
-        ax1 = plt.subplot(111, aspect='equal')
+            print level
+#            plt.figure(1)
+            cs = plt.tricontourf(triang, z, [levels[level], levels[level+1]], colors=colours[level])
 
-        triangle.plot.plot(ax1, **t)
-        
-        plt.show()
+            geometry = {}
+            geometry["vertices"] = []
+            geometry["segments"] = []
+            geometry["holes"] = []
 
-        
-        QMessageBox.information(self, "Module VectorDXF", info)
+            nodeID = -1
+
+            p = cs.collections[0].get_paths()[0]
+            print p.codes
+            print p.vertices
+
+            c = p.codes
+            v = p.vertices
             
+            firstNode = True
 
+            
+            polycoord = []
+
+            for j in range(len(c)):
+                if c[j] == 1:
+                # new polygon
+                    if not firstNode:
+
+                        geometry["segments"].append([nodeID, startID])
+                        startID = nodeID+1
+                        firstNode = True
+
+                        if hole(polycoord):
+                            geometry["holes"].append(getHole(polycoord))
+                        polycoord = []
+
+                    if firstNode:
+                        startID = nodeID+1
+                        firstNode = False
+                        polycoord.append((v[j][0],v[j][1]))
+
+                elif c[j] == 2:
+                    geometry["segments"].append([nodeID, nodeID+1])
+                    polycoord.append((v[j][0],v[j][1]))
+
+                geometry["vertices"].append([v[j][0],v[j][1]])
+                nodeID += 1
+
+            geometry["segments"].append([nodeID, startID])
+
+            if hole(polycoord):
+                geometry["holes"].append(getHole(polycoord))
+
+#            plt.show()
+
+#            plt.figure(2)
+
+            t = triangle.triangulate(geometry, 'p')
+            contours.append(t)
+            
+#            ax1 = plt.subplot(111, aspect='equal')
+#            triangle.plot.plot(ax1, **t)
+#            plt.show()
         
-#        import matplotlib.pyplot as plt
-#        plt.figure(1)
-#        cs = plt.tricontourf(triang, z, levels, colour)
-#        
-#        geometry = {}
-#        geometry["vertices"] = []
-#        geometry["segments"] = []
-#
-#        # loop ueber alle farben
-#        nodeID = -1
-#        for i in range(len(cs.collections)):
-#            "kontur", i
-#            p = cs.collections[i].get_paths()[0]
-#            print p.codes
-#            print p.vertices
-#            
-#            c = p.codes
-#            v = p.vertices
-#            
-#            # loop ueber alle polygone einer farbe
-#            
-#            firstNode = True
-#            
-#            for j in range(len(c)):
-#                if c[j] == 1:
-#                    if not firstNode:
-#                        
-#                        geometry["segments"].append([nodeID, startID])
-#                        startID = nodeID+1
-#                        firstNode = True
-#                    if firstNode:
-#                        startID = nodeID+1
-#                        firstNode = False
-#                elif c[j] == 2:
-#                    geometry["segments"].append([nodeID, nodeID+1])
-#                    
-#                geometry["vertices"].append([v[j][0],v[j][1]])    
-#                nodeID += 1
-#                
-#            geometry["segments"].append([nodeID, startID])
-#            print geometry
-#            
-#        plt.show()
-#        
-#        
-#        
-#        plt.figure(2)
-#      
-#        t = triangle.triangulate(geometry, 'p')
-#        ax1 = plt.subplot(111, aspect='equal')
-#
-#        triangle.plot.plot(ax1, **t)
-#        
-#        plt.show()
-#    
-    
-    
-    
-    
+        for i in range(len(contours)):
+            print contours[i]
+        QMessageBox.information(self, "Module Cont2DXF", info)
+
     def getSaveLayerName(self):
         row = self.ui.tableWidgetDXF2BK.currentRow()
         filetype = ("2D Line Set (*.i2s);;3D Line Set (*.i3s);;Point Set (*.xyz)")
@@ -1030,9 +1029,11 @@ class ChEsher(QtGui.QMainWindow):
     def setColour(self):
         row = self.ui.tableWidgetCont2DXF.currentRow()
         rows = self.ui.tableWidgetCont2DXF.rowCount()
+        item1 = self.ui.tableWidgetCont2DXF.item(row, 2)
+        initCol = item1.backgroundColor()
         coldia = QtGui.QColorDialog()
-        col = coldia.getColor()
-
+        col = coldia.getColor(initCol)
+        
         item = QtGui.QTableWidgetItem()
         item.setBackground(col)
         item.setFlags(QtCore.Qt.ItemIsEnabled)
@@ -1650,7 +1651,59 @@ class ChEsher(QtGui.QMainWindow):
     def getSaveFileName(self, title, fileFormat, lineEdit):
         filename = QFileDialog.getSaveFileName(self, title, self.directory, fileFormat)
         lineEdit.setText(filename)
+        
+    def applyLegend(self, levels, colours):
+        nLevels = len(levels)-1
 
+        self.ui.tableWidgetCont2DXF.setRowCount(nLevels)
+        
+        for row in range(nLevels):
+            item1 = QtGui.QTableWidgetItem()
+            item1.setText(str(levels[row]))
+            self.ui.tableWidgetCont2DXF.setItem(row, 0, item1)
+            
+            item2 = QtGui.QTableWidgetItem()
+            item2.setText(str(levels[row+1]))
+            self.ui.tableWidgetCont2DXF.setItem(row, 1, item2)
+            
+            col = colors.hex2color(colours[row])
+            colPy = QColor(int(col[0]*255),int(col[1]*255),int(col[2]*255))
+            item3 = QtGui.QTableWidgetItem()
+            item3.setBackground(colPy)
+            item3.setFlags(QtCore.Qt.ItemIsEnabled)
+            item3.setText(str(colPy.red()) + ", " + str(colPy.green()) + ", " + str(colPy.blue()))
+            self.ui.tableWidgetCont2DXF.setItem(row, 2, item3)
+
+    def loadLegend(self):
+        filename = QFileDialog.getOpenFileName(self, "Load an EnSim ColourScale definition file", self.directory, "EnSim ColourScale Files (*.cs1)")
+        levels, colours = fh.readCS1(filename)
+        
+        self.applyLegend(levels, colours)
+
+    def saveLegend(self):
+        filename = QFileDialog.getSaveFileName(self, "Save an EnSim ColourScale definition file", self.directory, "EnSim ColourScale Files (*.cs1)")
+        
+    def defaultLegend(self):
+        legend = self.ui.comboBoxCont2DXF.currentIndex()
+        
+        if legend == 0:
+            levels = [0.0, 1.0, 2.0, 3.0]
+            colours = ['#0055aa', '#445566', '#ff4422', '#44ccdd']
+            
+            self.applyLegend(levels, colours)
+
+        if legend == 1:
+            levels = [0.1, 0.25, 0.5, 1.0]
+            colours = ['#eeccff', '#dd3399', '#009944', '#bb5588']
+            
+            self.applyLegend(levels, colours)
+
+        if legend == 2:
+            levels = [0.0, 1.0, 2.0, 3.0]
+            colours = ['#eeee00', '#ffccaa', '#005544', '#887733']
+            
+            self.applyLegend(levels, colours)
+            
     def createAction(self, text="", slot=None, shortcut=None, icon=None,
                      tip=None, checkable=False, signal="triggered()"):
         """Create action out of keyword arguments. Return action.

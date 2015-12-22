@@ -640,7 +640,23 @@ def readT3S(filename):
                 endheader = True
 
     return nodesT3S, mesh
-    
+
+def readCS1(filename):
+    levels = []
+    colours = []
+
+    file = open(filename, 'r')
+    content = file.readlines()
+    file.close()
+
+    for line in range(len(content)):
+        if content[line].startswith(':ScaleLevel '):
+            levels.append(float(content[line].split()[-1]))
+        elif content[line].startswith(':ScaleColour '):
+            colours.append(content[line].split()[-1][1:].replace('x', '#'))
+
+    return levels, colours
+
 def writeXML(nodes, mesh, surfname, fname):
     root = ET.Element("LandXML")
     units = ET.SubElement(root, "Units")

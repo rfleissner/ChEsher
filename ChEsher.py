@@ -718,7 +718,6 @@ class ChEsher(QtGui.QMainWindow):
                 randPoint = Point(randX,randY)
 
                 if randPoint.within(polygon):
-                    geometry["holes"].append([randX, randY])
                     break
             return [randX, randY]
         
@@ -736,12 +735,16 @@ class ChEsher(QtGui.QMainWindow):
         
         contours = []
         
-        for level in range(len(levels)):
+        for level in range(len(levels)-1):
         
             
-            print level
+#            print level
 #            plt.figure(1)
-            cs = plt.tricontourf(triang, z, [levels[level], levels[level+1]], colors=colours[level])
+            print "Level: ", [levels[level], levels[level+1]]
+    
+            cs = plt.tricontourf(triang, z, levels=[levels[level], levels[level+1]], colors=colours[level])
+            
+    #        cs = plt.tricontourf(triang, z, levels=[0.0, 1.0], colors='#445566')
 
             geometry = {}
             geometry["vertices"] = []
@@ -756,49 +759,89 @@ class ChEsher(QtGui.QMainWindow):
 
             c = p.codes
             v = p.vertices
-            
+
             firstNode = True
 
+#            segments = list(p.iter_segments())
+#            print segments
             
             polycoord = []
-
-            for j in range(len(c)):
-                if c[j] == 1:
-                # new polygon
-                    if not firstNode:
-
-                        geometry["segments"].append([nodeID, startID])
-                        startID = nodeID+1
-                        firstNode = True
-
-                        if hole(polycoord):
-                            geometry["holes"].append(getHole(polycoord))
-                        polycoord = []
-
-                    if firstNode:
-                        startID = nodeID+1
-                        firstNode = False
-                        polycoord.append((v[j][0],v[j][1]))
-
-                elif c[j] == 2:
-                    geometry["segments"].append([nodeID, nodeID+1])
-                    polycoord.append((v[j][0],v[j][1]))
-
-                geometry["vertices"].append([v[j][0],v[j][1]])
-                nodeID += 1
-
+#            http://stackoverflow.com/questions/18304722/python-find-contour-lines-from-matplotlib-pyplot-contour
+            
+            conts = []
+            
+            for cc in cs.collections:
+                print cc
+                for pp in cc.get_paths():
+                    print pp
+                    for seg in pp.iter_segments():
+                        print seg[0]
+#                if segments[s][1] == 1:
+#                # new polygon
+#                    if not firstNode:
+#
+#                        geometry["segments"].append([nodeID, startID])
+#                        startID = nodeID+1
+#                        firstNode = True
+#                        print polycoord
+#                        if hole(polycoord):
+#                            geometry["holes"].append(getHole(polycoord))
+#                        polycoord = []
+#
+#                    if firstNode:
+#                        startID = nodeID+1
+#                        firstNode = False
+#                        polycoord.append((v[j][0],v[j][1]))
+#
+#                elif c[j] == 2:
+#                    geometry["segments"].append([nodeID, nodeID+1])
+#                    polycoord.append((v[j][0],v[j][1]))
+#
+#                geometry["vertices"].append([v[j][0],v[j][1]])
+#                nodeID += 1
+        
+        
+#            for j in range(len(c)):
+#                if c[j] == 1:
+#                # new polygon
+#                    if not firstNode:
+#
+#                        geometry["segments"].append([nodeID, startID])
+#                        startID = nodeID+1
+#                        firstNode = True
+#                        print polycoord
+#                        if hole(polycoord):
+#                            geometry["holes"].append(getHole(polycoord))
+#                        polycoord = []
+#
+#                    if firstNode:
+#                        startID = nodeID+1
+#                        firstNode = False
+#                        polycoord.append((v[j][0],v[j][1]))
+#
+#                elif c[j] == 2:
+#                    geometry["segments"].append([nodeID, nodeID+1])
+#                    polycoord.append((v[j][0],v[j][1]))
+#
+#                geometry["vertices"].append([v[j][0],v[j][1]])
+#                nodeID += 1
+#        
             geometry["segments"].append([nodeID, startID])
 
             if hole(polycoord):
                 geometry["holes"].append(getHole(polycoord))
 
+            if len(geometry["holes"]) == 0:
+                del geometry["holes"]
+                
 #            plt.show()
 
 #            plt.figure(2)
+#            print geometry
 
             t = triangle.triangulate(geometry, 'p')
             contours.append(t)
-            
+
 #            ax1 = plt.subplot(111, aspect='equal')
 #            triangle.plot.plot(ax1, **t)
 #            plt.show()

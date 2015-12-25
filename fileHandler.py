@@ -331,6 +331,48 @@ def writeCSFormatted(filename, nameCS, time, resultsCS, decTime, decFlow):
         file.write("\n")
 
     file.close()
+
+def writeContDXF(fname, contour, levels, coloursRGB):
+
+    dwg = dxf.drawing(fname)
+
+    for c in range(len(contour)):
+        
+        for triangle in contour[c]['triangles']:
+
+#            print contour[c]
+#            contour[c]['triangles'] = contour[c]['triangles'].tolist()
+#            v1x = contour[c]['vertices'][triangle[0]]
+#            
+#            v1y = contour[c]['vertices'][contour[c]['triangles'][triangle][0]][1]
+#            v2x = contour[c]['vertices'][contour[c]['triangles'][triangle][1]][0]
+#            v2y = contour[c]['vertices'][contour[c]['triangles'][triangle][1]][1]
+#            v3x = contour[c]['vertices'][contour[c]['triangles'][triangle][2]][0]
+#            v3y = contour[c]['vertices'][contour[c]['triangles'][triangle][2]][1]
+            
+#            print "vertices"
+#            print contour[c]['vertices'][triangle[0]]
+#            print "triangles"
+#            print triangle
+#            print contour[c]['triangles'][0]
+            
+            
+            
+            p1 = contour[c]['vertices'][triangle[0]]
+            p2 = contour[c]['vertices'][triangle[1]]
+            p3 = contour[c]['vertices'][triangle[2]]
+            
+#            print p1
+#            print p2
+#            print p3
+#            print
+
+            dwg.add(dxf.solid([p1, p2, p3], color = coloursRGB[c]))
+#            print coloursRGB[c]
+    #        elif type == 2:
+    #            dwg.add(dxf.polyline((p1, p2, p3, p1)))
+
+    dwg.save()
     
 def writeMeshDXF(fname, nodes, mesh, type):
 

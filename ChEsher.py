@@ -680,26 +680,29 @@ class ChEsher(QtGui.QMainWindow):
     
     def getLevels(self):
         levels = []
-        colours = []
+        colHEX = []
+        colRGB = []
+        
         rows = self.ui.tableWidgetCont2DXF.rowCount()
         
         if rows > 0:
             for row in range(rows):
                 
                 levels.append(float(self.ui.tableWidgetCont2DXF.item(row, 0).text()))
-                colRGB = str(self.ui.tableWidgetCont2DXF.item(row, 2).text()).split(",")
+                col = str(self.ui.tableWidgetCont2DXF.item(row, 2).text()).split(",")
                 
-                colFloat = (float(colRGB[0])/255.0, float(colRGB[1])/255.0, float(colRGB[2])/255.0)
+                colFloat = (float(col[0])/255.0, float(col[1])/255.0, float(col[2])/255.0)
+                colRGB.append([float(col[0]), float(col[1]), float(col[2])])
                 colHex = colors.rgb2hex(colFloat)
-                colours.append(colHex)
+                colHEX.append(colHex)
             levels.append(float(self.ui.tableWidgetCont2DXF.item(row, 1).text()))
             
-        return levels, colours
+        return levels, colHEX, colRGB
     
     def createCont2DXF(self):
         
         def hole(polycoord):
-            """"""
+            """Polygon is a hole, if the vertices are defined clockwise."""
             ring = LinearRing(polycoord)
             if ring.is_ccw is False:
                 return True
@@ -728,126 +731,77 @@ class ChEsher(QtGui.QMainWindow):
         triang = tri.Triangulation(x, y, triangles)
 
         # get levels and colours
-        levels, colours = self.getLevels()
-        
-        print levels
-        print colours
+        levels, coloursHEX, coloursRGB = self.getLevels()
         
         contours = []
         
+        # loop over contour levels
         for level in range(len(levels)-1):
-        
             
-#            print level
-#            plt.figure(1)
-            print "Level: ", [levels[level], levels[level+1]]
-    
-            cs = plt.tricontourf(triang, z, levels=[levels[level], levels[level+1]], colors=colours[level])
-            
-    #        cs = plt.tricontourf(triang, z, levels=[0.0, 1.0], colors='#445566')
+            # create contour plot with matplotlib.pyplot.tricontourf
+            cs = plt.tricontourf(triang, z, levels=[levels[level], levels[level+1]], colors=coloursHEX[level])
 
+            # instantiate the dictionary for the triangulation
             geometry = {}
             geometry["vertices"] = []
             geometry["segments"] = []
             geometry["holes"] = []
 
-            nodeID = -1
-
-            p = cs.collections[0].get_paths()[0]
-            print p.codes
-            print p.vertices
-
-            c = p.codes
-            v = p.vertices
-
-            firstNode = True
-
-#            segments = list(p.iter_segments())
-#            print segments
+            nodeID = 0
             
-            polycoord = []
-#            http://stackoverflow.com/questions/18304722/python-find-contour-lines-from-matplotlib-pyplot-contour
-            
-            conts = []
-            
+            # loop over matplotlib collection
             for cc in cs.collections:
-                print cc
                 for pp in cc.get_paths():
-                    print pp
-                    for seg in pp.iter_segments():
-                        print seg[0]
-#                if segments[s][1] == 1:
-#                # new polygon
-#                    if not firstNode:
-#
-#                        geometry["segments"].append([nodeID, startID])
-#                        startID = nodeID+1
-#                        firstNode = True
-#                        print polycoord
-#                        if hole(polycoord):
-#                            geometry["holes"].append(getHole(polycoord))
-#                        polycoord = []
-#
-#                    if firstNode:
-#                        startID = nodeID+1
-#                        firstNode = False
-#                        polycoord.append((v[j][0],v[j][1]))
-#
-#                elif c[j] == 2:
-#                    geometry["segments"].append([nodeID, nodeID+1])
-#                    polycoord.append((v[j][0],v[j][1]))
-#
-#                geometry["vertices"].append([v[j][0],v[j][1]])
-#                nodeID += 1
-        
-        
-#            for j in range(len(c)):
-#                if c[j] == 1:
-#                # new polygon
-#                    if not firstNode:
-#
-#                        geometry["segments"].append([nodeID, startID])
-#                        startID = nodeID+1
-#                        firstNode = True
-#                        print polycoord
-#                        if hole(polycoord):
-#                            geometry["holes"].append(getHole(polycoord))
-#                        polycoord = []
-#
-#                    if firstNode:
-#                        startID = nodeID+1
-#                        firstNode = False
-#                        polycoord.append((v[j][0],v[j][1]))
-#
-#                elif c[j] == 2:
-#                    geometry["segments"].append([nodeID, nodeID+1])
-#                    polycoord.append((v[j][0],v[j][1]))
-#
-#                geometry["vertices"].append([v[j][0],v[j][1]])
-#                nodeID += 1
-#        
-            geometry["segments"].append([nodeID, startID])
-
-            if hole(polycoord):
-                geometry["holes"].append(getHole(polycoord))
-
+                    
+                    # paths to polygons
+                    polys = pp.to_polygons()
+                    
+                    # loop over polygons
+                    for pID in range(len(polys)):
+                        poly = polys[pID]
+                        if len(poly) > 1:
+                            
+                            # add random point if polygon defines a hole
+                            if hole(poly):
+                                geometry["holes"].append(getHole(poly))
+                                
+                            # add vertices and segments
+                            for vID in range(len(poly)):
+                                geometry["segments"].append([nodeID, nodeID+1])
+                                geometry["vertices"].append(poly[vID])
+                                nodeID += 1
+                                
+                            # close polygon by adding segment from last and first vertice
+                            geometry["segments"][nodeID-1][1] = nodeID-len(poly)
+                    
+            # delete holes from dictionary, if no holes exist
             if len(geometry["holes"]) == 0:
                 del geometry["holes"]
-                
-#            plt.show()
 
-#            plt.figure(2)
-#            print geometry
-
-            t = triangle.triangulate(geometry, 'p')
+            t = triangle.triangulate(geometry, 'B')
             contours.append(t)
 
+#            plt.figure(1)
 #            ax1 = plt.subplot(111, aspect='equal')
 #            triangle.plot.plot(ax1, **t)
 #            plt.show()
         
-        for i in range(len(contours)):
-            print contours[i]
+        print levels
+        print coloursRGB
+#        for i in range(len(contours)):
+#            print contours[i]
+            
+        # write cont
+#        if self.ui.lineEditCont2DXFOutput.text() != "":
+#            try:
+#                fh.writeContDXF(self.ui.lineEditCont2DXFOutput.text(), linesetNodes, lineset, dim)
+#                info += " - Line set written to {0}.\n".format(self.ui.lineEditBK2DXFOutputLineSet.text())
+#            except:
+#                QMessageBox.critical(self, "Error", "Not able to write line sets!")
+#                return
+            
+        fh.writeContDXF(self.ui.lineEditCont2DXFOutput.text(), contours, levels, coloursRGB)
+            
         QMessageBox.information(self, "Module Cont2DXF", info)
 
     def getSaveLayerName(self):
@@ -1029,6 +983,7 @@ class ChEsher(QtGui.QMainWindow):
         ###   ~   module Cont2DXF   ~   ###
         
         self.ui.lineEditCont2DXFInput.setText(self.directory + "example_9/test.t3s")
+        self.ui.lineEditCont2DXFOutput.setText(self.directory + "example_9/cont.dxf")
         
     def setDXF2BK(self):
         self.ui.labelModule.setText("~   Module DXF2BK   ~")

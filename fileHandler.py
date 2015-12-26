@@ -20,7 +20,8 @@ __date__ ="$29.08.2014 18:21:40$"
 import ewsEnSim as ws
 import xml.etree.cElementTree as ET
 from copy import deepcopy as dc
-import dxfwrite
+#import dxfwrite
+import ezdxf
 from dxfwrite import DXFEngine as dxf
 import math
 
@@ -332,47 +333,34 @@ def writeCSFormatted(filename, nameCS, time, resultsCS, decTime, decFlow):
 
     file.close()
 
-def writeContDXF(fname, contour, levels, coloursRGB):
-
-    dwg = dxf.drawing(fname)
-
+def writeContDXF(fname, contour, levels, coloursRGB, layer):
+    
+    if layer == "":
+        layer = "0"
+    dwg = ezdxf.new(dxfversion='AC1018')
+    
+    msp = dwg.modelspace()
+    
     for c in range(len(contour)):
+    
+        if contour[c] is None:
+            continue
+
+#        dxf_layer = str(levels[c])
+#        dwg.layers.create(name=dxf_layer)
+#        lay = dwg.layers.get(dxf_layer)
+#        lay.set_color(coloursRGB[c])
         
         for triangle in contour[c]['triangles']:
-
-#            print contour[c]
-#            contour[c]['triangles'] = contour[c]['triangles'].tolist()
-#            v1x = contour[c]['vertices'][triangle[0]]
-#            
-#            v1y = contour[c]['vertices'][contour[c]['triangles'][triangle][0]][1]
-#            v2x = contour[c]['vertices'][contour[c]['triangles'][triangle][1]][0]
-#            v2y = contour[c]['vertices'][contour[c]['triangles'][triangle][1]][1]
-#            v3x = contour[c]['vertices'][contour[c]['triangles'][triangle][2]][0]
-#            v3y = contour[c]['vertices'][contour[c]['triangles'][triangle][2]][1]
-            
-#            print "vertices"
-#            print contour[c]['vertices'][triangle[0]]
-#            print "triangles"
-#            print triangle
-#            print contour[c]['triangles'][0]
-            
-            
-            
+   
             p1 = contour[c]['vertices'][triangle[0]]
             p2 = contour[c]['vertices'][triangle[1]]
             p3 = contour[c]['vertices'][triangle[2]]
-            
-#            print p1
-#            print p2
-#            print p3
-#            print
 
-            dwg.add(dxf.solid([p1, p2, p3], color = coloursRGB[c]))
-#            print coloursRGB[c]
-    #        elif type == 2:
-    #            dwg.add(dxf.polyline((p1, p2, p3, p1)))
+            solid = msp.add_solid([p1, p2, p3], dxfattribs={'layer': layer})
+            solid.rgb = coloursRGB[c]
 
-    dwg.save()
+    dwg.saveas(str(fname))
     
 def writeMeshDXF(fname, nodes, mesh, type):
 

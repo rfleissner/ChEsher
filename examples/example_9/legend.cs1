@@ -6,7 +6,7 @@
 :Application              BlueKenue
 :Version                  3.3.4
 :WrittenBy                Reinhard Fleiﬂner
-:CreationDate             Tue, Dec 22, 2015 06:29 PM
+:CreationDate             Sat, Dec 26, 2015 09:08 PM
 #
 #------------------------------------------------------------------------
 :EndHeader
@@ -34,21 +34,18 @@
 :IsRangeLabelsOn 0
 :RangeLabelSeparator to
 :LevelsAreIndex 0
-:ScaleLevelCount 10
+:ScaleLevelCount 7
 :ScaleLevelBasis 0
 :ScaleMin 0.000000
-:ScaleMax 4.000000
-:ScaleInterval 0.400000
+:ScaleMax 7.000000
+:ScaleInterval 1.000000
 :ScaleLevel 0 0.000000
-:ScaleLevel 1 0.400000
-:ScaleLevel 2 0.800000
-:ScaleLevel 3 1.200000
-:ScaleLevel 4 1.600000
-:ScaleLevel 5 2.000000
-:ScaleLevel 6 2.400000
-:ScaleLevel 7 2.800000
-:ScaleLevel 8 3.200000
-:ScaleLevel 9 3.600000
+:ScaleLevel 1 1.000000
+:ScaleLevel 2 2.000000
+:ScaleLevel 3 3.000000
+:ScaleLevel 4 4.000000
+:ScaleLevel 5 5.000000
+:ScaleLevel 6 6.000000
 :ScaleColourBasis 1
 :ScaleColour 0 0xff0000
 :ScaleColour 1 0xff7100
@@ -57,7 +54,4 @@
 :ScaleColour 4 0x38ff00
 :ScaleColour 5 0x00ff38
 :ScaleColour 6 0x00ffaa
-:ScaleColour 7 0x00e2ff
-:ScaleColour 8 0x0071ff
-:ScaleColour 9 0x0000ff
 :EndObjectType CColourScale

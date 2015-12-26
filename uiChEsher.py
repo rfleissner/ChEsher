@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'uiChEsher.ui'
 #
-# Created: Tue Dec 22 19:45:11 2015
+# Created: Sat Dec 26 21:04:20 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -1292,20 +1292,27 @@ class Ui_MainWindow(object):
         self.label_48 = QtGui.QLabel(self.pageCont2DXF)
         self.label_48.setIndent(18)
         self.label_48.setObjectName(_fromUtf8("label_48"))
-        self.gridLayout_12.addWidget(self.label_48, 8, 0, 1, 1)
-        self.pushButtonCont2DXFOutput = QtGui.QPushButton(self.pageCont2DXF)
-        self.pushButtonCont2DXFOutput.setMinimumSize(QtCore.QSize(20, 0))
-        self.pushButtonCont2DXFOutput.setMaximumSize(QtCore.QSize(40, 16777215))
-        self.pushButtonCont2DXFOutput.setObjectName(_fromUtf8("pushButtonCont2DXFOutput"))
-        self.gridLayout_12.addWidget(self.pushButtonCont2DXFOutput, 8, 1, 1, 1)
-        self.lineEditCont2DXFOutput = QtGui.QLineEdit(self.pageCont2DXF)
-        self.lineEditCont2DXFOutput.setObjectName(_fromUtf8("lineEditCont2DXFOutput"))
-        self.gridLayout_12.addWidget(self.lineEditCont2DXFOutput, 8, 2, 1, 1)
+        self.gridLayout_12.addWidget(self.label_48, 9, 0, 1, 1)
+        self.pushButtonCont2DXFOutputSolid = QtGui.QPushButton(self.pageCont2DXF)
+        self.pushButtonCont2DXFOutputSolid.setMinimumSize(QtCore.QSize(20, 0))
+        self.pushButtonCont2DXFOutputSolid.setMaximumSize(QtCore.QSize(40, 16777215))
+        self.pushButtonCont2DXFOutputSolid.setObjectName(_fromUtf8("pushButtonCont2DXFOutputSolid"))
+        self.gridLayout_12.addWidget(self.pushButtonCont2DXFOutputSolid, 9, 1, 1, 1)
+        self.lineEditCont2DXFOutputSolid = QtGui.QLineEdit(self.pageCont2DXF)
+        self.lineEditCont2DXFOutputSolid.setObjectName(_fromUtf8("lineEditCont2DXFOutputSolid"))
+        self.gridLayout_12.addWidget(self.lineEditCont2DXFOutputSolid, 9, 2, 1, 1)
         spacerItem24 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.gridLayout_12.addItem(spacerItem24, 9, 0, 1, 3)
+        self.gridLayout_12.addItem(spacerItem24, 10, 0, 1, 3)
         self.pushButtonCont2DXFCreate = QtGui.QPushButton(self.pageCont2DXF)
         self.pushButtonCont2DXFCreate.setObjectName(_fromUtf8("pushButtonCont2DXFCreate"))
-        self.gridLayout_12.addWidget(self.pushButtonCont2DXFCreate, 10, 0, 1, 3)
+        self.gridLayout_12.addWidget(self.pushButtonCont2DXFCreate, 11, 0, 1, 3)
+        self.label_61 = QtGui.QLabel(self.pageCont2DXF)
+        self.label_61.setIndent(18)
+        self.label_61.setObjectName(_fromUtf8("label_61"))
+        self.gridLayout_12.addWidget(self.label_61, 8, 0, 1, 1)
+        self.lineEditCont2DXFOutputLayer = QtGui.QLineEdit(self.pageCont2DXF)
+        self.lineEditCont2DXFOutputLayer.setObjectName(_fromUtf8("lineEditCont2DXFOutputLayer"))
+        self.gridLayout_12.addWidget(self.lineEditCont2DXFOutputLayer, 8, 2, 1, 1)
         self.stackedWidget.addWidget(self.pageCont2DXF)
         self.gridLayout.addWidget(self.stackedWidget, 3, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -1684,8 +1691,9 @@ class Ui_MainWindow(object):
         self.pushButtonCont2DXFDefault.setText(_translate("MainWindow", "set default", None))
         self.label_58.setText(_translate("MainWindow", "Outputs:", None))
         self.label_48.setText(_translate("MainWindow", "DXF file:", None))
-        self.pushButtonCont2DXFOutput.setText(_translate("MainWindow", "...", None))
+        self.pushButtonCont2DXFOutputSolid.setText(_translate("MainWindow", "...", None))
         self.pushButtonCont2DXFCreate.setText(_translate("MainWindow", "Let\'s go!", None))
+        self.label_61.setText(_translate("MainWindow", "Layer:", None))
         self.actionReset.setText(_translate("MainWindow", "Reset", None))
         self.actionClose.setText(_translate("MainWindow", "Close", None))
         self.actionChEsher.setText(_translate("MainWindow", "ChEsher ", None))

@@ -402,8 +402,8 @@ class ChEsher(QtGui.QMainWindow):
         self.ui.comboBoxCont2DXF.addItems(legends)
 #        QtCore.QObject.connect(self.ui.comboBoxCont2DXF, QtCore.SIGNAL(_fromUtf8("clicked()")), self.defaultLegend)
         
-        self.callbackCont2DXFOut = functools.partial(self.getSaveFileName, "Save Control Sections As", "Drawing Interchange File (*.dxf)", self.ui.lineEditCont2DXFOutput)
-        QtCore.QObject.connect(self.ui.pushButtonCont2DXFOutput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackCont2DXFOut)
+        self.callbackCont2DXFOut = functools.partial(self.getSaveFileName, "Save Control Sections As", "Drawing Interchange File (*.dxf)", self.ui.lineEditCont2DXFOutputSolid)
+        QtCore.QObject.connect(self.ui.pushButtonCont2DXFOutputSolid, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackCont2DXFOut)
 
         QtCore.QObject.connect(self.ui.pushButtonCont2DXFCreate, QtCore.SIGNAL("clicked()"), self.createCont2DXF)
 
@@ -682,22 +682,53 @@ class ChEsher(QtGui.QMainWindow):
         levels = []
         colHEX = []
         colRGB = []
+        level_ok = True
+        col_ok = True
         
         rows = self.ui.tableWidgetCont2DXF.rowCount()
         
         if rows > 0:
             for row in range(rows):
                 
-                levels.append(float(self.ui.tableWidgetCont2DXF.item(row, 0).text()))
-                col = str(self.ui.tableWidgetCont2DXF.item(row, 2).text()).split(",")
+                try:
+                    levels.append(float(self.ui.tableWidgetCont2DXF.item(row, 0).text()))
+                except:
+                    level_ok = False
+                try:
+                    col = str(self.ui.tableWidgetCont2DXF.item(row, 2).text()).split(",")
+
+                    colFloat = (float(col[0])/255.0, float(col[1])/255.0, float(col[2])/255.0)
+                    colRGB.append([float(col[0]), float(col[1]), float(col[2])])
+                    colHex = colors.rgb2hex(colFloat)
+                    colHEX.append(colHex)
+                except:
+                    col_ok = False
+                    
+            for rID in range(rows-1):
+                level_ai = round(float(self.ui.tableWidgetCont2DXF.item(rID, 0).text()), 6)
+                level_aj = round(float(self.ui.tableWidgetCont2DXF.item(rID, 1).text()), 6)
+                level_bi = round(float(self.ui.tableWidgetCont2DXF.item(rID+1, 0).text()), 6)
                 
-                colFloat = (float(col[0])/255.0, float(col[1])/255.0, float(col[2])/255.0)
-                colRGB.append([float(col[0]), float(col[1]), float(col[2])])
-                colHex = colors.rgb2hex(colFloat)
-                colHEX.append(colHex)
+                if level_aj != level_bi:
+                    level_ok = False
+                if level_aj <= level_ai:
+                    level_ok = False
+                    
+            level_1i = float(self.ui.tableWidgetCont2DXF.item(0, 0).text())
+            level_1j = float(self.ui.tableWidgetCont2DXF.item(0, 1).text())
+            
+            if level_1j <= level_1i:
+                level_ok = False
+
+            level_Ni = float(self.ui.tableWidgetCont2DXF.item(rows-1, 0).text())
+            level_Nj = float(self.ui.tableWidgetCont2DXF.item(rows-1, 1).text())
+            
+            if level_Nj <= level_Ni:
+                level_ok = False
+            
             levels.append(float(self.ui.tableWidgetCont2DXF.item(row, 1).text()))
             
-        return levels, colHEX, colRGB
+        return levels, level_ok, colHEX, colRGB, col_ok
     
     def createCont2DXF(self):
         
@@ -731,7 +762,14 @@ class ChEsher(QtGui.QMainWindow):
         triang = tri.Triangulation(x, y, triangles)
 
         # get levels and colours
-        levels, coloursHEX, coloursRGB = self.getLevels()
+        levels, levels_ok, coloursHEX, coloursRGB, col_ok = self.getLevels()
+
+        if not levels_ok:
+            QMessageBox.critical(self, "Error", "Check level ranges!")
+            return
+        if not col_ok:
+            QMessageBox.critical(self, "Error", "Check colours!")
+            return
         
         contours = []
         
@@ -778,16 +816,19 @@ class ChEsher(QtGui.QMainWindow):
             if len(geometry["holes"]) == 0:
                 del geometry["holes"]
 
-            t = triangle.triangulate(geometry, 'B')
-            contours.append(t)
+            if len(geometry["vertices"]) >= 3:
+                t = triangle.triangulate(geometry, 'p')
+                contours.append(t)
+            else:
+                contours.append(None)
 
 #            plt.figure(1)
 #            ax1 = plt.subplot(111, aspect='equal')
 #            triangle.plot.plot(ax1, **t)
 #            plt.show()
         
-        print levels
-        print coloursRGB
+#        print levels
+#        print coloursRGB
 #        for i in range(len(contours)):
 #            print contours[i]
             
@@ -800,7 +841,7 @@ class ChEsher(QtGui.QMainWindow):
 #                QMessageBox.critical(self, "Error", "Not able to write line sets!")
 #                return
             
-        fh.writeContDXF(self.ui.lineEditCont2DXFOutput.text(), contours, levels, coloursRGB)
+        fh.writeContDXF(self.ui.lineEditCont2DXFOutputSolid.text(), contours, levels, coloursRGB, self.ui.lineEditCont2DXFOutputLayer.text())
             
         QMessageBox.information(self, "Module Cont2DXF", info)
 
@@ -983,7 +1024,8 @@ class ChEsher(QtGui.QMainWindow):
         ###   ~   module Cont2DXF   ~   ###
         
         self.ui.lineEditCont2DXFInput.setText(self.directory + "example_9/test.t3s")
-        self.ui.lineEditCont2DXFOutput.setText(self.directory + "example_9/cont.dxf")
+        self.ui.lineEditCont2DXFOutputLayer.setText("HQ100")
+        self.ui.lineEditCont2DXFOutputSolid.setText(self.directory + "example_9/cont.dxf")
         
     def setDXF2BK(self):
         self.ui.labelModule.setText("~   Module DXF2BK   ~")

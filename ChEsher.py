@@ -398,6 +398,12 @@ class ChEsher(QtGui.QMainWindow):
         QtCore.QObject.connect(self.ui.pushButtonCont2DXFSave, QtCore.SIGNAL(_fromUtf8("clicked()")), self.saveLegend)
         QtCore.QObject.connect(self.ui.pushButtonCont2DXFDefault, QtCore.SIGNAL(_fromUtf8("clicked()")), self.defaultLegend)
         
+        self.callbackCont2DXFSolid = functools.partial(self.setEnabled, self.ui.checkBoxCont2DXFOutputSolid, self.ui.pushButtonCont2DXFOutputSolid, self.ui.lineEditCont2DXFOutputSolid)
+        QtCore.QObject.connect(self.ui.checkBoxCont2DXFOutputSolid, QtCore.SIGNAL("clicked()"), self.callbackCont2DXFSolid)
+ 
+        self.callbackCont2DXFLine = functools.partial(self.setEnabled, self.ui.checkBoxCont2DXFOutputLine, self.ui.pushButtonCont2DXFOutputLine, self.ui.lineEditCont2DXFOutputLine)
+        QtCore.QObject.connect(self.ui.checkBoxCont2DXFOutputLine, QtCore.SIGNAL("clicked()"), self.callbackCont2DXFLine)
+        
         legends = ["water depths", "differences", "velocities"]
         self.ui.comboBoxCont2DXF.addItems(legends)
 #        QtCore.QObject.connect(self.ui.comboBoxCont2DXF, QtCore.SIGNAL(_fromUtf8("clicked()")), self.defaultLegend)
@@ -410,7 +416,8 @@ class ChEsher(QtGui.QMainWindow):
         header = self.ui.tableWidgetCont2DXF.horizontalHeader()
         header.setStretchLastSection(True)
 
-        self.setDXF2BK()        
+#        self.setDXF2BK()   
+        self.setCont2DXF()
         self.initialize()
         
     def setSymbol(self, i):
@@ -826,7 +833,7 @@ class ChEsher(QtGui.QMainWindow):
 #            ax1 = plt.subplot(111, aspect='equal')
 #            triangle.plot.plot(ax1, **t)
 #            plt.show()
-        
+#        
 #        print levels
 #        print coloursRGB
 #        for i in range(len(contours)):
@@ -840,9 +847,27 @@ class ChEsher(QtGui.QMainWindow):
 #            except:
 #                QMessageBox.critical(self, "Error", "Not able to write line sets!")
 #                return
+
+        if self.ui.checkBoxCont2DXFOutputSolid.isChecked():
+            try:
+                fh.writeContSolidDXF(self.ui.lineEditCont2DXFOutputSolid.text(), contours, levels, coloursRGB, self.ui.lineEditCont2DXFOutputLayer.text())
+                info += " - Contour created with {0} levels.\n".format(len(levels)) 
+                if self.ui.checkBoxCont2DXFOutputSolidLegend.isChecked():
+                    info += " - Legend created.\n"
+                    print "create legend for contour"
+            except:
+                info += " - ERROR: Not able to write contour to dxf!\n"
             
-        fh.writeContDXF(self.ui.lineEditCont2DXFOutputSolid.text(), contours, levels, coloursRGB, self.ui.lineEditCont2DXFOutputLayer.text())
-            
+        if self.ui.checkBoxCont2DXFOutputLine.isChecked():
+            try:
+                fh.writeContIsoLineDXF(self.ui.lineEditCont2DXFOutputLine.text(), contours, levels, coloursRGB, self.ui.lineEditCont2DXFOutputLayer.text())
+                info += " - Isolines created with {0} levels.\n".format(len(levels))
+                if self.ui.checkBoxCont2DXFOutputLineLegend.isChecked():
+                    info += " - Legend created.\n"
+                    print "create legend for isoline"
+            except:
+                info += " - ERROR: Not able to write isolines to dxf!\n"            
+                        
         QMessageBox.information(self, "Module Cont2DXF", info)
 
     def getSaveLayerName(self):
@@ -1026,6 +1051,10 @@ class ChEsher(QtGui.QMainWindow):
         self.ui.lineEditCont2DXFInput.setText(self.directory + "example_9/test.t3s")
         self.ui.lineEditCont2DXFOutputLayer.setText("HQ100")
         self.ui.lineEditCont2DXFOutputSolid.setText(self.directory + "example_9/cont.dxf")
+        self.ui.lineEditCont2DXFOutputLine.setText(self.directory + "example_9/poly.dxf")
+        
+        setEnabled(self.ui.checkBoxCont2DXFOutputSolid, self.ui.pushButtonCont2DXFOutputSolid, self.ui.lineEditCont2DXFOutputSolid)
+        setEnabled(self.ui.checkBoxCont2DXFOutputLine, self.ui.pushButtonCont2DXFOutputLine, self.ui.lineEditCont2DXFOutputLine)
         
     def setDXF2BK(self):
         self.ui.labelModule.setText("~   Module DXF2BK   ~")

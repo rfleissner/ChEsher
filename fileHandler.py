@@ -333,7 +333,30 @@ def writeCSFormatted(filename, nameCS, time, resultsCS, decTime, decFlow):
 
     file.close()
 
-def writeContDXF(fname, contour, levels, coloursRGB, layer):
+def writeContIsoLineDXF(fname, contour, levels, coloursRGB, layer):
+    
+    if layer == "":
+        layer = "0"
+    dwg = ezdxf.new(dxfversion='AC1018')
+    
+    msp = dwg.modelspace()
+    
+    for c in range(len(contour)):
+    
+        if contour[c] is None:
+            continue
+        
+        for segment in contour[c]['segments']:
+   
+            p1 = contour[c]['vertices'][segment[0]]
+            p2 = contour[c]['vertices'][segment[1]]
+
+            poly = msp.add_line(p1, p2, dxfattribs={'layer': layer})
+            poly.rgb = coloursRGB[c]
+
+    dwg.saveas(str(fname))
+
+def writeContSolidDXF(fname, contour, levels, coloursRGB, layer):
     
     if layer == "":
         layer = "0"
@@ -346,11 +369,6 @@ def writeContDXF(fname, contour, levels, coloursRGB, layer):
         if contour[c] is None:
             continue
 
-#        dxf_layer = str(levels[c])
-#        dwg.layers.create(name=dxf_layer)
-#        lay = dwg.layers.get(dxf_layer)
-#        lay.set_color(coloursRGB[c])
-        
         for triangle in contour[c]['triangles']:
    
             p1 = contour[c]['vertices'][triangle[0]]

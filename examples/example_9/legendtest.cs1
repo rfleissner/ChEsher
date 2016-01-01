@@ -1,41 +1,7 @@
-#########################################################################
 :FileType cs1 ASCII EnSim 1.0
-# Canadian Hydraulics Centre/National Research Council (c) 1998-2012
-# EnSim ColourScale definition
-#
-:Application              BlueKenue
-:Version                  3.3.4
 :WrittenBy                Reinhard Fleiﬂner
-:CreationDate             Fri, Jan 01, 2016 01:10 PM
-#
-#------------------------------------------------------------------------
 :EndHeader
-:StartColourScale
-:Origin 80.000000 55.000000
-:Extent 15.000000 40.000000
-:FontName Arial
-:FontColour 000000
-:IsFontBold 0
-:IsFontItalics 0
-:IsFontUnderline 0
-:BackgroundOn 1
-:BackgroundColour 0xffffff
-:BorderOn 1
-:BorderWidth 2
-:BorderColour 000000
-:IsAspectRatioLocked 1
-:IsVisible 0
-:Title test
-:SubTitle 
-:AboveString Above
-:BelowString Below
-:LabelFormat 0
-:SignificantDigits 3
-:IsRangeLabelsOn 0
-:RangeLabelSeparator to
-:LevelsAreIndex 0
 :ScaleLevelCount 17
-:ScaleLevelBasis 0
 :ScaleMin 0.000000
 :ScaleMax 4.250000
 :ScaleInterval 0.250000

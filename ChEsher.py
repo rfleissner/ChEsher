@@ -687,8 +687,10 @@ class ChEsher(QtGui.QMainWindow):
     
     def getLevels(self):
         levels = []
-        colHEX = []
+        colHEX_RGB = []
+        colHEX_BGR = []
         colRGB = []
+        colBGR = []
         level_ok = True
         col_ok = True
         
@@ -696,25 +698,30 @@ class ChEsher(QtGui.QMainWindow):
         
         if rows > 0:
             for row in range(rows):
-                
                 try:
                     levels.append(float(self.ui.tableWidgetCont2DXF.item(row, 0).text()))
+                    float(self.ui.tableWidgetCont2DXF.item(row, 1).text())
                 except:
-                    level_ok = False
+                    return [], False, [], [], True
                 try:
                     col = str(self.ui.tableWidgetCont2DXF.item(row, 2).text()).split(",")
 
-                    colFloat = (float(col[0])/255.0, float(col[1])/255.0, float(col[2])/255.0)
+                    colFloat_RGB = (float(col[0])/255.0, float(col[1])/255.0, float(col[2])/255.0)
+                    colFloat_BGR = (float(col[2])/255.0, float(col[1])/255.0, float(col[0])/255.0)
                     colRGB.append([float(col[0]), float(col[1]), float(col[2])])
-                    colHex = colors.rgb2hex(colFloat)
-                    colHEX.append(colHex)
+                    colBGR.append([float(col[2]), float(col[1]), float(col[0])])
+#                    colHex = colors.rgb2hex(colFloat_RGB)
+                    colHEX_RGB.append(colors.rgb2hex(colFloat_RGB))
+                    colHEX_BGR.append(colors.rgb2hex(colFloat_BGR))
                 except:
-                    col_ok = False
-                    
-            for rID in range(rows-1):
-                level_ai = round(float(self.ui.tableWidgetCont2DXF.item(rID, 0).text()), 6)
-                level_aj = round(float(self.ui.tableWidgetCont2DXF.item(rID, 1).text()), 6)
-                level_bi = round(float(self.ui.tableWidgetCont2DXF.item(rID+1, 0).text()), 6)
+                    return [], True, [], [], False
+         
+            # check if level ranges are in ascending order
+            for row in range(rows-1):
+                
+                level_ai = round(float(self.ui.tableWidgetCont2DXF.item(row, 0).text()), 6)
+                level_aj = round(float(self.ui.tableWidgetCont2DXF.item(row, 1).text()), 6)
+                level_bi = round(float(self.ui.tableWidgetCont2DXF.item(row+1, 0).text()), 6)
                 
                 if level_aj != level_bi:
                     level_ok = False
@@ -733,9 +740,9 @@ class ChEsher(QtGui.QMainWindow):
             if level_Nj <= level_Ni:
                 level_ok = False
             
-            levels.append(float(self.ui.tableWidgetCont2DXF.item(row, 1).text()))
+            levels.append(float(self.ui.tableWidgetCont2DXF.item(rows-1, 1).text()))
             
-        return levels, level_ok, colHEX, colRGB, col_ok
+        return levels, level_ok, colHEX_RGB, colRGB, colHEX_BGR, colBGR, col_ok
     
     def createCont2DXF(self):
         
@@ -769,7 +776,7 @@ class ChEsher(QtGui.QMainWindow):
         triang = tri.Triangulation(x, y, triangles)
 
         # get levels and colours
-        levels, levels_ok, coloursHEX, coloursRGB, col_ok = self.getLevels()
+        levels, levels_ok, coloursHEX_RGB, coloursRGB, coloursHEX_BGR, coloursBGR, col_ok = self.getLevels()
 
         if not levels_ok:
             QMessageBox.critical(self, "Error", "Check level ranges!")
@@ -784,7 +791,7 @@ class ChEsher(QtGui.QMainWindow):
         for level in range(len(levels)-1):
             
             # create contour plot with matplotlib.pyplot.tricontourf
-            cs = plt.tricontourf(triang, z, levels=[levels[level], levels[level+1]], colors=coloursHEX[level])
+            cs = plt.tricontourf(triang, z, levels=[levels[level], levels[level+1]], colors=coloursHEX_RGB[level])
 
             # instantiate the dictionary for the triangulation
             geometry = {}
@@ -848,23 +855,59 @@ class ChEsher(QtGui.QMainWindow):
 #                QMessageBox.critical(self, "Error", "Not able to write line sets!")
 #                return
 
-        if self.ui.checkBoxCont2DXFOutputSolid.isChecked():
-            try:
-                fh.writeContSolidDXF(self.ui.lineEditCont2DXFOutputSolid.text(), contours, levels, coloursRGB, self.ui.lineEditCont2DXFOutputLayer.text())
-                info += " - Contour created with {0} levels.\n".format(len(levels)) 
-                if self.ui.checkBoxCont2DXFOutputSolidLegend.isChecked():
-                    info += " - Legend created.\n"
-                    print "create legend for contour"
-            except:
-                info += " - ERROR: Not able to write contour to dxf!\n"
+        xLeg = max(x)
+        yLeg = min(y)
+        origin = (xLeg, yLeg)
+        
+        title = self.ui.lineEditCont2DXFOutputLegendTitle.text()
+        subtitle = self.ui.lineEditCont2DXFOutputLegendSubtitle.text()
+        fh.writeContSolidDXF(
+            self.ui.lineEditCont2DXFOutputSolid.text(), 
+            contours,
+            levels,
+            coloursRGB, 
+            self.ui.lineEditCont2DXFOutputLayer.text(),
+            self.ui.checkBoxCont2DXFOutputSolidLegend.isChecked(),
+            title,
+            subtitle,
+            origin
+        )        
+#        if self.ui.checkBoxCont2DXFOutputSolid.isChecked():
+#            try:
+#                fh.writeContSolidDXF(
+#                self.ui.lineEditCont2DXFOutputSolid.text(), 
+#                contours,
+#                levels,
+#                coloursRGB, 
+#                self.ui.lineEditCont2DXFOutputLayer.text(),
+#                self.ui.checkBoxCont2DXFOutputSolidLegend.isChecked(),
+#                title,
+#                subtitle,
+#                origin
+#                )
+#                
+#                info += " - Contour created with {0} levels.\n".format(len(levels)) 
+#                if self.ui.checkBoxCont2DXFOutputSolidLegend.isChecked():
+#                    info += " - Legend created.\n"
+#            except:
+#                info += " - ERROR: Not able to write contour to dxf!\n"
             
         if self.ui.checkBoxCont2DXFOutputLine.isChecked():
             try:
-                fh.writeContIsoLineDXF(self.ui.lineEditCont2DXFOutputLine.text(), contours, levels, coloursRGB, self.ui.lineEditCont2DXFOutputLayer.text())
+                fh.writeContIsoLineDXF(
+                self.ui.lineEditCont2DXFOutputLine.text(), 
+                contours, 
+                levels,
+                coloursRGB, 
+                self.ui.lineEditCont2DXFOutputLayer.text(),
+                self.ui.checkBoxCont2DXFOutputLineLegend.isChecked(),
+                title,
+                subtitle,
+                origin
+                )
                 info += " - Isolines created with {0} levels.\n".format(len(levels))
                 if self.ui.checkBoxCont2DXFOutputLineLegend.isChecked():
                     info += " - Legend created.\n"
-                    print "create legend for isoline"
             except:
                 info += " - ERROR: Not able to write isolines to dxf!\n"            
                         
@@ -1721,7 +1764,8 @@ class ChEsher(QtGui.QMainWindow):
         filename = QFileDialog.getSaveFileName(self, title, self.directory, fileFormat)
         lineEdit.setText(filename)
         
-    def applyLegend(self, levels, colours):
+    def applyLegend(self, levels, colHEX_RGB):
+
         nLevels = len(levels)-1
 
         self.ui.tableWidgetCont2DXF.setRowCount(nLevels)
@@ -1735,7 +1779,7 @@ class ChEsher(QtGui.QMainWindow):
             item2.setText(str(levels[row+1]))
             self.ui.tableWidgetCont2DXF.setItem(row, 1, item2)
             
-            col = colors.hex2color(colours[row])
+            col = colors.hex2color(colHEX_RGB[row])
             colPy = QColor(int(col[0]*255),int(col[1]*255),int(col[2]*255))
             item3 = QtGui.QTableWidgetItem()
             item3.setBackground(colPy)
@@ -1745,33 +1789,57 @@ class ChEsher(QtGui.QMainWindow):
 
     def loadLegend(self):
         filename = QFileDialog.getOpenFileName(self, "Load an EnSim ColourScale definition file", self.directory, "EnSim ColourScale Files (*.cs1)")
-        levels, colours = fh.readCS1(filename)
+        levels, colHEX_BGR = fh.readCS1(filename)
         
-        self.applyLegend(levels, colours)
+        colHEX_RGB = []
+        
+        for col in range(len(colHEX_BGR)):
+            colFloat_BGR = colors.hex2color(colHEX_BGR[col])
+            colFloat_RGB = [colFloat_BGR[2], colFloat_BGR[1], colFloat_BGR[0]]
+            colHEX_RGB.append(colors.rgb2hex(colFloat_RGB)) 
+        
+        self.applyLegend(levels, colHEX_RGB)
 
     def saveLegend(self):
         filename = QFileDialog.getSaveFileName(self, "Save an EnSim ColourScale definition file", self.directory, "EnSim ColourScale Files (*.cs1)")
+                
+        levels, levels_ok, coloursHEX_RGB, coloursRGB, coloursHEX_BGR, coloursBGR, col_ok = self.getLevels()
+
+        if not levels_ok:
+            QMessageBox.critical(self, "Error", "Check level ranges!")
+            return
+        if not col_ok:
+            QMessageBox.critical(self, "Error", "Check colours!")
+            return
+        
+        try:
+            fh.writeCS1(filename, levels, coloursHEX_BGR)
+            info = "Legend saved with {0} levels:".format(len(levels))     
+            QMessageBox.information(self, "Legend", info)
+        except:
+            QMessageBox.critical(self, "Error", "Not able to save legend!")
+            return
         
     def defaultLegend(self):
         legend = self.ui.comboBoxCont2DXF.currentIndex()
         
         if legend == 0:
             levels = [0.0, 1.0, 2.0, 3.0]
-            colours = ['#0055aa', '#445566', '#ff4422', '#44ccdd']
+            colHEX_RGB = ['#0055aa', '#445566', '#ff4422', '#44ccdd']
             
-            self.applyLegend(levels, colours)
+            self.applyLegend(levels, colHEX_RGB)
 
         if legend == 1:
             levels = [0.1, 0.25, 0.5, 1.0]
-            colours = ['#eeccff', '#dd3399', '#009944', '#bb5588']
+            colHEX_RGB = ['#eeccff', '#dd3399', '#009944', '#bb5588']
             
-            self.applyLegend(levels, colours)
+            self.applyLegend(levels, colHEX_RGB)
 
         if legend == 2:
             levels = [0.0, 1.0, 2.0, 3.0]
-            colours = ['#eeee00', '#ffccaa', '#005544', '#887733']
+            colHEX_RGB = ['#eeee00', '#ffccaa', '#005544', '#887733']
             
-            self.applyLegend(levels, colours)
+            self.applyLegend(levels, colHEX_RGB)
             
     def createAction(self, text="", slot=None, shortcut=None, icon=None,
                      tip=None, checkable=False, signal="triggered()"):

@@ -1,0 +1,16 @@
+:FileType	cs1 ASCII EnSim 1.0
+:WrittenBy	ChEsher 1.0
+:EndHeader
+:ScaleLevelCount 4
+:ScaleColourBasis 0
+:ScaleMin 0.0
+:ScaleMax 3.0
+:ScaleInterval 1.0
+:ScaleLevel 0 0.0
+:ScaleLevel 1 1.0
+:ScaleLevel 2 2.0
+:ScaleLevel 3 3.0
+:ScaleColour 0 0xaa5500
+:ScaleColour 1 0x665544
+:ScaleColour 2 0x2244ff
+:ScaleColour 3 0x2244ff

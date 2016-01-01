@@ -333,7 +333,7 @@ def writeCSFormatted(filename, nameCS, time, resultsCS, decTime, decFlow):
 
     file.close()
 
-def writeContIsoLineDXF(fname, contour, levels, coloursRGB, layer):
+def writeContIsoLineDXF(fname, contour, levels, coloursRGB, layer, writelegend, title, subtitle, origin):
     
     if layer == "":
         layer = "0"
@@ -356,7 +356,7 @@ def writeContIsoLineDXF(fname, contour, levels, coloursRGB, layer):
 
     dwg.saveas(str(fname))
 
-def writeContSolidDXF(fname, contour, levels, coloursRGB, layer):
+def writeContSolidDXF(fname, contour, levels, coloursRGB, layer, writelegend, title, subtitle, origin):
     
     if layer == "":
         layer = "0"
@@ -374,9 +374,47 @@ def writeContSolidDXF(fname, contour, levels, coloursRGB, layer):
             p1 = contour[c]['vertices'][triangle[0]]
             p2 = contour[c]['vertices'][triangle[1]]
             p3 = contour[c]['vertices'][triangle[2]]
-
             solid = msp.add_solid([p1, p2, p3], dxfattribs={'layer': layer})
             solid.rgb = coloursRGB[c]
+    
+    if writelegend:
+        b = 10.0
+        h = 2.0
+        legend = dwg.blocks.new(name='LEGEND')
+        legend.add_line([0.0, 0.0], [b, 0.0])
+        legend.add_line([0.0, 0.0], [0.0, -h])
+        legend.add_line([b, 0.0], [b, -h])
+        legend.add_line([0.0, -h], [b, -h])
+        tit = legend.add_text(title, dxfattribs={'insert': [b/2.0, -h/2.0], 'height':1.0, 'halign':1, 'valign':0})
+        tit.set_pos([b/2.0, -h/2.0], align='MIDDLE_CENTER')
+        
+        if subtitle != "":
+            legend.add_line([0.0, -h], [b, -h])
+            legend.add_line([0.0, -h], [0.0, -2.0*h])
+            legend.add_line([b, -h], [b, -2.0*h])
+            legend.add_line([0.0, -2.0*h], [b, -2.0*h])
+            tit = legend.add_text(subtitle, dxfattribs={'height':1.0})
+            tit.set_pos([b/2.0, -3.0*h/2.0], align='MIDDLE_CENTER')
+        
+        for l in range(len(coloursRGB)):
+            p1 = [b/8.0, -2.0*h-l*h-(h/4.0)]
+            p2 = [b/4.0, -2.0*h-l*h-(h/4.0)]
+            p3 = [b/4.0, -2.0*h-l*h-(3.0*h/4.0)]
+            p4 = [b/8.0, -2.0*h-l*h-(3.0*h/4.0)]
+            solid = legend.add_solid([p1, p2, p4, p3])
+            solid.rgb = coloursRGB[l]
+            ran = str(levels[l]) + ' - ' + str(levels[l+1])
+            lev = legend.add_text(ran, dxfattribs={'height':0.75})
+            lev.set_pos([b/4.0+b/8.0, -2.0*h-l*h-(h/2.0)], align='MIDDLE_LEFT')
+            
+        legend.add_line([0, -2.0*h], [0, -2.0*h-len(coloursRGB)*h])
+        legend.add_line([b, -2.0*h], [b, -2.0*h-len(coloursRGB)*h])
+        legend.add_line([0, -2.0*h-len(coloursRGB)*h], [b, -2.0*h-len(coloursRGB)*h])
+            
+        msp.add_blockref('LEGEND', origin, dxfattribs={
+            'xscale': 1.0,
+            'yscale': 1.0,
+            'rotation': 0.0})
 
     dwg.saveas(str(fname))
     
@@ -689,9 +727,28 @@ def readT3S(filename):
 
     return nodesT3S, mesh
 
+def writeCS1(fname, levels, colours):
+    file = open(fname, 'w')
+    file.write(':FileType\tcs1 ASCII EnSim 1.0\n')
+    file.write(':WrittenBy\tChEsher 1.0\n')
+    file.write(':EndHeader\n')
+    file.write(':ScaleLevelCount ' + str(len(levels)) + '\n')
+    file.write(':ScaleColourBasis 0\n')
+    file.write(':ScaleMin ' + str(levels[0]) + '\n')
+    file.write(':ScaleMax ' + str(levels[-1]) + '\n')
+    file.write(':ScaleInterval ' + str((levels[-1]-levels[0])/(len(levels)-1)) + '\n')
+    
+    for level in range(len(levels)):
+        file.write(':ScaleLevel ' + str(level) + ' ' + str(levels[level])+ '\n')
+    for colour in range(len(colours)):
+        file.write(':ScaleColour ' + str(colour) + ' ' + str(colours[colour]).replace('#', '0x') + '\n')
+    file.write(':ScaleColour ' + str(len(colours)) + ' ' + str(colours[-1]).replace('#', '0x') + '\n')
+    
+    file.close()
+
 def readCS1(filename):
     levels = []
-    colours = []
+    colHEX_BGR = []
 
     file = open(filename, 'r')
     content = file.readlines()
@@ -701,9 +758,9 @@ def readCS1(filename):
         if content[line].startswith(':ScaleLevel '):
             levels.append(float(content[line].split()[-1]))
         elif content[line].startswith(':ScaleColour '):
-            colours.append(content[line].split()[-1][1:].replace('x', '#'))
+            colHEX_BGR.append(content[line].split()[-1][1:].replace('x', '#'))
 
-    return levels, colours
+    return levels, colHEX_BGR
 
 def writeXML(nodes, mesh, surfname, fname):
     root = ET.Element("LandXML")
@@ -727,6 +784,7 @@ def writeXML(nodes, mesh, surfname, fname):
 def writeXYZ(nodes, fname):
     file = open(fname, 'w')
     file.write(':FileType\txyz ASCII EnSim 1.0\n')
+    file.write(':WrittenBy\tChEsher 1.0\n')
     file.write(':EndHeader\n')
     for nID in nodes:
         file.write(str(nodes[nID][0]) + ' ' + str(nodes[nID][1]) + ' ' + str(nodes[nID][2]) + '\n')
@@ -738,6 +796,7 @@ def writeI2S(nodes, profiles, fname):
 def writeI3S(nodes, profiles, fname, dim=3):
     file = open(fname, 'w')
     file.write(':FileType\ti{0}s ASCII EnSim 1.0\n'.format(dim))
+    file.write(':WrittenBy\tChEsher 1.0\n')
     file.write(':AttributeUnits 1 m\n')
     file.write(':EndHeader\n')
     for pID in profiles:
@@ -867,6 +926,7 @@ def writeVectorDXF(nodes, VMin, VMax, eps, scale, fname):
 def writeT3S(nodes, mesh, fname):
     file = open(fname, 'w')
     file.write(':FileType\tt3s ASCII EnSim 1.0\n')
+    file.write(':WrittenBy\tChEsher 1.0\n')
     file.write(':AttributeName 1 Elevation\n')
     file.write(':NodeCount {0}\n'.format(len(nodes)))
     file.write(':ElementCount {0}\n'.format(len(mesh)))
@@ -884,6 +944,7 @@ def writeEWS(content, view, fname):
     file.write(':FileType ews ASCII EnSim 1.0\n')
     file.write(':Application\tBlueKenue\n')
     file.write(':Version\t3.3.4\n')
+    file.write(':WrittenBy\tChEsher 1.0\n')
     file.write(':IsMaximized\t1\n')
     file.write(':CurrentWorkingDirectory C:\Program Files\CHC\BlueKenue\n')
     file.write(':CustomColours 0x4e4e4e 0xffffff 0xffffff 0xffffff 0xffffff 0xffffff 0xffffff 0xffffff 0xffffff 0xffffff 0xffffff 0xffffff 0xffffff 0xffffff 0xffffff 0xffffff\n')

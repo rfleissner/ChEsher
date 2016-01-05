@@ -404,7 +404,7 @@ class ChEsher(QtGui.QMainWindow):
         self.callbackCont2DXFLine = functools.partial(self.setEnabled, self.ui.checkBoxCont2DXFOutputLine, self.ui.pushButtonCont2DXFOutputLine, self.ui.lineEditCont2DXFOutputLine)
         QtCore.QObject.connect(self.ui.checkBoxCont2DXFOutputLine, QtCore.SIGNAL("clicked()"), self.callbackCont2DXFLine)
         
-        legends = ["water depths", "differences", "velocities"]
+        legends = ["water depth", "water surface difference", "flow velocity", "bottom shear stress"]
         self.ui.comboBoxCont2DXF.addItems(legends)
 #        QtCore.QObject.connect(self.ui.comboBoxCont2DXF, QtCore.SIGNAL(_fromUtf8("clicked()")), self.defaultLegend)
         
@@ -789,7 +789,7 @@ class ChEsher(QtGui.QMainWindow):
         
         # loop over contour levels
         for level in range(len(levels)-1):
-            
+            print level
             # create contour plot with matplotlib.pyplot.tricontourf
             cs = plt.tricontourf(triang, z, levels=[levels[level], levels[level+1]], colors=coloursHEX_RGB[level])
 
@@ -816,20 +816,39 @@ class ChEsher(QtGui.QMainWindow):
                             # add random point if polygon defines a hole
                             if hole(poly):
                                 geometry["holes"].append(getHole(poly))
-                                
+                            
                             # add vertices and segments
                             for vID in range(len(poly)):
+                                
+                                if vID < len(poly)-2:
+                                    distance = ((abs(poly[vID][0]-poly[vID+1][0]))**2.0+(abs(poly[vID][1]-poly[vID+1][1]))**2.0)**(0.5)
+                                    eps = 0.000001
+                                    if distance <= eps:
+                                        poly[vID][0] += eps*float(vID)
+                                        poly[vID][1] += eps*float(vID)
+                                        distance_new = ((abs(poly[vID][0]-poly[vID+1][0]))**2.0+(abs(poly[vID][1]-poly[vID+1][1]))**2.0)**(0.5)
+                                        print vID, distance, distance_new
+                                        print poly
+                                else:
+                                    distance = ((abs(poly[vID][0]-poly[0][0]))**2.0+(abs(poly[vID][1]-poly[0][1]))**2.0)**(0.5)
+                                    eps = 0.000001
+                                    if distance <= eps:
+                                        poly[vID][0] += eps*float(vID)
+                                        poly[vID][1] += eps*float(vID)
+                                        distance_new = ((abs(poly[vID][0]-poly[0][0]))**2.0+(abs(poly[vID][1]-poly[0][1]))**2.0)**(0.5)
+                                        print vID, distance, distance_new
+                                        print poly
+ 
                                 geometry["segments"].append([nodeID, nodeID+1])
                                 geometry["vertices"].append(poly[vID])
                                 nodeID += 1
                                 
                             # close polygon by adding segment from last and first vertice
                             geometry["segments"][nodeID-1][1] = nodeID-len(poly)
-                    
-            # delete holes from dictionary, if no holes exist
+
+#             delete holes from dictionary, if no holes exist
             if len(geometry["holes"]) == 0:
                 del geometry["holes"]
-
             if len(geometry["vertices"]) >= 3:
                 t = triangle.triangulate(geometry, 'p')
                 contours.append(t)
@@ -840,20 +859,6 @@ class ChEsher(QtGui.QMainWindow):
 #            ax1 = plt.subplot(111, aspect='equal')
 #            triangle.plot.plot(ax1, **t)
 #            plt.show()
-#        
-#        print levels
-#        print coloursRGB
-#        for i in range(len(contours)):
-#            print contours[i]
-            
-        # write cont
-#        if self.ui.lineEditCont2DXFOutput.text() != "":
-#            try:
-#                fh.writeContDXF(self.ui.lineEditCont2DXFOutput.text(), linesetNodes, lineset, dim)
-#                info += " - Line set written to {0}.\n".format(self.ui.lineEditBK2DXFOutputLineSet.text())
-#            except:
-#                QMessageBox.critical(self, "Error", "Not able to write line sets!")
-#                return
 
         xLeg = max(x)
         yLeg = min(y)
@@ -861,55 +866,44 @@ class ChEsher(QtGui.QMainWindow):
         
         title = self.ui.lineEditCont2DXFOutputLegendTitle.text()
         subtitle = self.ui.lineEditCont2DXFOutputLegendSubtitle.text()
-        fh.writeContSolidDXF(
-            self.ui.lineEditCont2DXFOutputSolid.text(), 
-            contours,
-            levels,
-            coloursRGB, 
-            self.ui.lineEditCont2DXFOutputLayer.text(),
-            self.ui.checkBoxCont2DXFOutputSolidLegend.isChecked(),
-            title,
-            subtitle,
-            origin
-        )        
+
 #        if self.ui.checkBoxCont2DXFOutputSolid.isChecked():
 #            try:
 #                fh.writeContSolidDXF(
-#                self.ui.lineEditCont2DXFOutputSolid.text(), 
-#                contours,
-#                levels,
-#                coloursRGB, 
-#                self.ui.lineEditCont2DXFOutputLayer.text(),
-#                self.ui.checkBoxCont2DXFOutputSolidLegend.isChecked(),
-#                title,
-#                subtitle,
-#                origin
-#                )
-#                
+#                    self.ui.lineEditCont2DXFOutputSolid.text(), 
+#                    contours,
+#                    levels,
+#                    coloursRGB, 
+#                    self.ui.lineEditCont2DXFOutputLayer.text(),
+#                    self.ui.checkBoxCont2DXFOutputSolidLegend.isChecked(),
+#                    title,
+#                    subtitle,
+#                    origin
+#                )        
 #                info += " - Contour created with {0} levels.\n".format(len(levels)) 
 #                if self.ui.checkBoxCont2DXFOutputSolidLegend.isChecked():
 #                    info += " - Legend created.\n"
 #            except:
 #                info += " - ERROR: Not able to write contour to dxf!\n"
-            
-        if self.ui.checkBoxCont2DXFOutputLine.isChecked():
-            try:
-                fh.writeContIsoLineDXF(
-                self.ui.lineEditCont2DXFOutputLine.text(), 
-                contours, 
-                levels,
-                coloursRGB, 
-                self.ui.lineEditCont2DXFOutputLayer.text(),
-                self.ui.checkBoxCont2DXFOutputLineLegend.isChecked(),
-                title,
-                subtitle,
-                origin
-                )
-                info += " - Isolines created with {0} levels.\n".format(len(levels))
-                if self.ui.checkBoxCont2DXFOutputLineLegend.isChecked():
-                    info += " - Legend created.\n"
-            except:
-                info += " - ERROR: Not able to write isolines to dxf!\n"            
+#            
+#        if self.ui.checkBoxCont2DXFOutputLine.isChecked():
+#            try:
+#                fh.writeContIsoLineDXF(
+#                self.ui.lineEditCont2DXFOutputLine.text(), 
+#                contours, 
+#                levels,
+#                coloursRGB, 
+#                self.ui.lineEditCont2DXFOutputLayer.text(),
+#                self.ui.checkBoxCont2DXFOutputLineLegend.isChecked(),
+#                title,
+#                subtitle,
+#                origin
+#                )
+#                info += " - Isolines created with {0} levels.\n".format(len(levels))
+#                if self.ui.checkBoxCont2DXFOutputLineLegend.isChecked():
+#                    info += " - Legend created.\n"
+#            except:
+#                info += " - ERROR: Not able to write isolines to dxf!\n"            
                         
         QMessageBox.information(self, "Module Cont2DXF", info)
 
@@ -1821,25 +1815,70 @@ class ChEsher(QtGui.QMainWindow):
             return
         
     def defaultLegend(self):
-        legend = self.ui.comboBoxCont2DXF.currentIndex()
         
+        def RGB2HEX(RGB):
+            
+            HEX = []
+            for i in range(len(RGB)):
+                RGB[i]
+                colFloat_RGB = (float(RGB[i][0])/255.0, float(RGB[i][1])/255.0, float(RGB[i][2])/255.0)
+                HEX.append(colors.rgb2hex(colFloat_RGB))
+            return HEX
+        
+#        colFloat_RGB = (float(col[0])/255.0, float(col[1])/255.0, float(col[2])/255.0)
+#        colFloat_BGR = (float(col[2])/255.0, float(col[1])/255.0, float(col[0])/255.0)
+#        colRGB.append([float(col[0]), float(col[1]), float(col[2])])
+#        colBGR.append([float(col[2]), float(col[1]), float(col[0])])
+##                    colHex = colors.rgb2hex(colFloat_RGB)
+#        colHEX_RGB.append(colors.rgb2hex(colFloat_RGB))        
+
+        
+        
+        legend = self.ui.comboBoxCont2DXF.currentIndex()
+
+        # water depth
         if legend == 0:
-            levels = [0.0, 1.0, 2.0, 3.0]
-            colHEX_RGB = ['#0055aa', '#445566', '#ff4422', '#44ccdd']
+            levels = [0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 100.0]
+            col_RGB = [[190,232,255],[116,179,255],[55,141,255],[18,107,238],[0,77,168],[232,190,255],[202,123,245],[161,91,137],[130,39,100],[230,0,0]]
+            col_HEX = RGB2HEX(col_RGB)
             
-            self.applyLegend(levels, colHEX_RGB)
-
+            self.applyLegend(levels, col_HEX)
+            
+            self.ui.lineEditCont2DXFOutputLegendTitle.setText("Water depth")
+            self.ui.lineEditCont2DXFOutputLegendSubtitle.setText("[m]")
+            
+        # water surface difference
         if legend == 1:
-            levels = [0.1, 0.25, 0.5, 1.0]
-            colHEX_RGB = ['#eeccff', '#dd3399', '#009944', '#bb5588']
+            levels = [-100.0, -0.8, -0.6, -0.4, -0.2, -0.1, -0.05, -0.01, 0.01, 0.05, 0.1, 0.2, 0.4, 0.6, 0.8, 100.0]
+            col_RGB = [[219,81,216],[255,128,255],[191,128,255],[128,128,255],[128,191,255],[128,255,255],[179,255,255],[255,255,255],[255,255,204],[255,255,128],[255,191,128],[255,128,128],[255,0,0],[202,0,0],[157,0,0]]
+            col_HEX = RGB2HEX(col_RGB)
             
-            self.applyLegend(levels, colHEX_RGB)
+            self.applyLegend(levels, col_HEX)
 
-        if legend == 2:
-            levels = [0.0, 1.0, 2.0, 3.0]
-            colHEX_RGB = ['#eeee00', '#ffccaa', '#005544', '#887733']
+            self.ui.lineEditCont2DXFOutputLegendTitle.setText("Water surface difference")
+            self.ui.lineEditCont2DXFOutputLegendSubtitle.setText("[m]")
             
-            self.applyLegend(levels, colHEX_RGB)
+        # velocity
+        if legend == 2:
+            levels = [0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 100.0]
+            col_RGB = [[211,255,190],[163,255,116],[77,230,0],[55,168,0],[36,116,0],[255,190,190],[255,127,127],[230,0,0],[168,0,0], [116,0,0]]
+            col_HEX = RGB2HEX(col_RGB)
+            
+            self.applyLegend(levels, col_HEX)
+
+            self.ui.lineEditCont2DXFOutputLegendTitle.setText("Flow velocity")
+            self.ui.lineEditCont2DXFOutputLegendSubtitle.setText("[m/s]")
+            
+        # bottom shear stress
+        if legend == 3:
+            levels = [0.0, 5.0, 12.5, 25.0, 37.5, 50.0, 75.0, 100.0, 150.0, 200.0, 1000.0]
+            col_RGB = [[211,255,190],[163,255,116],[77,230,0],[55,168,0],[36,116,0],[255,190,190],[255,127,127],[230,0,0],[168,0,0], [116,0,0]]
+            col_HEX = RGB2HEX(col_RGB)
+            
+            self.applyLegend(levels, col_HEX)
+
+            self.ui.lineEditCont2DXFOutputLegendTitle.setText("Bottom shear stress")
+            self.ui.lineEditCont2DXFOutputLegendSubtitle.setText("[N/m2]")
             
     def createAction(self, text="", slot=None, shortcut=None, icon=None,
                      tip=None, checkable=False, signal="triggered()"):

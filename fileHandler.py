@@ -365,7 +365,7 @@ def writeContSolidDXF(fname, contour, levels, coloursRGB, layer, writelegend, ti
     msp = dwg.modelspace()
     
     for c in range(len(contour)):
-    
+        print c
         if contour[c] is None:
             continue
 

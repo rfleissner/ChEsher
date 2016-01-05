@@ -1,0 +1,63 @@
+#########################################################################
+:FileType cs1 ASCII EnSim 1.0
+# Canadian Hydraulics Centre/National Research Council (c) 1998-2012
+# EnSim ColourScale definition
+#
+:Application              BlueKenue
+:Version                  3.3.4
+:WrittenBy                rfleissner
+:CreationDate             Tue, Jan 05, 2016 09:47 AM
+#
+#------------------------------------------------------------------------
+:EndHeader
+:StartColourScale
+:Origin 6.099102 72.653061
+:Extent 11.819887 24.217687
+:FontName Arial
+:FontColour 000000
+:IsFontBold 0
+:IsFontItalics 0
+:IsFontUnderline 0
+:BackgroundOn 1
+:BackgroundColour 0xffffff
+:BorderOn 1
+:BorderWidth 2
+:BorderColour 000000
+:IsAspectRatioLocked 1
+:IsVisible 1
+:Title Fließgeschwindigkeiten
+:SubTitle HQ30 ZUK [m/s]
+:AboveString >
+:BelowString <
+:LabelFormat 0
+:SignificantDigits 3
+:IsRangeLabelsOn 1
+:RangeLabelSeparator -
+:LevelsAreIndex 0
+:ScaleLevelCount 10
+:ScaleLevelBasis 0
+:ScaleMin 0.000000
+:ScaleMax 1.000000
+:ScaleInterval 0.100000
+:ScaleLevel 0 0.010000
+:ScaleLevel 1 0.100000
+:ScaleLevel 2 0.250000
+:ScaleLevel 3 0.500000
+:ScaleLevel 4 0.750000
+:ScaleLevel 5 1.000000
+:ScaleLevel 6 1.500000
+:ScaleLevel 7 2.000000
+:ScaleLevel 8 3.000000
+:ScaleLevel 9 4.000000
+:ScaleColourBasis 1
+:ScaleColour 0 0xbeffd3
+:ScaleColour 1 0x74ffa3
+:ScaleColour 2 0x00e64d
+:ScaleColour 3 0x00a837
+:ScaleColour 4 0x007424
+:ScaleColour 5 0xbebeff
+:ScaleColour 6 0x7f7fff
+:ScaleColour 7 0x0000e6
+:ScaleColour 8 0x0000a8
+:ScaleColour 9 0x000074
+:EndObjectType CColourScale

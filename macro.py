@@ -1,6 +1,6 @@
 #!/usr/bin/python -d
 #
-# Copyright (C) 2015  Reinhard Fleissner
+# Copyright (C) 2016  Reinhard Fleissner
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,8 +19,6 @@ __author__="Reinhard Fleissner"
 __date__ ="$29.08.2014 18:21:40$"
 
 import scipy.interpolate as sp
-#from scipy import interpolate
-
 import numpy as np
 #import shapely.geometry as sh
 

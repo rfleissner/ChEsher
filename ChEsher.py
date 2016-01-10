@@ -1,6 +1,6 @@
 #!/usr/bin/python -d
 #
-# Copyright (C) 2015  Reinhard Fleissner
+# Copyright (C) 2016  Reinhard Fleissner
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -896,7 +896,7 @@ class ChEsher(QtGui.QMainWindow):
             if len(geometry["holes"]) == 0:
                 del geometry["holes"]
             if len(geometry["vertices"]) >= 3:
-                t = triangle.triangulate(geometry, 'p')
+                t = triangle.triangulate(geometry, 'pq')
                 contours.append(t)
             else:
                 contours.append(None)
@@ -921,14 +921,14 @@ class ChEsher(QtGui.QMainWindow):
                     levels,
                     coloursRGB, 
                     self.ui.lineEditCont2DXFOutputLayer.text(),
-                    self.ui.checkBoxCont2DXFOutputSolidLegend.isChecked(),
+                    self.ui.checkBoxCont2DXFOutputLegend.isChecked(),
                     title,
                     subtitle,
                     origin
                 )
                 info += "Contours:\n"
                 info += " - Contours created with {0} levels.\n".format(len(levels)) 
-                if self.ui.checkBoxCont2DXFOutputSolidLegend.isChecked():
+                if self.ui.checkBoxCont2DXFOutputLegend.isChecked():
                     info += " - Legend created.\n"
                 info += " - DXF written to {0}.\n\n".format(self.ui.lineEditCont2DXFOutputSolid.text())
             except:
@@ -942,14 +942,14 @@ class ChEsher(QtGui.QMainWindow):
                 levels,
                 coloursRGB, 
                 self.ui.lineEditCont2DXFOutputLayer.text(),
-                self.ui.checkBoxCont2DXFOutputLineLegend.isChecked(),
+                self.ui.checkBoxCont2DXFOutputLegend.isChecked(),
                 title,
                 subtitle,
                 origin
                 )
                 info += "Isolines:\n"
                 info += " - Isolines created with {0} levels.\n".format(len(levels))
-                if self.ui.checkBoxCont2DXFOutputLineLegend.isChecked():
+                if self.ui.checkBoxCont2DXFOutputLegend.isChecked():
                     info += " - Legend created.\n"
                 info += " - DXF written to {0}.\n".format(self.ui.lineEditCont2DXFOutputLine.text())
             except:

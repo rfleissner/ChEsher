@@ -1,6 +1,6 @@
 #!/usr/bin/python -d
 #
-# Copyright (C) 2015  Reinhard Fleissner
+# Copyright (C) 2016  Reinhard Fleissner
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -12,12 +12,12 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 
-import sys
+
 from cx_Freeze import setup, Executable
+import sys
 
 # Use of the file to create a msi-installer:
 # python setup_cx_freeze.py bdist_msi
-
 
 # Dependencies are automatically detected, but it might need fine tuning.
 includefiles = ['geos_c.dll']
@@ -32,7 +32,7 @@ if sys.platform == "win32":
         version = "1.0",
         author = "Fleissner Reinhard",
         options = {"build_exe": build_exe_options},
-        executables = [Executable("ChEsher.py", icon="icon_256x256.ico", base="Win32GUI")])
+        executables = [Executable("ChEsher.py", icon="icon.ico", base="Win32GUI")])
 
 if sys.platform == "win64":
 
@@ -40,4 +40,4 @@ if sys.platform == "win64":
         version = "1.0",
         author = "Fleissner Reinhard",
         options = {"build_exe": build_exe_options},
-        executables = [Executable("ChEsher.py", icon="icon_256x256.ico", base="Win64GUI")])
+        executables = [Executable("ChEsher.py", icon="icon.ico", base="Win64GUI")])

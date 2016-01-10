@@ -1,6 +1,6 @@
 #!/usr/bin/python -d
 #
-# Copyright (C) 2015  Reinhard Fleissner
+# Copyright (C) 2016  Reinhard Fleissner
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -353,6 +353,49 @@ def writeContIsoLineDXF(fname, contour, levels, coloursRGB, layer, writelegend, 
 
             poly = msp.add_line(p1, p2, dxfattribs={'layer': layer})
             poly.rgb = coloursRGB[c]
+
+    if writelegend:
+
+        b = 50.0
+        h = 5.0
+        dxc = 5.0
+        bc = 15.0
+
+        legend = dwg.blocks.new(name='LEGEND')
+        legend.add_line([0.0, 0.0], [b, 0.0])
+        legend.add_line([0.0, 0.0], [0.0, -h])
+        legend.add_line([b, 0.0], [b, -h])
+        legend.add_line([0.0, -h], [b, -h])
+        
+        tit = legend.add_text(title, dxfattribs={'insert': [b/2.0, -h/2.0], 'height':h/2.0, 'halign':1, 'valign':0})
+        tit.set_pos([b/2.0, -h/2.0], align='MIDDLE_CENTER')
+        
+        lc = 1
+        if subtitle != "":
+            legend.add_line([0.0, -h], [b, -h])
+            legend.add_line([0.0, -h], [0.0, -2.0*h])
+            legend.add_line([b, -h], [b, -2.0*h])
+            legend.add_line([0.0, -2.0*h], [b, -2.0*h])
+            tit = legend.add_text(subtitle, dxfattribs={'height':h/2.0})
+            tit.set_pos([b/2.0, -3.0*h/2.0], align='MIDDLE_CENTER')
+            lc = 2
+        for l in range(len(coloursRGB)):
+            p1 = [dxc, -lc*h-l*h-(h/2.0)]
+            p2 = [dxc+bc, -lc*h-l*h-(h/2.0)]
+            line = legend.add_line(p1, p2)
+            line.rgb = coloursRGB[l]
+            ran = str(levels[l]) + ' - ' + str(levels[l+1])
+            lev = legend.add_text(ran, dxfattribs={'height':h/3.0})
+            lev.set_pos([2*dxc+bc, -lc*h-l*h-(h/2.0)], align='MIDDLE_LEFT')
+            
+        legend.add_line([0, -2.0*h], [0, -2.0*h-len(coloursRGB)*h])
+        legend.add_line([b, -2.0*h], [b, -2.0*h-len(coloursRGB)*h])
+        legend.add_line([0, -2.0*h-len(coloursRGB)*h], [b, -2.0*h-len(coloursRGB)*h])
+            
+        msp.add_blockref('LEGEND', origin, dxfattribs={
+            'xscale': 1.0,
+            'yscale': 1.0,
+            'rotation': 0.0})
 
     dwg.saveas(str(fname))
 

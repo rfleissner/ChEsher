@@ -3266,7 +3266,7 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="2">
+        <item row="1" column="2" colspan="2">
          <widget class="QLineEdit" name="lineEditCont2DXFInput"/>
         </item>
         <item row="2" column="0" colspan="4">
@@ -3392,7 +3392,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Legend:</string>
+             <string>Levels:</string>
             </property>
             <property name="indent">
              <number>18</number>
@@ -3529,14 +3529,14 @@
         <item row="8" column="2">
          <widget class="QLineEdit" name="lineEditCont2DXFOutputLayer"/>
         </item>
-        <item row="11" column="0">
+        <item row="12" column="0">
          <widget class="QCheckBox" name="checkBoxCont2DXFOutputSolid">
           <property name="text">
-           <string>DXF file contour:</string>
+           <string>DXF file filled contours:</string>
           </property>
          </widget>
         </item>
-        <item row="11" column="1">
+        <item row="12" column="1">
          <widget class="QPushButton" name="pushButtonCont2DXFOutputSolid">
           <property name="minimumSize">
            <size>
@@ -3555,24 +3555,17 @@
           </property>
          </widget>
         </item>
-        <item row="11" column="2">
+        <item row="12" column="2">
          <widget class="QLineEdit" name="lineEditCont2DXFOutputSolid"/>
         </item>
-        <item row="11" column="3">
-         <widget class="QCheckBox" name="checkBoxCont2DXFOutputSolidLegend">
-          <property name="text">
-           <string>create legend</string>
-          </property>
-         </widget>
-        </item>
-        <item row="12" column="0">
+        <item row="13" column="0">
          <widget class="QCheckBox" name="checkBoxCont2DXFOutputLine">
           <property name="text">
            <string>DXF file isolines:</string>
           </property>
          </widget>
         </item>
-        <item row="12" column="1">
+        <item row="13" column="1">
          <widget class="QPushButton" name="pushButtonCont2DXFOutputLine">
           <property name="minimumSize">
            <size>
@@ -3591,17 +3584,10 @@
           </property>
          </widget>
         </item>
-        <item row="12" column="2">
+        <item row="13" column="2">
          <widget class="QLineEdit" name="lineEditCont2DXFOutputLine"/>
         </item>
-        <item row="12" column="3">
-         <widget class="QCheckBox" name="checkBoxCont2DXFOutputLineLegend">
-          <property name="text">
-           <string>create legend</string>
-          </property>
-         </widget>
-        </item>
-        <item row="13" column="0" colspan="4">
+        <item row="14" column="0" colspan="4">
          <spacer name="verticalSpacer_20">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -3639,7 +3625,7 @@
           </column>
          </widget>
         </item>
-        <item row="14" column="0" colspan="4">
+        <item row="15" column="0" colspan="4">
          <widget class="QPushButton" name="pushButtonCont2DXFCreate">
           <property name="text">
            <string>Let's go!</string>
@@ -3671,6 +3657,13 @@
         </item>
         <item row="10" column="2">
          <widget class="QLineEdit" name="lineEditCont2DXFOutputLegendSubtitle"/>
+        </item>
+        <item row="11" column="0">
+         <widget class="QCheckBox" name="checkBoxCont2DXFOutputLegend">
+          <property name="text">
+           <string>create legend</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

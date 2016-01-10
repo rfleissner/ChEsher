@@ -416,9 +416,9 @@ class ChEsher(QtGui.QMainWindow):
         header = self.ui.tableWidgetCont2DXF.horizontalHeader()
         header.setStretchLastSection(True)
 
-#        self.setDXF2BK()   
-        self.setCont2DXF()
-        self.initialize()
+        self.setDXF2BK()   
+#        self.setCont2DXF()
+#        self.initialize()
         
     def setSymbol(self, i):
         self.scalarSymbol = i
@@ -748,6 +748,7 @@ class ChEsher(QtGui.QMainWindow):
         
         def hole(polycoord):
             """Polygon is a hole, if the vertices are defined clockwise."""
+            
             ring = LinearRing(polycoord)
             if ring.is_ccw is False:
                 return True
@@ -789,7 +790,7 @@ class ChEsher(QtGui.QMainWindow):
         
         # loop over contour levels
         for level in range(len(levels)-1):
-            print level
+
             # create contour plot with matplotlib.pyplot.tricontourf
             cs = plt.tricontourf(triang, z, levels=[levels[level], levels[level+1]], colors=coloursHEX_RGB[level])
 
@@ -799,6 +800,7 @@ class ChEsher(QtGui.QMainWindow):
             geometry["segments"] = []
             geometry["holes"] = []
 
+            # nodecounter for level
             nodeID = 0
             
             # loop over matplotlib collection
@@ -807,45 +809,90 @@ class ChEsher(QtGui.QMainWindow):
                     
                     # paths to polygons
                     polys = pp.to_polygons()
+
+                    eps = 0.000001
+                    polys_ = []
                     
                     # loop over polygons
                     for pID in range(len(polys)):
                         poly = polys[pID]
+                        nodeIDs = []
+                        
                         if len(poly) > 1:
                             
                             # add random point if polygon defines a hole
                             if hole(poly):
                                 geometry["holes"].append(getHole(poly))
                             
+                            # nodecounter for polygon
                             counter = 0
+                            
                             # add vertices and segments
+                            # triangle crashes, if vertices are too close to each other,
+                            # which would result in zero area triangles
                             for vID in range(len(poly)):
+                                vert = np.array(poly[vID])
+                                vert = vert.reshape((1,2))
                                 
-#                                test = np.subtract(np.array(geometry["vertices"]),np.array(poly[vID]))
-#                                
-#                                print min(test)
-                                
-                                if vID < len(poly)-2:
-                                    distance = ((abs(poly[vID][0]-poly[vID+1][0]))**2.0+(abs(poly[vID][1]-poly[vID+1][1]))**2.0)**(0.5)
-                                    eps = 0.000001
-                                    if distance >= eps:
-                                        geometry["segments"].append([nodeID, nodeID+1])
-                                        geometry["vertices"].append(poly[vID])
-                                        nodeID += 1
-                                        counter += 1
+                                # first vertice in polygon
+                                if len(geometry["vertices"]) == 0:
+                                    geometry["vertices"] = np.array(vert)
+                                    nodeIDs.append(nodeID)
+                                    counter += 1
+                                    nodeID += 1
                                 else:
-                                    distance = ((abs(poly[vID][0]-poly[0][0]))**2.0+(abs(poly[vID][1]-poly[0][1]))**2.0)**(0.5)
-                                    eps = 0.000001
-                                    if distance >= eps:
-                                        geometry["segments"].append([nodeID, nodeID+1])
-                                        geometry["vertices"].append(poly[vID])
-                                        nodeID += 1
+                                    # subtract actual vertice from array of vertices
+                                    vertices_ = geometry["vertices"] - vert
+                                    
+                                    # calculate the length of the vectors
+                                    norm = np.linalg.norm(vertices_, axis = 1)
+                                    
+                                    # get smallest vector norm
+                                    min_norm = norm.min()
+
+                                    # if smallest vector norm is greater than a defined value, apply vertice
+                                    if min_norm > eps:
                                         counter += 1
+                                        geometry["vertices"] = np.concatenate((geometry["vertices"], vert))
+                                        nodeIDs.append(nodeID)
+                                        nodeID += 1
+                                    # else get index of smallest vector norm and apply node-ID
+                                    else:
+                                        min_index = np.argmin(norm)
+#                                        print "comparison: ", min_index, geometry["vertices"][min_index], vID, poly[vID]
+                                        nodeIDs.append(min_index)
 
-                            # close polygon by adding segment from last and first vertice
-                            geometry["segments"][nodeID-1][1] = geometry["segments"][nodeID-counter][0]
+                            # close polygon by adding id from first vertice
+                            nodeIDs.append(nodeID-counter)
 
-#             delete holes from dictionary, if no holes exist
+                        polys_.append(nodeIDs)
+
+                    # create segments
+                    for pID in range(len(polys_)):
+                        for nID in range(len(polys_[pID])-1):
+                            geometry["segments"].append([polys_[pID][nID], polys_[pID][nID+1]])
+
+#                                if vID < len(poly)-2:
+#                                    distance = ((abs(poly[vID][0]-poly[vID+1][0]))**2.0+(abs(poly[vID][1]-poly[vID+1][1]))**2.0)**(0.5)
+#                                    eps = 0.000001
+#                                    if distance >= eps:
+#                                        geometry["segments"].append([nodeID, nodeID+1])
+#                                        geometry["vertices"].append(poly[vID])
+#                                        nodeID += 1
+#                                        counter += 1
+#                                else:
+#                                    distance = ((abs(poly[vID][0]-poly[0][0]))**2.0+(abs(poly[vID][1]-poly[0][1]))**2.0)**(0.5)
+#                                    eps = 0.000001
+#                                    if distance >= eps:
+#                                        geometry["segments"].append([nodeID, nodeID+1])
+#                                        geometry["vertices"].append(poly[vID])
+#                                        nodeID += 1
+#                                        counter += 1
+#
+#                            # close polygon by adding segment from last and first vertice
+#                            geometry["segments"][nodeID-1][1] = geometry["segments"][nodeID-counter][0]
+
+            # delete holes from dictionary, if no holes exist
             if len(geometry["holes"]) == 0:
                 del geometry["holes"]
             if len(geometry["vertices"]) >= 3:
@@ -878,10 +925,12 @@ class ChEsher(QtGui.QMainWindow):
                     title,
                     subtitle,
                     origin
-                )        
-                info += " - Contour created with {0} levels.\n".format(len(levels)) 
+                )
+                info += "Contours:\n"
+                info += " - Contours created with {0} levels.\n".format(len(levels)) 
                 if self.ui.checkBoxCont2DXFOutputSolidLegend.isChecked():
                     info += " - Legend created.\n"
+                info += " - DXF written to {0}.\n\n".format(self.ui.lineEditCont2DXFOutputSolid.text())
             except:
                 info += " - ERROR: Not able to write contour to dxf!\n"
             
@@ -898,9 +947,11 @@ class ChEsher(QtGui.QMainWindow):
                 subtitle,
                 origin
                 )
+                info += "Isolines:\n"
                 info += " - Isolines created with {0} levels.\n".format(len(levels))
                 if self.ui.checkBoxCont2DXFOutputLineLegend.isChecked():
                     info += " - Legend created.\n"
+                info += " - DXF written to {0}.\n".format(self.ui.lineEditCont2DXFOutputLine.text())
             except:
                 info += " - ERROR: Not able to write isolines to dxf!\n"            
                         
@@ -1084,10 +1135,10 @@ class ChEsher(QtGui.QMainWindow):
 
         ###   ~   module Cont2DXF   ~   ###
         
-        self.ui.lineEditCont2DXFInput.setText(self.directory + "example_5/WATER DEPTH_S161_Case_A.t3s")
+        self.ui.lineEditCont2DXFInput.setText(self.directory + "example_9/WATER DEPTH_S161_Case_A.t3s")
         self.ui.lineEditCont2DXFOutputLayer.setText("HQ100")
-        self.ui.lineEditCont2DXFOutputSolid.setText(self.directory + "example_9/cont.dxf")
-        self.ui.lineEditCont2DXFOutputLine.setText(self.directory + "example_9/poly.dxf")
+        self.ui.lineEditCont2DXFOutputSolid.setText(self.directory + "example_9/contours_Case_A_water_depth.dxf")
+        self.ui.lineEditCont2DXFOutputLine.setText(self.directory + "example_9/isolines_Case_A_water_depth.dxf")
         
         setEnabled(self.ui.checkBoxCont2DXFOutputSolid, self.ui.pushButtonCont2DXFOutputSolid, self.ui.lineEditCont2DXFOutputSolid)
         setEnabled(self.ui.checkBoxCont2DXFOutputLine, self.ui.pushButtonCont2DXFOutputLine, self.ui.lineEditCont2DXFOutputLine)
@@ -1784,16 +1835,23 @@ class ChEsher(QtGui.QMainWindow):
 
     def loadLegend(self):
         filename = QFileDialog.getOpenFileName(self, "Load an EnSim ColourScale definition file", self.directory, "EnSim ColourScale Files (*.cs1)")
-        levels, colHEX_BGR = fh.readCS1(filename)
         
-        colHEX_RGB = []
-        
-        for col in range(len(colHEX_BGR)):
-            colFloat_BGR = colors.hex2color(colHEX_BGR[col])
-            colFloat_RGB = [colFloat_BGR[2], colFloat_BGR[1], colFloat_BGR[0]]
-            colHEX_RGB.append(colors.rgb2hex(colFloat_RGB)) 
-        
-        self.applyLegend(levels, colHEX_RGB)
+        try:
+            levels, colHEX_BGR = fh.readCS1(filename)
+
+            colHEX_RGB = []
+
+            for col in range(len(colHEX_BGR)):
+                colFloat_BGR = colors.hex2color(colHEX_BGR[col])
+                colFloat_RGB = [colFloat_BGR[2], colFloat_BGR[1], colFloat_BGR[0]]
+                colHEX_RGB.append(colors.rgb2hex(colFloat_RGB)) 
+
+            self.applyLegend(levels, colHEX_RGB)
+            
+            info = "Legend loaded with {0} levels.".format(len(levels))     
+            QMessageBox.information(self, "Legend", info)
+        except:
+            QMessageBox.critical(self, "Error", "Not able to load legend!")
 
     def saveLegend(self):
         filename = QFileDialog.getSaveFileName(self, "Save an EnSim ColourScale definition file", self.directory, "EnSim ColourScale Files (*.cs1)")
@@ -1809,7 +1867,7 @@ class ChEsher(QtGui.QMainWindow):
         
         try:
             fh.writeCS1(filename, levels, coloursHEX_BGR)
-            info = "Legend saved with {0} levels:".format(len(levels))     
+            info = "Legend saved with {0} levels.".format(len(levels))     
             QMessageBox.information(self, "Legend", info)
         except:
             QMessageBox.critical(self, "Error", "Not able to save legend!")
@@ -1839,6 +1897,8 @@ class ChEsher(QtGui.QMainWindow):
 
         # water depth
         if legend == 0:
+#            levels = [0.0, 1.0, 2.0, 3.0, 4.0]
+#            col_RGB = [[190,232,255],[116,179,255],[55,141,255],[18,107,238],[0,77,168]]
             levels = [0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 100.0]
             col_RGB = [[190,232,255],[116,179,255],[55,141,255],[18,107,238],[0,77,168],[232,190,255],[202,123,245],[161,91,137],[130,39,100],[230,0,0]]
             col_HEX = RGB2HEX(col_RGB)

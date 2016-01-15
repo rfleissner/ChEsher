@@ -333,7 +333,7 @@ def writeCSFormatted(filename, nameCS, time, resultsCS, decTime, decFlow):
 
     file.close()
 
-def writeContIsoLineDXF(fname, contour, levels, coloursRGB, layer, writelegend, title, subtitle, origin):
+def writeContIsoLineDXF(fname, contour, levels, coloursRGB, layer, writelegend, title, subtitle, origin, separator, reverse_order):
     
     if layer == "":
         layer = "0"
@@ -356,41 +356,47 @@ def writeContIsoLineDXF(fname, contour, levels, coloursRGB, layer, writelegend, 
 
     if writelegend:
 
-        b = 50.0
+        b = 75.0
+        ht = 8.0
         h = 5.0
         dxc = 5.0
-        bc = 15.0
+        bc = 20.0
 
         legend = dwg.blocks.new(name='LEGEND')
         legend.add_line([0.0, 0.0], [b, 0.0])
-        legend.add_line([0.0, 0.0], [0.0, -h])
-        legend.add_line([b, 0.0], [b, -h])
-        legend.add_line([0.0, -h], [b, -h])
+        legend.add_line([0.0, 0.0], [0.0, -ht])
+        legend.add_line([b, 0.0], [b, -ht])
+        legend.add_line([0.0, -ht], [b, -ht])
         
-        tit = legend.add_text(title, dxfattribs={'insert': [b/2.0, -h/2.0], 'height':h/2.0, 'halign':1, 'valign':0})
-        tit.set_pos([b/2.0, -h/2.0], align='MIDDLE_CENTER')
+        tit = legend.add_text(title, dxfattribs={'insert': [b/2.0, -h/2.0], 'height':4.0/5.0*h, 'halign':1, 'valign':0})
+        tit.set_pos([b/2.0, -ht/2.0], align='MIDDLE_CENTER')
         
         lc = 1
         if subtitle != "":
-            legend.add_line([0.0, -h], [b, -h])
-            legend.add_line([0.0, -h], [0.0, -2.0*h])
-            legend.add_line([b, -h], [b, -2.0*h])
-            legend.add_line([0.0, -2.0*h], [b, -2.0*h])
-            tit = legend.add_text(subtitle, dxfattribs={'height':h/2.0})
-            tit.set_pos([b/2.0, -3.0*h/2.0], align='MIDDLE_CENTER')
+            legend.add_line([0.0, -ht], [b, -ht])
+            legend.add_line([0.0, -ht], [0.0, -2.0*ht])
+            legend.add_line([b, -ht], [b, -2.0*ht])
+            legend.add_line([0.0, -2.0*ht], [b, -2.0*ht])
+            tit = legend.add_text(subtitle, dxfattribs={'height':4.0/5.0*h})
+            tit.set_pos([b/2.0, -3.0*ht/2.0], align='MIDDLE_CENTER')
             lc = 2
+        i = 0
         for l in range(len(coloursRGB)):
-            p1 = [dxc, -lc*h-l*h-(h/2.0)]
-            p2 = [dxc+bc, -lc*h-l*h-(h/2.0)]
+            p1 = [dxc, -lc*ht-l*h-h]
+            p2 = [dxc+bc, -lc*ht-l*h-h]
             line = legend.add_line(p1, p2)
-            line.rgb = coloursRGB[l]
-            ran = str(levels[l]) + ' - ' + str(levels[l+1])
-            lev = legend.add_text(ran, dxfattribs={'height':h/3.0})
-            lev.set_pos([2*dxc+bc, -lc*h-l*h-(h/2.0)], align='MIDDLE_LEFT')
+            if reverse_order:
+                i = len(coloursRGB)-l-1
+            else:
+                i = l
+            line.rgb = coloursRGB[i]
+            ran = str(levels[i]) + separator + str(levels[i+1])
+            lev = legend.add_text(ran, dxfattribs={'height':2.0/5.0*h})
+            lev.set_pos([2*dxc+bc, -lc*ht-l*h-h], align='MIDDLE_LEFT')
             
-        legend.add_line([0, -2.0*h], [0, -2.0*h-len(coloursRGB)*h])
-        legend.add_line([b, -2.0*h], [b, -2.0*h-len(coloursRGB)*h])
-        legend.add_line([0, -2.0*h-len(coloursRGB)*h], [b, -2.0*h-len(coloursRGB)*h])
+        legend.add_line([0, -lc*ht], [0, -lc*ht-len(coloursRGB)*h-h])
+        legend.add_line([b, -lc*ht], [b, -lc*ht-len(coloursRGB)*h-h])
+        legend.add_line([0, -lc*ht-len(coloursRGB)*h-h], [b, -lc*ht-len(coloursRGB)*h-h])
             
         msp.add_blockref('LEGEND', origin, dxfattribs={
             'xscale': 1.0,
@@ -399,7 +405,7 @@ def writeContIsoLineDXF(fname, contour, levels, coloursRGB, layer, writelegend, 
 
     dwg.saveas(str(fname))
 
-def writeContSolidDXF(fname, contour, levels, coloursRGB, layer, writelegend, title, subtitle, origin):
+def writeContSolidDXF(fname, contour, levels, coloursRGB, layer, writelegend, title, subtitle, origin, separator, reverse_order):
     
     if layer == "":
         layer = "0"
@@ -422,43 +428,49 @@ def writeContSolidDXF(fname, contour, levels, coloursRGB, layer, writelegend, ti
     
     if writelegend:
 
-        b = 50.0
+        b = 75.0
+        ht = 8.0
         h = 5.0
         dxc = 5.0
-        bc = 15.0
+        bc = 20.0
 
         legend = dwg.blocks.new(name='LEGEND')
         legend.add_line([0.0, 0.0], [b, 0.0])
-        legend.add_line([0.0, 0.0], [0.0, -h])
-        legend.add_line([b, 0.0], [b, -h])
-        legend.add_line([0.0, -h], [b, -h])
+        legend.add_line([0.0, 0.0], [0.0, -ht])
+        legend.add_line([b, 0.0], [b, -ht])
+        legend.add_line([0.0, -ht], [b, -ht])
         
-        tit = legend.add_text(title, dxfattribs={'insert': [b/2.0, -h/2.0], 'height':h/2.0, 'halign':1, 'valign':0})
-        tit.set_pos([b/2.0, -h/2.0], align='MIDDLE_CENTER')
+        tit = legend.add_text(title, dxfattribs={'insert': [b/2.0, -ht/2.0], 'height':4.0/5.0*h, 'halign':1, 'valign':0})
+        tit.set_pos([b/2.0, -ht/2.0], align='MIDDLE_CENTER')
         
         lc = 1
         if subtitle != "":
-            legend.add_line([0.0, -h], [b, -h])
-            legend.add_line([0.0, -h], [0.0, -2.0*h])
-            legend.add_line([b, -h], [b, -2.0*h])
-            legend.add_line([0.0, -2.0*h], [b, -2.0*h])
-            tit = legend.add_text(subtitle, dxfattribs={'height':h/2.0})
-            tit.set_pos([b/2.0, -3.0*h/2.0], align='MIDDLE_CENTER')
+            legend.add_line([0.0, -ht], [b, -ht])
+            legend.add_line([0.0, -ht], [0.0, -2.0*ht])
+            legend.add_line([b, -ht], [b, -2.0*ht])
+            legend.add_line([0.0, -2.0*ht], [b, -2.0*ht])
+            tit = legend.add_text(subtitle, dxfattribs={'height':4.0/5.0*h})
+            tit.set_pos([b/2.0, -3.0*ht/2.0], align='MIDDLE_CENTER')
             lc = 2
+        i = 0
         for l in range(len(coloursRGB)):
-            p1 = [dxc, -lc*h-l*h-(h/4.0)]
-            p2 = [dxc+bc, -lc*h-l*h-(h/4.0)]
-            p3 = [dxc+bc, -lc*h-l*h-(3.0*h/4.0)]
-            p4 = [dxc, -lc*h-l*h-(3.0*h/4.0)]
+            p1 = [dxc, -lc*ht-l*h-(h/5.0)-(h/2.0)]
+            p2 = [dxc+bc, -lc*ht-l*h-(h/5.0)-(h/2.0)]
+            p3 = [dxc+bc, -lc*ht-l*h-(4.0*h/5.0)-(h/2.0)]
+            p4 = [dxc, -lc*ht-l*h-(4.0*h/5.0)-(h/2.0)]
             solid = legend.add_solid([p1, p2, p4, p3])
-            solid.rgb = coloursRGB[l]
-            ran = str(levels[l]) + ' - ' + str(levels[l+1])
-            lev = legend.add_text(ran, dxfattribs={'height':h/3.0})
-            lev.set_pos([2*dxc+bc, -lc*h-l*h-(h/2.0)], align='MIDDLE_LEFT')
+            if reverse_order:
+                i = len(coloursRGB)-l-1
+            else:
+                i = l
+            solid.rgb = coloursRGB[i]
+            ran = str(levels[i]) + separator + str(levels[i+1])
+            lev = legend.add_text(ran, dxfattribs={'height':2.0/5.0*h})
+            lev.set_pos([2*dxc+bc, -lc*ht-l*h-h], align='MIDDLE_LEFT')
             
-        legend.add_line([0, -2.0*h], [0, -2.0*h-len(coloursRGB)*h])
-        legend.add_line([b, -2.0*h], [b, -2.0*h-len(coloursRGB)*h])
-        legend.add_line([0, -2.0*h-len(coloursRGB)*h], [b, -2.0*h-len(coloursRGB)*h])
+        legend.add_line([0, -lc*ht], [0, -lc*ht-len(coloursRGB)*h-h])
+        legend.add_line([b, -lc*ht], [b, -lc*ht-len(coloursRGB)*h-h])
+        legend.add_line([0, -lc*ht-len(coloursRGB)*h-h], [b, -lc*ht-len(coloursRGB)*h-h])
             
         msp.add_blockref('LEGEND', origin, dxfattribs={
             'xscale': 1.0,

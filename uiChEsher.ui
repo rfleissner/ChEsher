@@ -3221,6 +3221,30 @@
       </widget>
       <widget class="QWidget" name="pageCont2DXF">
        <layout class="QGridLayout" name="gridLayout_12">
+        <item row="11" column="0">
+         <widget class="QCheckBox" name="checkBoxCont2DXFOutputLine">
+          <property name="text">
+           <string>DXF file isolines:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="0">
+         <widget class="QCheckBox" name="checkBoxCont2DXFOutputSolid">
+          <property name="text">
+           <string>DXF file filled contours:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="12" column="0">
+         <widget class="QCheckBox" name="checkBoxCont2DXFOutputLegend">
+          <property name="text">
+           <string>create legend</string>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="2">
+         <widget class="QLineEdit" name="lineEditCont2DXFOutputSolid"/>
+        </item>
         <item row="0" column="0">
          <widget class="QLabel" name="label_57">
           <property name="font">
@@ -3343,7 +3367,7 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>delete selected layer from table</string>
+             <string>set colour for selected level</string>
             </property>
             <property name="text">
              <string>colour</string>
@@ -3414,7 +3438,7 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>add layer to table</string>
+             <string>load legend from EnSim ColourScale definition file (*.cs1)</string>
             </property>
             <property name="text">
              <string>load</string>
@@ -3436,7 +3460,7 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>add layer to table</string>
+             <string>save legend as EnSim ColourScale definition file (*.cs1)</string>
             </property>
             <property name="text">
              <string>save</string>
@@ -3481,7 +3505,7 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>delete selected layer from table</string>
+             <string>set default legend</string>
             </property>
             <property name="text">
              <string>set default</string>
@@ -3516,7 +3540,7 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="0">
+        <item row="9" column="0">
          <widget class="QLabel" name="label_61">
           <property name="text">
            <string>DXF layer name:</string>
@@ -3526,68 +3550,10 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="2">
+        <item row="9" column="2">
          <widget class="QLineEdit" name="lineEditCont2DXFOutputLayer"/>
         </item>
-        <item row="12" column="0">
-         <widget class="QCheckBox" name="checkBoxCont2DXFOutputSolid">
-          <property name="text">
-           <string>DXF file filled contours:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="12" column="1">
-         <widget class="QPushButton" name="pushButtonCont2DXFOutputSolid">
-          <property name="minimumSize">
-           <size>
-            <width>20</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>40</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-        <item row="12" column="2">
-         <widget class="QLineEdit" name="lineEditCont2DXFOutputSolid"/>
-        </item>
-        <item row="13" column="0">
-         <widget class="QCheckBox" name="checkBoxCont2DXFOutputLine">
-          <property name="text">
-           <string>DXF file isolines:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="13" column="1">
-         <widget class="QPushButton" name="pushButtonCont2DXFOutputLine">
-          <property name="minimumSize">
-           <size>
-            <width>20</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>40</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-        <item row="13" column="2">
-         <widget class="QLineEdit" name="lineEditCont2DXFOutputLine"/>
-        </item>
-        <item row="14" column="0" colspan="4">
+        <item row="18" column="0" colspan="4">
          <spacer name="verticalSpacer_20">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -3605,7 +3571,7 @@
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>200</height>
+            <height>160</height>
            </size>
           </property>
           <column>
@@ -3625,44 +3591,114 @@
           </column>
          </widget>
         </item>
-        <item row="15" column="0" colspan="4">
+        <item row="19" column="0" colspan="4">
          <widget class="QPushButton" name="pushButtonCont2DXFCreate">
           <property name="text">
            <string>Let's go!</string>
           </property>
          </widget>
         </item>
-        <item row="9" column="0">
-         <widget class="QLabel" name="label_48">
-          <property name="text">
-           <string>Legend title:</string>
+        <item row="11" column="1">
+         <widget class="QPushButton" name="pushButtonCont2DXFOutputLine">
+          <property name="minimumSize">
+           <size>
+            <width>20</width>
+            <height>0</height>
+           </size>
           </property>
-          <property name="indent">
-           <number>18</number>
+          <property name="maximumSize">
+           <size>
+            <width>40</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>...</string>
           </property>
          </widget>
         </item>
-        <item row="10" column="0">
-         <widget class="QLabel" name="label_62">
-          <property name="text">
-           <string>Legend subtitle:</string>
+        <item row="11" column="2">
+         <widget class="QLineEdit" name="lineEditCont2DXFOutputLine"/>
+        </item>
+        <item row="10" column="1">
+         <widget class="QPushButton" name="pushButtonCont2DXFOutputSolid">
+          <property name="minimumSize">
+           <size>
+            <width>20</width>
+            <height>0</height>
+           </size>
           </property>
-          <property name="indent">
-           <number>18</number>
+          <property name="maximumSize">
+           <size>
+            <width>40</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>...</string>
           </property>
          </widget>
         </item>
-        <item row="9" column="2">
-         <widget class="QLineEdit" name="lineEditCont2DXFOutputLegendTitle"/>
-        </item>
-        <item row="10" column="2">
-         <widget class="QLineEdit" name="lineEditCont2DXFOutputLegendSubtitle"/>
-        </item>
-        <item row="11" column="0">
-         <widget class="QCheckBox" name="checkBoxCont2DXFOutputLegend">
-          <property name="text">
-           <string>create legend</string>
+        <item row="13" column="0" rowspan="4" colspan="3">
+         <widget class="QWidget" name="widgetCont2DXFLegend" native="true">
+          <property name="enabled">
+           <bool>false</bool>
           </property>
+          <layout class="QGridLayout" name="gridLayout_13">
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_48">
+             <property name="text">
+              <string>Legend title:</string>
+             </property>
+             <property name="indent">
+              <number>18</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_62">
+             <property name="text">
+              <string>Legend subtitle:</string>
+             </property>
+             <property name="indent">
+              <number>18</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEditCont2DXFOutputLegendTitle"/>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="lineEditCont2DXFOutputLegendSubtitle"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_63">
+             <property name="text">
+              <string>Separator:</string>
+             </property>
+             <property name="indent">
+              <number>18</number>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="lineEditCont2DXFOutputLegendSeparator">
+             <property name="text">
+              <string> - </string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0" colspan="2">
+            <widget class="QCheckBox" name="checkBoxCont2DXFOutputLegendReverse">
+             <property name="text">
+              <string>create legend in reverse order</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>

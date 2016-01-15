@@ -406,7 +406,8 @@ class ChEsher(QtGui.QMainWindow):
         
         legends = ["water depth", "water surface difference", "flow velocity", "bottom shear stress"]
         self.ui.comboBoxCont2DXF.addItems(legends)
-#        QtCore.QObject.connect(self.ui.comboBoxCont2DXF, QtCore.SIGNAL(_fromUtf8("clicked()")), self.defaultLegend)
+        
+        QtCore.QObject.connect(self.ui.checkBoxCont2DXFOutputLegend, QtCore.SIGNAL("clicked()"), self.setEnabledLegend)
         
         self.callbackCont2DXFOut = functools.partial(self.getSaveFileName, "Save Control Sections As", "Drawing Interchange File (*.dxf)", self.ui.lineEditCont2DXFOutputSolid)
         QtCore.QObject.connect(self.ui.pushButtonCont2DXFOutputSolid, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackCont2DXFOut)
@@ -896,7 +897,7 @@ class ChEsher(QtGui.QMainWindow):
             if len(geometry["holes"]) == 0:
                 del geometry["holes"]
             if len(geometry["vertices"]) >= 3:
-                t = triangle.triangulate(geometry, 'pq')
+                t = triangle.triangulate(geometry, 'p')
                 contours.append(t)
             else:
                 contours.append(None)
@@ -924,7 +925,9 @@ class ChEsher(QtGui.QMainWindow):
                     self.ui.checkBoxCont2DXFOutputLegend.isChecked(),
                     title,
                     subtitle,
-                    origin
+                    origin,
+                    self.ui.lineEditCont2DXFOutputLegendSeparator.text(),
+                    self.ui.checkBoxCont2DXFOutputLegendReverse.isChecked()
                 )
                 info += "Contours:\n"
                 info += " - Contours created with {0} levels.\n".format(len(levels)) 
@@ -945,7 +948,9 @@ class ChEsher(QtGui.QMainWindow):
                 self.ui.checkBoxCont2DXFOutputLegend.isChecked(),
                 title,
                 subtitle,
-                origin
+                origin,
+                self.ui.lineEditCont2DXFOutputLegendSeparator.text(),
+                self.ui.checkBoxCont2DXFOutputLegendReverse.isChecked()
                 )
                 info += "Isolines:\n"
                 info += " - Isolines created with {0} levels.\n".format(len(levels))
@@ -1137,8 +1142,11 @@ class ChEsher(QtGui.QMainWindow):
         
         self.ui.lineEditCont2DXFInput.setText(self.directory + "example_9/WATER DEPTH_S161_Case_A.t3s")
         self.ui.lineEditCont2DXFOutputLayer.setText("HQ100")
+        self.ui.lineEditCont2DXFOutputLegendSeparator.setText(" - ")
         self.ui.lineEditCont2DXFOutputSolid.setText(self.directory + "example_9/contours_Case_A_water_depth.dxf")
         self.ui.lineEditCont2DXFOutputLine.setText(self.directory + "example_9/isolines_Case_A_water_depth.dxf")
+        self.ui.checkBoxCont2DXFOutputLegend.setChecked(True)
+        self.setEnabledLegend()
         
         setEnabled(self.ui.checkBoxCont2DXFOutputSolid, self.ui.pushButtonCont2DXFOutputSolid, self.ui.lineEditCont2DXFOutputSolid)
         setEnabled(self.ui.checkBoxCont2DXFOutputLine, self.ui.pushButtonCont2DXFOutputLine, self.ui.lineEditCont2DXFOutputLine)
@@ -1760,6 +1768,10 @@ class ChEsher(QtGui.QMainWindow):
         pushButton.setEnabled(checked)
         lineEdit.setEnabled(checked)
 
+    def setEnabledLegend(self):
+        checked = self.ui.checkBoxCont2DXFOutputLegend.isChecked()
+        self.ui.widgetCont2DXFLegend.setEnabled(checked)
+        
     def refreshDXF(self):
         
         filename = self.ui.lineEditDXF2BKInput.text()

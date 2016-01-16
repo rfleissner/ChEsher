@@ -23,9 +23,12 @@ import functools
 import dxfgrabber
 import os.path as pth
 from math import ceil, floor
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.tri as tri
 from matplotlib import colors
 import matplotlib.pyplot as plt
+
 import triangle
 import triangle.plot
 import numpy as np
@@ -441,18 +444,22 @@ class ChEsher(QtGui.QMainWindow):
 
     def create2DM2BK(self):
     
-        SMS_elements, \
-            SMS_nodes,\
-            SMS_strings,\
-            SMS_materials,\
-            SMS_bc_nodes,\
-            SMS_bc_strings_1,\
-            SMS_bc_strings_2,\
-            SMS_bc_strings_3,\
-            SMS_bc_strings_4,\
-            SMS_bc_strings_5,\
-            SMS_bc_strings_6,\
-            SMS_bc_strings_7 = fh.read2DM(self.ui.lineEdit2dmInput.text())
+        try:
+            SMS_elements, \
+                SMS_nodes,\
+                SMS_strings,\
+                SMS_materials,\
+                SMS_bc_nodes,\
+                SMS_bc_strings_1,\
+                SMS_bc_strings_2,\
+                SMS_bc_strings_3,\
+                SMS_bc_strings_4,\
+                SMS_bc_strings_5,\
+                SMS_bc_strings_6,\
+                SMS_bc_strings_7 = fh.read2DM(self.ui.lineEdit2dmInput.text())
+        except:
+            QMessageBox.critical(self, "Error", "Not able to load file!\nCheck filename or content!")
+            return
         
         # BK_materials = {BK_node_id: strickler's value}
         BK_materials = {}
@@ -477,7 +484,7 @@ class ChEsher(QtGui.QMainWindow):
         i = 0
         impermeableMaterialID = self.ui.spinBox2dmImpermeable.value()
         material_added = False
-#        print SMS_materials
+
         for key in SMS_elements:
             if len(SMS_elements[key]) == 4:
                 node_0 = SMS_elements[key][0]
@@ -671,17 +678,26 @@ class ChEsher(QtGui.QMainWindow):
                 strings = {}
                 
                 if type == "i2s":
-                    nodes, strings = fh.readDXF(self.dxf, layer)
-                    fh.writeI2S(nodes, strings, filename)
-                    info += " - {0} object(s) from type *.i2s converted to file \n\t{1}\n".format(len(strings), filename)
+                    try:
+                        nodes, strings = fh.readDXF(self.dxf, layer)
+                        fh.writeI2S(nodes, strings, filename)
+                        info += " - {0} object(s) from type *.i2s converted to file \n\t{1}\n".format(len(strings), filename)
+                    except Exception, e:
+                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.i2s: ' + str(e))
                 elif type == "i3s":
-                    nodes, strings = fh.readDXF(self.dxf, layer)
-                    info += " - {0} object(s) from type *.i3s converted to file \n\t{1}\n".format(len(strings), filename)
-                    fh.writeI3S(nodes, strings, filename)
+                    try:
+                        nodes, strings = fh.readDXF(self.dxf, layer)
+                        fh.writeI3S(nodes, strings, filename)
+                        info += " - {0} object(s) from type *.i3s converted to file \n\t{1}\n".format(len(strings), filename)
+                    except Exception, e:
+                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.i3s: ' + str(e))
                 elif type == "xyz":
-                    nodes, strings = fh.readDXF(self.dxf, layer)
-                    info += " - {0} object(s) from type *.xyz converted to file \n\t{1}\n".format(len(nodes), filename)
-                    fh.writeXYZ(nodes, filename)
+                    try:
+                        nodes, strings = fh.readDXF(self.dxf, layer)
+                        fh.writeXYZ(nodes, filename)
+                        info += " - {0} object(s) from type *.xyz converted to file \n\t{1}\n".format(len(nodes), filename)
+                    except Exception, e:
+                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.xyz: ' + str(e))
                 else:
                     continue
         QMessageBox.information(self, "Module DXF2BK", info)
@@ -772,14 +788,14 @@ class ChEsher(QtGui.QMainWindow):
             return [randX, randY]
         
         info = ""
-        
-        # read input meshes
-        x, y, z, triangles = fh.readT3STriangulation(self.ui.lineEditCont2DXFInput.text())
-        triang = tri.Triangulation(x, y, triangles)
 
         # get levels and colours
-        levels, levels_ok, coloursHEX_RGB, coloursRGB, coloursHEX_BGR, coloursBGR, col_ok = self.getLevels()
-
+        try:
+            levels, levels_ok, coloursHEX_RGB, coloursRGB, coloursHEX_BGR, coloursBGR, col_ok = self.getLevels()
+        except:
+            QMessageBox.critical(self, "Error", "Check level inputs!")
+            return
+        
         if not levels_ok:
             QMessageBox.critical(self, "Error", "Check level ranges!")
             return
@@ -787,6 +803,14 @@ class ChEsher(QtGui.QMainWindow):
             QMessageBox.critical(self, "Error", "Check colours!")
             return
         
+        # read input meshes
+        try:
+            x, y, z, triangles = fh.readT3STriangulation(self.ui.lineEditCont2DXFInput.text())
+            triang = tri.Triangulation(x, y, triangles)
+        except:
+            QMessageBox.critical(self, "Error", "Not able to load mesh file!\nCheck filename or content!")
+            return
+
         contours = []
         
         # loop over contour levels
@@ -860,7 +884,7 @@ class ChEsher(QtGui.QMainWindow):
                                     # else get index of smallest vector norm and apply node-ID
                                     else:
                                         min_index = np.argmin(norm)
-#                                        print "comparison: ", min_index, geometry["vertices"][min_index], vID, poly[vID]
+                                        # print "comparison: ", min_index, geometry["vertices"][min_index], vID, poly[vID]
                                         nodeIDs.append(min_index)
 
                             # close polygon by adding id from first vertice
@@ -873,26 +897,6 @@ class ChEsher(QtGui.QMainWindow):
                         for nID in range(len(polys_[pID])-1):
                             geometry["segments"].append([polys_[pID][nID], polys_[pID][nID+1]])
 
-#                                if vID < len(poly)-2:
-#                                    distance = ((abs(poly[vID][0]-poly[vID+1][0]))**2.0+(abs(poly[vID][1]-poly[vID+1][1]))**2.0)**(0.5)
-#                                    eps = 0.000001
-#                                    if distance >= eps:
-#                                        geometry["segments"].append([nodeID, nodeID+1])
-#                                        geometry["vertices"].append(poly[vID])
-#                                        nodeID += 1
-#                                        counter += 1
-#                                else:
-#                                    distance = ((abs(poly[vID][0]-poly[0][0]))**2.0+(abs(poly[vID][1]-poly[0][1]))**2.0)**(0.5)
-#                                    eps = 0.000001
-#                                    if distance >= eps:
-#                                        geometry["segments"].append([nodeID, nodeID+1])
-#                                        geometry["vertices"].append(poly[vID])
-#                                        nodeID += 1
-#                                        counter += 1
-#
-#                            # close polygon by adding segment from last and first vertice
-#                            geometry["segments"][nodeID-1][1] = geometry["segments"][nodeID-counter][0]
-
             # delete holes from dictionary, if no holes exist
             if len(geometry["holes"]) == 0:
                 del geometry["holes"]
@@ -901,7 +905,8 @@ class ChEsher(QtGui.QMainWindow):
                 contours.append(t)
             else:
                 contours.append(None)
-
+                
+# plot triangulation using matplotlib
 #            plt.figure(1)
 #            ax1 = plt.subplot(111, aspect='equal')
 #            triangle.plot.plot(ax1, **t)
@@ -1143,8 +1148,8 @@ class ChEsher(QtGui.QMainWindow):
         self.ui.lineEditCont2DXFInput.setText(self.directory + "example_9/WATER DEPTH_S161_Case_A.t3s")
         self.ui.lineEditCont2DXFOutputLayer.setText("HQ100")
         self.ui.lineEditCont2DXFOutputLegendSeparator.setText(" - ")
-        self.ui.lineEditCont2DXFOutputSolid.setText(self.directory + "example_9/contours_Case_A_water_depth.dxf")
-        self.ui.lineEditCont2DXFOutputLine.setText(self.directory + "example_9/isolines_Case_A_water_depth.dxf")
+        self.ui.lineEditCont2DXFOutputSolid.setText(self.directory + "example_9/output/contours_Case_A_water_depth.dxf")
+        self.ui.lineEditCont2DXFOutputLine.setText(self.directory + "example_9/output/isolines_Case_A_water_depth.dxf")
         self.ui.checkBoxCont2DXFOutputLegend.setChecked(True)
         self.setEnabledLegend()
         
@@ -1285,13 +1290,22 @@ class ChEsher(QtGui.QMainWindow):
         eps = self.ui.doubleSpinBoxScalarDXFLessThan.value()
         
         # read input meshes
-        x, y, zMajor, triangles = fh.readT3STriangulation(self.ui.lineEditScalarDXFInputT3SMajor.text())
+        
+        try:
+            x, y, zMajor, triangles = fh.readT3STriangulation(self.ui.lineEditScalarDXFInputT3SMajor.text())
+        except:
+            QMessageBox.critical(self, "Error", "Not able to load mesh file!\nCheck filename or content!")
+            return
         
         minor = False
         if self.ui.lineEditScalarDXFInputT3SMinor.text() != "":
             minor = True
-            x, y, zMinor, triangles = fh.readT3STriangulation(self.ui.lineEditScalarDXFInputT3SMinor.text())
-        
+            try:
+                x, y, zMinor, triangles = fh.readT3STriangulation(self.ui.lineEditScalarDXFInputT3SMinor.text())
+            except:
+                QMessageBox.critical(self, "Error", "Not able to load mesh file!\nCheck filename or content!")
+                return            
+            
         scalarNodes = {}
         sCounter = 0
 
@@ -1335,9 +1349,13 @@ class ChEsher(QtGui.QMainWindow):
         useMono = self.ui.checkBoxScalarDXFMonochrome.isChecked()
         fname = self.ui.lineEditScalarDXFOutput.text()
         info += "\n - Number of interpolated values: {0}".format(len(scalarNodes))
-        
-        nOfValues = fh.writeScalarDXF(scalarNodes, SMin, SMax, eps, scale, self.scalarSymbol, useMono, fname)
-        info += "\n - {0} values written to {1}".format(nOfValues, fname)
+
+        try:
+            nOfValues = fh.writeScalarDXF(scalarNodes, SMin, SMax, eps, scale, self.scalarSymbol, useMono, fname)
+            info += "\n - {0} values written to {1}".format(nOfValues, fname)
+        except:
+            QMessageBox.critical(self, "Error", "Not able to write DXF file!")
+            return
 
         QMessageBox.information(self, "Module ScalarDXF", info)  
         
@@ -1356,7 +1374,11 @@ class ChEsher(QtGui.QMainWindow):
         eps = self.ui.doubleSpinBoxVectorDXFLessThan.value()
         
         # read input meshes
-        x, y, u, v, triangles = fh.readT3VTriangulation(self.ui.lineEditVectorDXFInput.text())
+        try:
+            x, y, u, v, triangles = fh.readT3VTriangulation(self.ui.lineEditVectorDXFInput.text())
+        except:
+            QMessageBox.critical(self, "Error", "Not able to load mesh file!\nCheck filename or content!")
+            return
         
         vectorNodes = {}
         sCounter = 0
@@ -1392,10 +1414,14 @@ class ChEsher(QtGui.QMainWindow):
                 vectorNodes[sCounter] = [xGrid[iy][ix], yGrid[iy][ix], zGridU[iy][ix], zGridV[iy][ix]]
                 sCounter += 1
    
-        fname = self.ui.lineEditVectorDXFOutput.text()
-        info += "\n - Number of interpolated values: {0}".format(len(vectorNodes))
-        nOfVectors= fh.writeVectorDXF(vectorNodes, VMin, VMax, eps, scale, fname)
-        info += "\n - {0} values written to {1}".format(nOfVectors, fname)
+        try:
+            fname = self.ui.lineEditVectorDXFOutput.text()
+            info += "\n - Number of interpolated values: {0}".format(len(vectorNodes))
+            nOfVectors= fh.writeVectorDXF(vectorNodes, VMin, VMax, eps, scale, fname)
+            info += "\n - {0} values written to {1}".format(nOfVectors, fname)
+        except:
+            QMessageBox.critical(self, "Error", "Not able to write DXF file!")
+            return   
         
         QMessageBox.information(self, "Module VectorDXF", info)
         
@@ -1407,6 +1433,7 @@ class ChEsher(QtGui.QMainWindow):
         # read input meshes
         nodes = {}
         mesh = {}
+        
         try:
             nodes, mesh = fh.readT3S(self.ui.lineEditCSInputMesh.text())
             info += " - Mesh loaded with {0} nodes and {1} elements.\n".format(len(nodes), len(mesh))
@@ -1867,8 +1894,12 @@ class ChEsher(QtGui.QMainWindow):
 
     def saveLegend(self):
         filename = QFileDialog.getSaveFileName(self, "Save an EnSim ColourScale definition file", self.directory, "EnSim ColourScale Files (*.cs1)")
-                
-        levels, levels_ok, coloursHEX_RGB, coloursRGB, coloursHEX_BGR, coloursBGR, col_ok = self.getLevels()
+   
+        try:
+            levels, levels_ok, coloursHEX_RGB, coloursRGB, coloursHEX_BGR, coloursBGR, col_ok = self.getLevels()
+        except:
+            QMessageBox.critical(self, "Error", "Check level inputs!")
+            return        
 
         if not levels_ok:
             QMessageBox.critical(self, "Error", "Check level ranges!")
@@ -1896,21 +1927,11 @@ class ChEsher(QtGui.QMainWindow):
                 HEX.append(colors.rgb2hex(colFloat_RGB))
             return HEX
         
-#        colFloat_RGB = (float(col[0])/255.0, float(col[1])/255.0, float(col[2])/255.0)
-#        colFloat_BGR = (float(col[2])/255.0, float(col[1])/255.0, float(col[0])/255.0)
-#        colRGB.append([float(col[0]), float(col[1]), float(col[2])])
-#        colBGR.append([float(col[2]), float(col[1]), float(col[0])])
-##                    colHex = colors.rgb2hex(colFloat_RGB)
-#        colHEX_RGB.append(colors.rgb2hex(colFloat_RGB))        
-
-        
-        
         legend = self.ui.comboBoxCont2DXF.currentIndex()
 
         # water depth
         if legend == 0:
-#            levels = [0.0, 1.0, 2.0, 3.0, 4.0]
-#            col_RGB = [[190,232,255],[116,179,255],[55,141,255],[18,107,238],[0,77,168]]
+
             levels = [0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 100.0]
             col_RGB = [[190,232,255],[116,179,255],[55,141,255],[18,107,238],[0,77,168],[232,190,255],[202,123,245],[161,91,137],[130,39,100],[230,0,0]]
             col_HEX = RGB2HEX(col_RGB)
@@ -2005,7 +2026,7 @@ class ChEsher(QtGui.QMainWindow):
         """Setup the About-dialog."""
         msg = u"""<p><b>ChEsher</b> V 1.0</p>
                     <p>Additional tool to <a href="http://www.nrc-cnrc.gc.ca/eng/solutions/advisory/blue_kenue_index.html">Blue Kenue&trade;</a> that is a pre and post processing software for the <a href="http://www.opentelemac.org/">open TELEMAC-MASCARET</a> system - an integrated suite of solvers for use in the field of free-surface flow of hydraulic modeling. </p>
-                    <p>Copyright \u00A9 2015 <a href="mailto:reinhard.fleissner@gmail.com?subject=ChEsher">Reinhard Flei\xdfner</a></p>
+                    <p>Copyright \u00A9 2016 <a href="mailto:reinhard.fleissner@gmail.com?subject=ChEsher">Reinhard Flei\xdfner</a></p>
                     <hr/>
                     <p>Python {0} - Qt {1} - PyQt {2} - {3}</p>""".format(
                     platform.python_version(),

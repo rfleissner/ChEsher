@@ -20,7 +20,6 @@ __date__ ="$29.08.2014 18:21:40$"
 import ewsEnSim as ws
 import xml.etree.cElementTree as ET
 from copy import deepcopy as dc
-#import dxfwrite
 import ezdxf
 from dxfwrite import DXFEngine as dxf
 import math
@@ -1056,7 +1055,7 @@ def readDXF(dxf, layer):
             stringcounter += 1
         elif dxftype == 'POLYLINE':
             strings[stringcounter] = []
-            for point in e.points():             
+            for point in e.points:             
                 if e.mode == "polyline2d":
                     nodes[nodecounter] = convertTuple(point, 2)
                 elif e.mode == "polyline3d":

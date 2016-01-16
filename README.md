@@ -9,7 +9,7 @@ The main freatures are:
 <li>generating contour plots for DXF file format
 </ul>
 
-<br>ChEsher is separated to various modules:
+ChEsher is separated to various modules:
 <ul>
 <li><b>DXF2BK</b> provides transformations from the DXF format to geometric objects that can be red by Blue Kenue&trade;.</li>
 <li><b>BK2DXF</b> transforms a 2D T3 Scalar Mesh to DXF format.</li>

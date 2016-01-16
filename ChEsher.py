@@ -964,7 +964,7 @@ class ChEsher(QtGui.QMainWindow):
                 info += " - DXF written to {0}.\n".format(self.ui.lineEditCont2DXFOutputLine.text())
             except:
                 info += " - ERROR: Not able to write isolines to dxf!\n"            
-                        
+
         QMessageBox.information(self, "Module Cont2DXF", info)
 
     def getSaveLayerName(self):

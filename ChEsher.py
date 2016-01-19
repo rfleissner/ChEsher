@@ -1105,6 +1105,7 @@ class ChEsher(QtGui.QMainWindow):
         self.ui.lineEditCSInputMesh.setText(self.directory + "example_7/BOTTOM_Case_A.t3s")
         self.ui.lineEditCSInputDefinition.setText(self.directory + "example_7/cs_input.txt")
         self.ui.lineEditCSInputResults.setText(self.directory + "example_7/cs_output_donau.txt")
+        self.ui.doubleSpinBoxCSSizeFactor.setValue(7.5)
         
         setEnabled(self.ui.checkBoxCSOutputFormatted, self.ui.pushButtonCSOutputFormatted, self.ui.lineEditCSOutputFormatted)
         setEnabled(self.ui.checkBoxCSOutputCS, self.ui.pushButtonCSOutputCS, self.ui.lineEditCSOutputCS)
@@ -1151,6 +1152,7 @@ class ChEsher(QtGui.QMainWindow):
         self.ui.lineEditCont2DXFOutputSolid.setText(self.directory + "example_9/output/contours_Case_A_water_depth.dxf")
         self.ui.lineEditCont2DXFOutputLine.setText(self.directory + "example_9/output/isolines_Case_A_water_depth.dxf")
         self.ui.checkBoxCont2DXFOutputLegend.setChecked(True)
+        self.ui.checkBoxCont2DXFOutputLegendReverse.setChecked(True)
         self.setEnabledLegend()
         
         setEnabled(self.ui.checkBoxCont2DXFOutputSolid, self.ui.pushButtonCont2DXFOutputSolid, self.ui.lineEditCont2DXFOutputSolid)

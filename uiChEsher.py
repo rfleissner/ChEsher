@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'uiChEsher.ui'
 #
-# Created: Mon Jan 11 17:55:18 2016
+# Created: Tue Jan 19 19:26:57 2016
 #      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -948,8 +948,8 @@ class Ui_MainWindow(object):
         self.doubleSpinBoxCSSizeFactor.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.doubleSpinBoxCSSizeFactor.setDecimals(3)
         self.doubleSpinBoxCSSizeFactor.setMaximum(99999999.0)
-        self.doubleSpinBoxCSSizeFactor.setSingleStep(5.0)
-        self.doubleSpinBoxCSSizeFactor.setProperty("value", 5.0)
+        self.doubleSpinBoxCSSizeFactor.setSingleStep(0.5)
+        self.doubleSpinBoxCSSizeFactor.setProperty("value", 7.5)
         self.doubleSpinBoxCSSizeFactor.setObjectName(_fromUtf8("doubleSpinBoxCSSizeFactor"))
         self.gridLayout_8.addWidget(self.doubleSpinBoxCSSizeFactor, 6, 2, 1, 1)
         self.label_40 = QtGui.QLabel(self.pageCS)
@@ -1377,7 +1377,7 @@ class Ui_MainWindow(object):
         self.actionAbout_ChEsher.setObjectName(_fromUtf8("actionAbout_ChEsher"))
 
         self.retranslateUi(MainWindow)
-        self.stackedWidget.setCurrentIndex(8)
+        self.stackedWidget.setCurrentIndex(6)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.pushButtonDXF2BKInput, self.lineEditDXF2BKInput)
         MainWindow.setTabOrder(self.lineEditDXF2BKInput, self.pushButtonRefresh)

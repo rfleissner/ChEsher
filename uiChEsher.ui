@@ -47,7 +47,7 @@
     <item row="3" column="0">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>8</number>
+       <number>6</number>
       </property>
       <widget class="QWidget" name="pageDXF2BK">
        <layout class="QGridLayout" name="gridLayout_3">
@@ -2557,10 +2557,10 @@
            <double>99999999.000000000000000</double>
           </property>
           <property name="singleStep">
-           <double>5.000000000000000</double>
+           <double>0.500000000000000</double>
           </property>
           <property name="value">
-           <double>5.000000000000000</double>
+           <double>7.500000000000000</double>
           </property>
          </widget>
         </item>

@@ -17,10 +17,10 @@ This module converts 2D T3 Scalar Meshes (*.t3s) and 2D or 3D Line Sets (*.i2s, 
 <h2>Example 2: Converting geometries from Blue Kenue&trade; to DXF file</h2>
 
 <p>
-The water depths and the zero depth contour line of the simulation case A of the Telemac 2d validation test case <b><i>donau</i></b> should be converted to dxf file format.
+The water depths and the 1 meter contour line of the simulation case A of the Telemac 2d validation test case <b><i>donau</i></b> should be converted to dxf file format.
 </p>
 <p>
-Open the results file of the test case A with Blue Kenue&trade; and save the last step of water depths to a 2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s). Extract an isoline of the water depth mesh and specify the isolevel value to 0.0 and save it to a 2D Line Set (*.i2s).
+Open the results file of the test case A with Blue Kenue&trade; and save the last step of water depths to a 2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s). Extract an isoline of the water depth mesh and specify the isolevel value to 1.0 and save it to a 2D Line Set (*.i2s).
 Go to ChEsher module <b>BK2DXF</b> and load the mesh and the line set into the corresponding lines. Select the type of mesh to be generated. Define the output file names.
 </p>
 <p>

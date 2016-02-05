@@ -48,7 +48,9 @@ def readDAT(filename):
     return SMS_wspl
 
 def read2DM(filename):
+
     file = open(filename, 'r')
+
     content = file.readlines()
     file.close()
     
@@ -329,6 +331,18 @@ def writeCSFormatted(filename, nameCS, time, resultsCS, decTime, decFlow):
         for key in resultsCS:
             file.write("{0}\t".format(round(resultsCS[key][i], decFlow)))
         file.write("\n")
+
+    file.close()
+
+def writeTubesDataFile(filename, textfile):
+    
+    file = open(filename, 'w')
+    file.write('Relaxation\n')
+    file.write('0.05\n')
+    file.write('I1\tI2\tCe1\tCe2\tCs1\tCs2\tLrg\tHau\tClp\tL12\tz1\tz2\n')
+    for line in range(len(textfile)):
+        file.write(textfile[line]+"\n")
+    file.write("\n")
 
     file.close()
 

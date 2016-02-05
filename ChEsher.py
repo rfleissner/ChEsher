@@ -90,6 +90,7 @@ class ChEsher(QtGui.QMainWindow):
         self.setCSAction = self.createAction("CS", slot=self.setCS, shortcut="F8")
         self.set2DMAction = self.createAction("2DM", slot=self.set2DM2BK, shortcut="F9")
         self.setCont2DXFAction = self.createAction("Cont2DXF", slot=self.setCont2DXF, shortcut="F10")
+        self.setTubeAction = self.createAction("Tube", slot=self.setTube, shortcut="F11")
 
         self.helpAboutAction = self.createAction("&About", \
             self.helpAbout)
@@ -99,7 +100,7 @@ class ChEsher(QtGui.QMainWindow):
         self.helpMenu = self.menuBar().addMenu("Help")
         # add actions to menu
         self.addActions(self.fileMenu, (self.fileSetDirectory, self.fileSetExamples, None, self.fileQuitAction))
-        self.addActions(self.moduleMenu, (self.setDXFtoBKAction, self.setBK2DXFAction, self.setMeshAction, self.setXMLAction, self.setScalarAction, self.setVectorAction, self.setCSAction, self.set2DMAction, self.setCont2DXFAction ))
+        self.addActions(self.moduleMenu, (self.setDXFtoBKAction, self.setBK2DXFAction, self.setMeshAction, self.setXMLAction, self.setScalarAction, self.setVectorAction, self.setCSAction, self.set2DMAction, self.setCont2DXFAction, self.setTubeAction ))
         self.addActions(self.helpMenu, (self.helpAction, None, self.helpAboutAction))
 
         # variables
@@ -420,6 +421,18 @@ class ChEsher(QtGui.QMainWindow):
         header = self.ui.tableWidgetCont2DXF.horizontalHeader()
         header.setStretchLastSection(True)
 
+# module Tube
+        self.callbackTubeOpenMeshFile = functools.partial(self.getOpenFileName, "Open T3S-file", "2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s)", self.ui.lineEditTubeInputMesh)
+        QtCore.QObject.connect(self.ui.pushButtonTubeInputMesh, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackTubeOpenMeshFile)
+        
+        self.callbackTubeOpenLineSet = functools.partial(self.getOpenFileName, "Open I2S-file", "Line Sets (*.i2s)", self.ui.lineEditTubeInputMesh)
+        QtCore.QObject.connect(self.ui.pushButtonTubeInputLineSet, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackTubeOpenLineSet)
+        
+        self.callbackTubeOutput = functools.partial(self.getSaveFileName, "Save textfile As", "Normal text file (*.txt)", self.ui.lineEditTubeOutput)
+        QtCore.QObject.connect(self.ui.pushButtonTubeOutput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackTubeOutput)
+        
+        QtCore.QObject.connect(self.ui.pushButtonTubeCreate, QtCore.SIGNAL("clicked()"), self.createTube)
+
         self.setDXF2BK()   
 #        self.setCont2DXF()
 #        self.initialize()
@@ -676,30 +689,54 @@ class ChEsher(QtGui.QMainWindow):
 
                 nodes = {}
                 strings = {}
-                
+
                 if type == "i2s":
-                    try:
-                        nodes, strings = fh.readDXF(self.dxf, layer)
-                        fh.writeI2S(nodes, strings, filename)
-                        info += " - {0} object(s) from type *.i2s converted to file \n\t{1}\n".format(len(strings), filename)
-                    except Exception, e:
-                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.i2s: ' + str(e))
+#                    try:
+                    nodes, strings = fh.readDXF(self.dxf, layer)
+                    fh.writeI2S(nodes, strings, filename)
+                    info += " - {0} object(s) from type *.i2s converted to file \n\t{1}\n".format(len(strings), filename)
+#                    except Exception, e:
+#                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.i2s: ' + str(e))
                 elif type == "i3s":
-                    try:
-                        nodes, strings = fh.readDXF(self.dxf, layer)
-                        fh.writeI3S(nodes, strings, filename)
-                        info += " - {0} object(s) from type *.i3s converted to file \n\t{1}\n".format(len(strings), filename)
-                    except Exception, e:
-                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.i3s: ' + str(e))
+#                    try:
+                    nodes, strings = fh.readDXF(self.dxf, layer)
+                    fh.writeI3S(nodes, strings, filename)
+                    info += " - {0} object(s) from type *.i3s converted to file \n\t{1}\n".format(len(strings), filename)
+#                    except Exception, e:
+#                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.i3s: ' + str(e))
                 elif type == "xyz":
-                    try:
-                        nodes, strings = fh.readDXF(self.dxf, layer)
-                        fh.writeXYZ(nodes, filename)
-                        info += " - {0} object(s) from type *.xyz converted to file \n\t{1}\n".format(len(nodes), filename)
-                    except Exception, e:
-                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.xyz: ' + str(e))
+#                    try:
+                    nodes, strings = fh.readDXF(self.dxf, layer)
+                    fh.writeXYZ(nodes, filename)
+                    info += " - {0} object(s) from type *.xyz converted to file \n\t{1}\n".format(len(nodes), filename)
+#                    except Exception, e:
+#                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.xyz: ' + str(e))
                 else:
-                    continue
+                    continue                
+#                
+#                if type == "i2s":
+#                    try:
+#                        nodes, strings = fh.readDXF(self.dxf, layer)
+#                        fh.writeI2S(nodes, strings, filename)
+#                        info += " - {0} object(s) from type *.i2s converted to file \n\t{1}\n".format(len(strings), filename)
+#                    except Exception, e:
+#                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.i2s: ' + str(e))
+#                elif type == "i3s":
+#                    try:
+#                        nodes, strings = fh.readDXF(self.dxf, layer)
+#                        fh.writeI3S(nodes, strings, filename)
+#                        info += " - {0} object(s) from type *.i3s converted to file \n\t{1}\n".format(len(strings), filename)
+#                    except Exception, e:
+#                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.i3s: ' + str(e))
+#                elif type == "xyz":
+#                    try:
+#                        nodes, strings = fh.readDXF(self.dxf, layer)
+#                        fh.writeXYZ(nodes, filename)
+#                        info += " - {0} object(s) from type *.xyz converted to file \n\t{1}\n".format(len(nodes), filename)
+#                    except Exception, e:
+#                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.xyz: ' + str(e))
+#                else:
+#                    continue
         QMessageBox.information(self, "Module DXF2BK", info)
     
     def getLevels(self):
@@ -1160,6 +1197,14 @@ class ChEsher(QtGui.QMainWindow):
         
         self.defaultLegend()
         
+        ###   ~   module Tube   ~   ###
+        
+        self.setTube()
+        self.directory = "K:/12-013_Gemeinde-Aibl_Linearmassnahmen_wr_Einreichung/Wasserbau/Berechnungen/Telemac-2d/Plan_1/Geometrie/1_Netz_IST/" 
+        self.ui.lineEditTubeInputMesh.setText(self.directory + "BOTTOM.t3s")
+        self.ui.lineEditTubeInputLineSet.setText(self.directory + "BR.i2s")
+        self.ui.lineEditTubeOutput.setText(self.directory + "tubes.txt")
+        
     def setDXF2BK(self):
         self.ui.labelModule.setText("~   Module DXF2BK   ~")
         self.ui.stackedWidget.setCurrentIndex(0)
@@ -1195,7 +1240,11 @@ class ChEsher(QtGui.QMainWindow):
     def setCont2DXF(self):
         self.ui.labelModule.setText("~   Module Cont2DXF   ~")
         self.ui.stackedWidget.setCurrentIndex(8)
-                
+
+    def setTube(self):
+        self.ui.labelModule.setText("~   Module Tube   ~")
+        self.ui.stackedWidget.setCurrentIndex(9)
+
     def setDirectory(self):
         self.directory = QFileDialog.getExistingDirectory(self, "Select directory", self.directory)
 
@@ -1497,6 +1546,89 @@ class ChEsher(QtGui.QMainWindow):
                 return               
     
         QMessageBox.information(self, "Module CS", info)
+        
+    def createTube(self):
+
+        info = ""
+        info += "Input data:\n"
+        
+        textfile = []
+        
+        # read input meshes
+        try:
+            x, y, z, triangles = fh.readT3STriangulation(self.ui.lineEditTubeInputMesh.text())
+            info += " - Mesh loaded with {0} nodes and {1} elements.\n".format(len(x), len(triangles))
+        except:
+            QMessageBox.critical(self, "Error", "Not able to load mesh file!\nCheck filename or content!")
+            return        
+
+        try:
+            tube_coords, tubes = fh.readI2S(self.ui.lineEditTubeInputLineSet.text())
+            info += " - Line Set loaded with {0} lines.\n".format(len(tubes))
+        except:
+            QMessageBox.critical(self, "Error", "Not able to load *.i2s file!\nCheck filename or content!")
+            return
+
+        # reshape coordinates
+        a = np.array([x, y])
+        b = np.reshape(a, (2*len(x)), order='F')
+        mesh_coords = np.reshape(b, (len(x), 2))
+        
+        Ce1 = 0.5
+        Ce2 = 0.5
+        Cs1 = 1.0
+        Cs2 = 1.0
+        Lrg = 0.0
+        Hau = 0.0
+        Clp = 0
+        L12 = 0.2
+
+        for tID in tubes:
+            line = ""
+            tube = tubes[tID]
+            
+            nodes = ""
+            z_val = ""
+            for i in range(2):
+                
+                p = tube_coords[tube[i]]
+                vert = np.array(p)
+                vert = vert.reshape((1,2))
+                temp = mesh_coords-p
+                norm = np.linalg.norm(temp, axis = 1)
+                I = np.argmin(norm)+1
+                nodes += str(I)
+                nodes += "\t"
+                z_val += str(z[I-1])
+                z_val += "\t"
+
+                
+            line += nodes
+
+            line += str(Ce1) + "\t"
+            line += str(Ce2) + "\t"
+            line += str(Cs1) + "\t"
+            line += str(Cs2) + "\t"
+            line += str(Lrg) + "\t"
+            line += str(Hau) + "\t"
+            line += str(Clp) + "\t"
+            line += str(L12) + "\t"
+            
+            line += z_val
+
+            textfile.append(line)
+
+
+        info += "\nOutput data:\n"
+                    
+        try:
+            fh.writeTubesDataFile(self.ui.lineEditTubeOutput.text(), textfile)
+            info += " - Tubes data file written to {0}.\n".format(self.ui.lineEditTubeOutput.text())
+        except:
+            QMessageBox.critical(self, "Error", "Not able to write tubes data file!")
+            return
+    
+        QMessageBox.information(self, "Module Tube", info)
 
     def createBK2DXF(self):
 

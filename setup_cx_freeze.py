@@ -5,7 +5,7 @@ from cx_Freeze import setup, Executable
 # python setup_cx_freeze.py bdist_msi
 
 # Dependencies are automatically detected, but it might need fine tuning.
-includefiles = ['geos_c.dll', 'examples/', 'documentation/']
+includefiles = ['geos_c.dll', 'examples/', 'documentation/', 'AC1018.dxf']
 
 build_exe_options = {"compressed":True, "packages": ["os"], "include_files":includefiles, 
 
@@ -27,8 +27,7 @@ build_exe_options = {"compressed":True, "packages": ["os"], "include_files":incl
                     "scipy.sparse.csgraph._validation", 
                     "scipy.integrate.vode", 
                     "scipy.integrate.lsoda",
-                    "dxfwrite",
-                    "dxfwrite.algebra"
+                    "dxfwrite"
                 ]}
 
 # GUI applications require a different base on Windows (the default is for a

@@ -425,7 +425,7 @@ class ChEsher(QtGui.QMainWindow):
         self.callbackTubeOpenMeshFile = functools.partial(self.getOpenFileName, "Open T3S-file", "2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s)", self.ui.lineEditTubeInputMesh)
         QtCore.QObject.connect(self.ui.pushButtonTubeInputMesh, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackTubeOpenMeshFile)
         
-        self.callbackTubeOpenLineSet = functools.partial(self.getOpenFileName, "Open I2S-file", "Line Sets (*.i2s)", self.ui.lineEditTubeInputMesh)
+        self.callbackTubeOpenLineSet = functools.partial(self.getOpenFileName, "Open I2S-file", "Line Sets (*.i2s)", self.ui.lineEditTubeInputLineSet)
         QtCore.QObject.connect(self.ui.pushButtonTubeInputLineSet, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackTubeOpenLineSet)
         
         self.callbackTubeOutput = functools.partial(self.getSaveFileName, "Save textfile As", "Normal text file (*.txt)", self.ui.lineEditTubeOutput)
@@ -1574,23 +1574,28 @@ class ChEsher(QtGui.QMainWindow):
         b = np.reshape(a, (2*len(x)), order='F')
         mesh_coords = np.reshape(b, (len(x), 2))
         
-        Ce1 = 0.5
-        Ce2 = 0.5
-        Cs1 = 1.0
-        Cs2 = 1.0
-        Lrg = 0.0
-        Hau = 0.0
-        Clp = 0
-        L12 = 0.2
-
+        Rel = str(self.ui.doubleSpinBoxTubeRel.value())
+        Ce1 = str(self.ui.doubleSpinBoxTubeCe1.value())
+        Ce2 = str(self.ui.doubleSpinBoxTubeCe2.value())
+        Cs1 = str(self.ui.doubleSpinBoxTubeCs1.value())
+        Cs2 = str(self.ui.doubleSpinBoxTubeCs2.value())
+        Lrg = str(self.ui.doubleSpinBoxTubeLrg.value())
+        Hau = str(self.ui.doubleSpinBoxTubeHau.value())
+        Clp = str(self.ui.spinBoxTubeClp.value())
+        L12 = str(self.ui.doubleSpinBoxTubeL12.value())
+        
+        textfile.append("Relaxation")
+        textfile.append(Rel)
+        textfile.append("I1\tI2\tCe1\tCe2\tCs1\tCs2\tLrg\tHau\tClp\tL12\tz1\tz2")
+        
         for tID in tubes:
             line = ""
             tube = tubes[tID]
             
             nodes = ""
             z_val = ""
+            
             for i in range(2):
-                
                 p = tube_coords[tube[i]]
                 vert = np.array(p)
                 vert = vert.reshape((1,2))
@@ -1602,9 +1607,7 @@ class ChEsher(QtGui.QMainWindow):
                 z_val += str(z[I-1])
                 z_val += "\t"
 
-                
             line += nodes
-
             line += str(Ce1) + "\t"
             line += str(Ce2) + "\t"
             line += str(Cs1) + "\t"
@@ -1613,16 +1616,14 @@ class ChEsher(QtGui.QMainWindow):
             line += str(Hau) + "\t"
             line += str(Clp) + "\t"
             line += str(L12) + "\t"
-            
             line += z_val
 
             textfile.append(line)
 
-
         info += "\nOutput data:\n"
                     
         try:
-            fh.writeTubesDataFile(self.ui.lineEditTubeOutput.text(), textfile)
+            fh.writeTextFile(self.ui.lineEditTubeOutput.text(), textfile)
             info += " - Tubes data file written to {0}.\n".format(self.ui.lineEditTubeOutput.text())
         except:
             QMessageBox.critical(self, "Error", "Not able to write tubes data file!")

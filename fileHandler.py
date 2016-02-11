@@ -334,12 +334,10 @@ def writeCSFormatted(filename, nameCS, time, resultsCS, decTime, decFlow):
 
     file.close()
 
-def writeTubesDataFile(filename, textfile):
+def writeTextFile(filename, textfile):
     
     file = open(filename, 'w')
-    file.write('Relaxation\n')
-    file.write('0.05\n')
-    file.write('I1\tI2\tCe1\tCe2\tCs1\tCs2\tLrg\tHau\tClp\tL12\tz1\tz2\n')
+
     for line in range(len(textfile)):
         file.write(textfile[line]+"\n")
     file.write("\n")

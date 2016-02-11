@@ -3750,7 +3750,7 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="2">
+        <item row="1" column="2" colspan="2">
          <widget class="QLineEdit" name="lineEditTubeInputMesh"/>
         </item>
         <item row="2" column="0">
@@ -3782,10 +3782,20 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="2">
+        <item row="2" column="2" colspan="2">
          <widget class="QLineEdit" name="lineEditTubeInputLineSet"/>
         </item>
-        <item row="3" column="0" colspan="3">
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_69">
+          <property name="text">
+           <string>Default values:</string>
+          </property>
+          <property name="indent">
+           <number>18</number>
+          </property>
+         </widget>
+        </item>
+        <item row="12" column="0" colspan="4">
          <spacer name="verticalSpacer_22">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -3798,7 +3808,7 @@
           </property>
          </spacer>
         </item>
-        <item row="4" column="0">
+        <item row="13" column="0">
          <widget class="QLabel" name="label_65">
           <property name="font">
            <font>
@@ -3811,7 +3821,7 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
+        <item row="14" column="0">
          <widget class="QLabel" name="label_66">
           <property name="text">
            <string>Textfile:</string>
@@ -3821,7 +3831,7 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
+        <item row="14" column="1">
          <widget class="QPushButton" name="pushButtonTubeOutput">
           <property name="minimumSize">
            <size>
@@ -3840,10 +3850,10 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="2">
+        <item row="14" column="2" colspan="2">
          <widget class="QLineEdit" name="lineEditTubeOutput"/>
         </item>
-        <item row="6" column="0" colspan="3">
+        <item row="15" column="0" colspan="4">
          <spacer name="verticalSpacer_23">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -3856,7 +3866,181 @@
           </property>
          </spacer>
         </item>
-        <item row="7" column="0" colspan="3">
+        <item row="3" column="1">
+         <widget class="QLabel" name="label_78">
+          <property name="text">
+           <string>Rel =</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QLabel" name="label_70">
+          <property name="text">
+           <string>Ce1 =</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QLabel" name="label_71">
+          <property name="text">
+           <string>Ce2 =</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="QLabel" name="label_72">
+          <property name="text">
+           <string>Cs1 =</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="1">
+         <widget class="QLabel" name="label_73">
+          <property name="text">
+           <string>Cs2 =</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="1">
+         <widget class="QLabel" name="label_74">
+          <property name="text">
+           <string>Lrg =</string>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="1">
+         <widget class="QLabel" name="label_75">
+          <property name="text">
+           <string>Hau =</string>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="1">
+         <widget class="QLabel" name="label_76">
+          <property name="text">
+           <string>Clp =</string>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="1">
+         <widget class="QLabel" name="label_77">
+          <property name="text">
+           <string>L12 =</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QDoubleSpinBox" name="doubleSpinBoxTubeRel">
+          <property name="maximum">
+           <double>1.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.010000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.050000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2">
+         <widget class="QDoubleSpinBox" name="doubleSpinBoxTubeCe1">
+          <property name="maximum">
+           <double>999999.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.010000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.500000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2">
+         <widget class="QDoubleSpinBox" name="doubleSpinBoxTubeCe2">
+          <property name="maximum">
+           <double>999999.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.010000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.500000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="2">
+         <widget class="QDoubleSpinBox" name="doubleSpinBoxTubeCs1">
+          <property name="maximum">
+           <double>999999.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.010000000000000</double>
+          </property>
+          <property name="value">
+           <double>1.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="2">
+         <widget class="QDoubleSpinBox" name="doubleSpinBoxTubeCs2">
+          <property name="maximum">
+           <double>999999.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.010000000000000</double>
+          </property>
+          <property name="value">
+           <double>1.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="2">
+         <widget class="QDoubleSpinBox" name="doubleSpinBoxTubeLrg">
+          <property name="maximum">
+           <double>999999.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.010000000000000</double>
+          </property>
+          <property name="value">
+           <double>2.500000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="2">
+         <widget class="QDoubleSpinBox" name="doubleSpinBoxTubeHau">
+          <property name="maximum">
+           <double>999999.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.010000000000000</double>
+          </property>
+          <property name="value">
+           <double>1.500000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="2">
+         <widget class="QSpinBox" name="spinBoxTubeClp">
+          <property name="maximum">
+           <number>3</number>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="2">
+         <widget class="QDoubleSpinBox" name="doubleSpinBoxTubeL12">
+          <property name="maximum">
+           <double>999999.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.010000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.200000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="16" column="0" colspan="4">
          <widget class="QPushButton" name="pushButtonTubeCreate">
           <property name="text">
            <string>Let's go!</string>

@@ -5,7 +5,17 @@ from cx_Freeze import setup, Executable
 # python setup_cx_freeze.py bdist_msi
 
 # Dependencies are automatically detected, but it might need fine tuning.
-includefiles = ['geos_c.dll', 'examples/', 'documentation/', 'AC1018.dxf']
+includefiles = ['geos_c.dll', 'examples/', 'documentation/', 'AC1018.dxf',
+                'examples/example_01/output/',
+                'examples/example_02/output/',
+                'examples/example_03/output/',
+                'examples/example_04/output/',
+                'examples/example_05/output/',
+                'examples/example_06/output/',
+                'examples/example_07/output/',
+                'examples/example_08/output/',
+                'examples/example_09/output/',
+                'examples/example_10/output/']
 
 build_exe_options = {"compressed":True, "packages": ["os"], "include_files":includefiles, 
 

@@ -47,7 +47,7 @@
     <item row="3" column="0">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>9</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="pageDXF2BK">
        <layout class="QGridLayout" name="gridLayout_3">
@@ -4003,7 +4003,7 @@
            <double>0.010000000000000</double>
           </property>
           <property name="value">
-           <double>2.500000000000000</double>
+           <double>2.000000000000000</double>
           </property>
          </widget>
         </item>
@@ -4086,6 +4086,45 @@
   </action>
  </widget>
  <tabstops>
+  <tabstop>pushButtonCont2DXFInput</tabstop>
+  <tabstop>lineEditCont2DXFInput</tabstop>
+  <tabstop>pushButtonCont2DXFAdd</tabstop>
+  <tabstop>pushButtonCont2DXFDelete</tabstop>
+  <tabstop>pushButtonCont2DXFColour</tabstop>
+  <tabstop>tableWidgetCont2DXF</tabstop>
+  <tabstop>pushButtonCont2DXFLoad</tabstop>
+  <tabstop>pushButtonCont2DXFSave</tabstop>
+  <tabstop>comboBoxCont2DXF</tabstop>
+  <tabstop>pushButtonCont2DXFDefault</tabstop>
+  <tabstop>lineEditCont2DXFOutputLayer</tabstop>
+  <tabstop>checkBoxCont2DXFOutputSolid</tabstop>
+  <tabstop>pushButtonCont2DXFOutputSolid</tabstop>
+  <tabstop>lineEditCont2DXFOutputSolid</tabstop>
+  <tabstop>checkBoxCont2DXFOutputLine</tabstop>
+  <tabstop>pushButtonCont2DXFOutputLine</tabstop>
+  <tabstop>lineEditCont2DXFOutputLine</tabstop>
+  <tabstop>checkBoxCont2DXFOutputLegend</tabstop>
+  <tabstop>lineEditCont2DXFOutputLegendTitle</tabstop>
+  <tabstop>lineEditCont2DXFOutputLegendSubtitle</tabstop>
+  <tabstop>lineEditCont2DXFOutputLegendSeparator</tabstop>
+  <tabstop>checkBoxCont2DXFOutputLegendReverse</tabstop>
+  <tabstop>pushButtonCont2DXFCreate</tabstop>
+  <tabstop>pushButtonTubeInputMesh</tabstop>
+  <tabstop>lineEditTubeInputMesh</tabstop>
+  <tabstop>pushButtonTubeInputLineSet</tabstop>
+  <tabstop>lineEditTubeInputLineSet</tabstop>
+  <tabstop>doubleSpinBoxTubeRel</tabstop>
+  <tabstop>doubleSpinBoxTubeCe1</tabstop>
+  <tabstop>doubleSpinBoxTubeCe2</tabstop>
+  <tabstop>doubleSpinBoxTubeCs1</tabstop>
+  <tabstop>doubleSpinBoxTubeCs2</tabstop>
+  <tabstop>doubleSpinBoxTubeLrg</tabstop>
+  <tabstop>doubleSpinBoxTubeHau</tabstop>
+  <tabstop>spinBoxTubeClp</tabstop>
+  <tabstop>doubleSpinBoxTubeL12</tabstop>
+  <tabstop>pushButtonTubeOutput</tabstop>
+  <tabstop>lineEditTubeOutput</tabstop>
+  <tabstop>pushButtonTubeCreate</tabstop>
   <tabstop>pushButtonDXF2BKInput</tabstop>
   <tabstop>lineEditDXF2BKInput</tabstop>
   <tabstop>pushButtonRefresh</tabstop>

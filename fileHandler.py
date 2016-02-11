@@ -24,6 +24,9 @@ import ezdxf
 from dxfwrite import DXFEngine as dxf
 import math
 
+import os.path as pth
+ezdxf.options.template_dir = pth.abspath('.')
+
 def readDAT(filename):
     DAT_file = open(filename, 'r')
     DAT_file_content = DAT_file.readlines()

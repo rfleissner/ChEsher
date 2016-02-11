@@ -88,7 +88,7 @@ class ChEsher(QtGui.QMainWindow):
         self.setScalarAction = self.createAction("ScalarDXF", slot=self.setScalarDXF, shortcut="F6")
         self.setVectorAction = self.createAction("VectorDXF", slot=self.setVectorDXF, shortcut="F7")
         self.setCSAction = self.createAction("CS", slot=self.setCS, shortcut="F8")
-        self.set2DMAction = self.createAction("2DM", slot=self.set2DM2BK, shortcut="F9")
+        self.set2DMAction = self.createAction("2DM2BK", slot=self.set2DM2BK, shortcut="F9")
         self.setCont2DXFAction = self.createAction("Cont2DXF", slot=self.setCont2DXF, shortcut="F10")
         self.setTubeAction = self.createAction("Tube", slot=self.setTube, shortcut="F11")
 
@@ -1054,7 +1054,7 @@ class ChEsher(QtGui.QMainWindow):
         ###   ~   module DXF2BK   ~   ###
         
         self.ui.tableWidgetDXF2BK.setRowCount(0)
-        self.ui.lineEditDXF2BKInput.setText(self.directory + "example_1/geometry.dxf")
+        self.ui.lineEditDXF2BKInput.setText(self.directory + "example_01/geometry.dxf")
         self.addLayer()
         self.addLayer()
         self.addLayer()
@@ -1064,10 +1064,10 @@ class ChEsher(QtGui.QMainWindow):
         rows = self.ui.tableWidgetDXF2BK.rowCount()
 
         indices = [1, 2, 3, 4]
-        files = [self.directory + "example_1/output/2D_POLYLINE.i2s",
-                self.directory + "example_1/output/3D_POLYLINE.i3s",
-                self.directory + "example_1/output/LINE.i2s",
-                self.directory + "example_1/output/POINT.xyz"]
+        files = [self.directory + "example_01/output/2D_POLYLINE.i2s",
+                self.directory + "example_01/output/3D_POLYLINE.i3s",
+                self.directory + "example_01/output/LINE.i2s",
+                self.directory + "example_01/output/POINT.xyz"]
 
         for row in range(rows):
             combobox = self.ui.tableWidgetDXF2BK.cellWidget(row, 0)
@@ -1078,45 +1078,45 @@ class ChEsher(QtGui.QMainWindow):
 
         ###   ~   module BK2DXF   ~   ###
         
-        self.ui.lineEditBK2DXFInputMesh.setText(self.directory + "example_2/WATER DEPTH_S161_Case_A.t3s")
-        self.ui.lineEditBK2DXFInputLineSet.setText(self.directory + "example_2/WATER DEPTH_S161_Case_A(IsoLine).i2s")        
+        self.ui.lineEditBK2DXFInputMesh.setText(self.directory + "example_02/WATER DEPTH_S161_Case_A.t3s")
+        self.ui.lineEditBK2DXFInputLineSet.setText(self.directory + "example_02/WATER DEPTH_S161_Case_A(IsoLine).i2s")        
         setEnabled(self.ui.checkBoxBK2DXFOutputMesh, self.ui.pushButtonBK2DXFOutputMesh, self.ui.lineEditBK2DXFOutputMesh)
         setEnabled(self.ui.checkBoxBK2DXFOutputLineSet, self.ui.pushButtonBK2DXFOutputLineSet, self.ui.lineEditBK2DXFOutputLineSet)
         
-        self.ui.lineEditBK2DXFOutputMesh.setText(self.directory + "example_2/output/mesh.dxf")        
-        self.ui.lineEditBK2DXFOutputLineSet.setText(self.directory + "example_2/output/contour.dxf")        
+        self.ui.lineEditBK2DXFOutputMesh.setText(self.directory + "example_02/output/mesh.dxf")        
+        self.ui.lineEditBK2DXFOutputLineSet.setText(self.directory + "example_02/output/contour.dxf")        
         
         ###   ~   module Mesh   ~   ###
         
-        self.ui.lineEditProfiles.setText(self.directory + "example_3/PROFILES.i3s")
-        self.ui.lineEditReach.setText(self.directory + "example_3/AXIS.i2s")        
+        self.ui.lineEditProfiles.setText(self.directory + "example_03/PROFILES.i3s")
+        self.ui.lineEditReach.setText(self.directory + "example_03/AXIS.i2s")        
         
         setEnabled(self.ui.checkBoxLBO, self.ui.pushButtonLBO, self.ui.lineEditLBO)
-        self.ui.lineEditLBO.setText(self.directory + "example_3/LEFT_BOUNDARY.i3s")        
+        self.ui.lineEditLBO.setText(self.directory + "example_03/LEFT_BOUNDARY.i3s")        
 
         setEnabled(self.ui.checkBoxRBO, self.ui.pushButtonRBO, self.ui.lineEditRBO)
-        self.ui.lineEditRBO.setText(self.directory + "example_3/RIGHT_BOUNDARY.i3s")    
+        self.ui.lineEditRBO.setText(self.directory + "example_03/RIGHT_BOUNDARY.i3s")    
         
         self.ui.checkBoxEC.setChecked(True)
         self.ui.doubleSpinBoxEL.setValue(1.0)
         self.ui.spinBoxNNC.setValue(20)
         
-        self.ui.lineEditMesh.setText(self.directory + "example_3/output/MESH.t3s")
+        self.ui.lineEditMesh.setText(self.directory + "example_03/output/MESH.t3s")
         setEnabled(self.ui.checkBoxMesh, self.ui.pushButtonMesh, self.ui.lineEditMesh)
         
-        self.ui.lineEditWS.setText(self.directory + "example_3/output/VIEW.ews")
+        self.ui.lineEditWS.setText(self.directory + "example_03/output/VIEW.ews")
         setEnabled(self.ui.checkBoxWS, self.ui.pushButtonWS, self.ui.lineEditWS)
   
         ###   ~   module LandXML   ~   ###
   
-        self.ui.lineEditLandXMLInputMesh.setText(self.directory + "example_4/BOTTOM.t3s")
+        self.ui.lineEditLandXMLInputMesh.setText(self.directory + "example_04/BOTTOM.t3s")
         self.ui.lineEditLandXMLSurfaceName.setText("BOTTOM")
-        self.ui.lineEditLandXMLOutput.setText(self.directory + "example_4/output/BOTTOM.xml")
+        self.ui.lineEditLandXMLOutput.setText(self.directory + "example_04/output/BOTTOM.xml")
      
         ###   ~   module ScalarDXF   ~   ###
 
-        self.ui.lineEditScalarDXFInputT3SMajor.setText(self.directory + "example_5/WATER DEPTH_S161_Case_A.t3s")
-        self.ui.lineEditScalarDXFInputT3SMinor.setText(self.directory + "example_5/WATER DEPTH_S161_Case_B.t3s")
+        self.ui.lineEditScalarDXFInputT3SMajor.setText(self.directory + "example_05/WATER DEPTH_S161_Case_A.t3s")
+        self.ui.lineEditScalarDXFInputT3SMinor.setText(self.directory + "example_05/WATER DEPTH_S161_Case_B.t3s")
         self.ui.doubleSpinBoxScalarDXFDX.setValue(50.0)
         self.ui.doubleSpinBoxScalarDXFDY.setValue(50.0)
         self.ui.doubleSpinBoxScalarDXFSizeFactor.setValue(7.5)
@@ -1126,34 +1126,34 @@ class ChEsher(QtGui.QMainWindow):
         self.ui.radioButtonScalarDXFCrosshairs.setChecked(True)
         self.setSymbol(2)
         
-        self.ui.lineEditScalarDXFOutput.setText(self.directory + "example_5/output/water_depth.dxf")        
+        self.ui.lineEditScalarDXFOutput.setText(self.directory + "example_05/output/water_depth.dxf")        
 
         ###   ~   module VectorDXF   ~   ###
 
-        self.ui.lineEditVectorDXFInput.setText(self.directory + "example_6/VELOCITY UV_S161_Case_A.t3v")
+        self.ui.lineEditVectorDXFInput.setText(self.directory + "example_06/VELOCITY UV_S161_Case_A.t3v")
         self.ui.doubleSpinBoxVectorDXFDX.setValue(25.0)
         self.ui.doubleSpinBoxVectorDXFDY.setValue(25.0)
         self.ui.doubleSpinBoxVectorDXFScale.setValue(40)
         
-        self.ui.lineEditVectorDXFOutput.setText(self.directory + "example_6/output/velocity.dxf")        
+        self.ui.lineEditVectorDXFOutput.setText(self.directory + "example_06/output/velocity.dxf")        
 
         ###   ~   module CS   ~   ###
         
-        self.ui.lineEditCSInputMesh.setText(self.directory + "example_7/BOTTOM_Case_A.t3s")
-        self.ui.lineEditCSInputDefinition.setText(self.directory + "example_7/cs_input.txt")
-        self.ui.lineEditCSInputResults.setText(self.directory + "example_7/cs_output_donau.txt")
+        self.ui.lineEditCSInputMesh.setText(self.directory + "example_07/BOTTOM_Case_A.t3s")
+        self.ui.lineEditCSInputDefinition.setText(self.directory + "example_07/cs_input.txt")
+        self.ui.lineEditCSInputResults.setText(self.directory + "example_07/cs_output_donau.txt")
         self.ui.doubleSpinBoxCSSizeFactor.setValue(7.5)
         
         setEnabled(self.ui.checkBoxCSOutputFormatted, self.ui.pushButtonCSOutputFormatted, self.ui.lineEditCSOutputFormatted)
         setEnabled(self.ui.checkBoxCSOutputCS, self.ui.pushButtonCSOutputCS, self.ui.lineEditCSOutputCS)
 
-        self.ui.lineEditCSOutputFormatted.setText(self.directory + "example_7/output/cs_formatted.txt")
-        self.ui.lineEditCSOutputCS.setText(self.directory + "example_7/output/cs.dxf")
+        self.ui.lineEditCSOutputFormatted.setText(self.directory + "example_07/output/cs_formatted.txt")
+        self.ui.lineEditCSOutputCS.setText(self.directory + "example_07/output/cs.dxf")
 
         ###   ~   module 2DM   ~   ###
 
-        self.ui.lineEdit2dmInput.setText(self.directory + "example_8/input.2dm")
-        self.ui.lineEdit2dmInputData.setText(self.directory + "example_8/water_depth.dat")
+        self.ui.lineEdit2dmInput.setText(self.directory + "example_08/input.2dm")
+        self.ui.lineEdit2dmInputData.setText(self.directory + "example_08/water_depth.dat")
         
         setEnabled(self.ui.checkBox2dmBottom, self.ui.pushButton2dmBottom, self.ui.lineEdit2dmBottom)
         setEnabled(self.ui.checkBox2dmBottomFriction, self.ui.pushButton2dmBottomFriction, self.ui.lineEdit2dmBottomFriction)
@@ -1168,26 +1168,26 @@ class ChEsher(QtGui.QMainWindow):
         setEnabled(self.ui.checkBox2dmNS6, self.ui.pushButton2dmNS6, self.ui.lineEdit2dmNS6)
         setEnabled(self.ui.checkBox2dmNS7, self.ui.pushButton2dmNS7, self.ui.lineEdit2dmNS7)
                                                                                              
-        self.ui.lineEdit2dmBottom.setText(self.directory + "example_8/output/BOTTOM.t3s")
-        self.ui.lineEdit2dmBottomFriction.setText(self.directory + "example_8/output/BOTTOM FRICTION.t3s")
-        self.ui.lineEdit2dmWaterSurface.setText(self.directory + "example_8/output/WATER SURFACE.t3s")
-        self.ui.lineEdit2dmWaterDepth.setText(self.directory + "example_8/output/WATER DEPTH.t3s")
-        self.ui.lineEdit2dmCulvertHeight.setText(self.directory + "example_8/output/culvert.xyz")
-        self.ui.lineEdit2dmNS1.setText(self.directory + "example_8/output/NS1.i2s")
-        self.ui.lineEdit2dmNS2.setText(self.directory + "example_8/output/NS2.i2s")
-        self.ui.lineEdit2dmNS3.setText(self.directory + "example_8/output/NS3.i2s")
-        self.ui.lineEdit2dmNS4.setText(self.directory + "example_8/output/NS4.i2s")
-        self.ui.lineEdit2dmNS5.setText(self.directory + "example_8/output/NS5.i2s")
-        self.ui.lineEdit2dmNS6.setText(self.directory + "example_8/output/NS6.i2s")
-        self.ui.lineEdit2dmNS7.setText(self.directory + "example_8/output/NS7.i2s")
+        self.ui.lineEdit2dmBottom.setText(self.directory + "example_08/output/BOTTOM.t3s")
+        self.ui.lineEdit2dmBottomFriction.setText(self.directory + "example_08/output/BOTTOM FRICTION.t3s")
+        self.ui.lineEdit2dmWaterSurface.setText(self.directory + "example_08/output/WATER SURFACE.t3s")
+        self.ui.lineEdit2dmWaterDepth.setText(self.directory + "example_08/output/WATER DEPTH.t3s")
+        self.ui.lineEdit2dmCulvertHeight.setText(self.directory + "example_08/output/culvert.xyz")
+        self.ui.lineEdit2dmNS1.setText(self.directory + "example_08/output/NS1.i2s")
+        self.ui.lineEdit2dmNS2.setText(self.directory + "example_08/output/NS2.i2s")
+        self.ui.lineEdit2dmNS3.setText(self.directory + "example_08/output/NS3.i2s")
+        self.ui.lineEdit2dmNS4.setText(self.directory + "example_08/output/NS4.i2s")
+        self.ui.lineEdit2dmNS5.setText(self.directory + "example_08/output/NS5.i2s")
+        self.ui.lineEdit2dmNS6.setText(self.directory + "example_08/output/NS6.i2s")
+        self.ui.lineEdit2dmNS7.setText(self.directory + "example_08/output/NS7.i2s")
 
         ###   ~   module Cont2DXF   ~   ###
         
-        self.ui.lineEditCont2DXFInput.setText(self.directory + "example_9/WATER DEPTH_S161_Case_A.t3s")
+        self.ui.lineEditCont2DXFInput.setText(self.directory + "example_09/WATER DEPTH_S161_Case_A.t3s")
         self.ui.lineEditCont2DXFOutputLayer.setText("HQ100")
         self.ui.lineEditCont2DXFOutputLegendSeparator.setText(" - ")
-        self.ui.lineEditCont2DXFOutputSolid.setText(self.directory + "example_9/output/contours_Case_A_water_depth.dxf")
-        self.ui.lineEditCont2DXFOutputLine.setText(self.directory + "example_9/output/isolines_Case_A_water_depth.dxf")
+        self.ui.lineEditCont2DXFOutputSolid.setText(self.directory + "example_09/output/contours_Case_A_water_depth.dxf")
+        self.ui.lineEditCont2DXFOutputLine.setText(self.directory + "example_09/output/isolines_Case_A_water_depth.dxf")
         self.ui.checkBoxCont2DXFOutputLegend.setChecked(True)
         self.ui.checkBoxCont2DXFOutputLegendReverse.setChecked(True)
         self.setEnabledLegend()
@@ -1199,11 +1199,9 @@ class ChEsher(QtGui.QMainWindow):
         
         ###   ~   module Tube   ~   ###
         
-        self.setTube()
-        self.directory = "K:/12-013_Gemeinde-Aibl_Linearmassnahmen_wr_Einreichung/Wasserbau/Berechnungen/Telemac-2d/Plan_1/Geometrie/1_Netz_IST/" 
-        self.ui.lineEditTubeInputMesh.setText(self.directory + "BOTTOM.t3s")
-        self.ui.lineEditTubeInputLineSet.setText(self.directory + "BR.i2s")
-        self.ui.lineEditTubeOutput.setText(self.directory + "tubes.txt")
+        self.ui.lineEditTubeInputMesh.setText(self.directory + "example_10/mesh.t3s")
+        self.ui.lineEditTubeInputLineSet.setText(self.directory + "example_10/tubes.i2s")
+        self.ui.lineEditTubeOutput.setText(self.directory + "example_10/tubes.txt")
         
     def setDXF2BK(self):
         self.ui.labelModule.setText("~   Module DXF2BK   ~")
@@ -2154,7 +2152,7 @@ class ChEsher(QtGui.QMainWindow):
     def help(self):
         
         abs_path = pth.abspath('.')
-        filename = pth.join(abs_path, 'documentation/0_index.html')
+        filename = pth.join(abs_path, 'documentation/00_index.html')
         webbrowser.open(filename)
 
     def helpAbout(self):

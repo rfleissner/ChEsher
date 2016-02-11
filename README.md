@@ -8,7 +8,6 @@ The main freatures are:
 <li>visualizing results (scalars and vectors) on a rasterized grid for DXF file format</li>
 <li>generating contour plots for DXF file format
 </ul>
-
 ChEsher is separated to various modules:
 <ul>
 <li><b>DXF2BK</b> provides transformations from the DXF format to geometric objects that can be red by Blue Kenue&trade;.</li>
@@ -20,6 +19,7 @@ ChEsher is separated to various modules:
 <li><b>CS</b> formats the control sections output file and creates a DXF file with the control sections.</li>
 <li><b>2DM2BK</b> transforms the contents from a SMS Mesh File to a T3 Scalar Mesh and to 2D/3D Line Sets.</li>
 <li><b>Cont2DXF</b> creates a contour plot from a T3 Scalar Mesh and writes it to a DXF file.</li>
+<li><b>Tubes</b> creates a tubes data file out of a T3 Scalar Mesh and a 2D Line Set.</li>
 </ul>
 
 <h2>Requirements</h2>

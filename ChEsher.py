@@ -21,7 +21,7 @@ import sys
 import platform
 import functools
 import dxfgrabber
-import os.path as pth
+import os
 from math import ceil, floor
 import matplotlib
 matplotlib.use("Agg")
@@ -79,7 +79,7 @@ class ChEsher(QtGui.QMainWindow):
         self.fileSetDirectory = self.createAction("Set working directory", slot=self.setDirectory)
         self.fileQuitAction = self.createAction("Close", slot=self.close, \
             shortcut="Ctrl+Q")
-        self.fileSetExamples = self.createAction("Initialize examples", slot=self.initialize)
+        self.fileSetExamples = self.createAction("Initialize examples", slot=self.initializeModules)
         self.helpAction = self.createAction("Help", slot=self.help, shortcut="F1")
         self.setDXFtoBKAction = self.createAction("DXF2BK", slot=self.setDXF2BK, shortcut="F2")
         self.setBK2DXFAction = self.createAction("BK2DXF", slot=self.setBK2DXF, shortcut="F3")
@@ -691,52 +691,28 @@ class ChEsher(QtGui.QMainWindow):
                 strings = {}
 
                 if type == "i2s":
-#                    try:
-                    nodes, strings = fh.readDXF(self.dxf, layer)
-                    fh.writeI2S(nodes, strings, filename)
-                    info += " - {0} object(s) from type *.i2s converted to file \n\t{1}\n".format(len(strings), filename)
-#                    except Exception, e:
-#                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.i2s: ' + str(e))
+                    try:
+                        nodes, strings = fh.readDXF(self.dxf, layer)
+                        fh.writeI2S(nodes, strings, filename)
+                        info += " - {0} object(s) from type *.i2s converted to file \n\t{1}\n".format(len(strings), filename)
+                    except Exception, e:
+                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.i2s: ' + str(e))
                 elif type == "i3s":
-#                    try:
-                    nodes, strings = fh.readDXF(self.dxf, layer)
-                    fh.writeI3S(nodes, strings, filename)
-                    info += " - {0} object(s) from type *.i3s converted to file \n\t{1}\n".format(len(strings), filename)
-#                    except Exception, e:
-#                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.i3s: ' + str(e))
+                    try:
+                        nodes, strings = fh.readDXF(self.dxf, layer)
+                        fh.writeI3S(nodes, strings, filename)
+                        info += " - {0} object(s) from type *.i3s converted to file \n\t{1}\n".format(len(strings), filename)
+                    except Exception, e:
+                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.i3s: ' + str(e))
                 elif type == "xyz":
-#                    try:
-                    nodes, strings = fh.readDXF(self.dxf, layer)
-                    fh.writeXYZ(nodes, filename)
-                    info += " - {0} object(s) from type *.xyz converted to file \n\t{1}\n".format(len(nodes), filename)
-#                    except Exception, e:
-#                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.xyz: ' + str(e))
+                    try:
+                        nodes, strings = fh.readDXF(self.dxf, layer)
+                        fh.writeXYZ(nodes, filename)
+                        info += " - {0} object(s) from type *.xyz converted to file \n\t{1}\n".format(len(nodes), filename)
+                    except Exception, e:
+                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.xyz: ' + str(e))
                 else:
                     continue                
-#                
-#                if type == "i2s":
-#                    try:
-#                        nodes, strings = fh.readDXF(self.dxf, layer)
-#                        fh.writeI2S(nodes, strings, filename)
-#                        info += " - {0} object(s) from type *.i2s converted to file \n\t{1}\n".format(len(strings), filename)
-#                    except Exception, e:
-#                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.i2s: ' + str(e))
-#                elif type == "i3s":
-#                    try:
-#                        nodes, strings = fh.readDXF(self.dxf, layer)
-#                        fh.writeI3S(nodes, strings, filename)
-#                        info += " - {0} object(s) from type *.i3s converted to file \n\t{1}\n".format(len(strings), filename)
-#                    except Exception, e:
-#                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.i3s: ' + str(e))
-#                elif type == "xyz":
-#                    try:
-#                        nodes, strings = fh.readDXF(self.dxf, layer)
-#                        fh.writeXYZ(nodes, filename)
-#                        info += " - {0} object(s) from type *.xyz converted to file \n\t{1}\n".format(len(nodes), filename)
-#                    except Exception, e:
-#                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.xyz: ' + str(e))
-#                else:
-#                    continue
         QMessageBox.information(self, "Module DXF2BK", info)
     
     def getLevels(self):
@@ -1009,9 +985,10 @@ class ChEsher(QtGui.QMainWindow):
         filetype = ("2D Line Set (*.i2s);;3D Line Set (*.i3s);;Point Set (*.xyz)")
         filename = QFileDialog.getSaveFileName(self, "Save Layer As", self.directory, filetype)
 
-        item = QtGui.QTableWidgetItem()
-        item.setText(filename)
-        self.ui.tableWidgetDXF2BK.setItem(row, 1, item)
+        if filename != "":
+            item = QtGui.QTableWidgetItem()
+            item.setText(filename)
+            self.ui.tableWidgetDXF2BK.setItem(row, 1, item)
         
     def addLayer(self):
         dropdownLayer = QtGui.QComboBox(self)
@@ -1040,16 +1017,38 @@ class ChEsher(QtGui.QMainWindow):
     def deleteLevel(self):
         row = self.ui.tableWidgetCont2DXF.currentRow()
         self.ui.tableWidgetCont2DXF.removeRow(row)
+  
+    def initializeModules(self):
+        answer = QMessageBox.question(self, "Initialize examples", "Do you really want to overwrite all inputs to initialize examples?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        if answer == QtGui.QMessageBox.Yes:
+            self.initialize()
+        elif answer == QtGui.QMessageBox.No:
+            return
         
     def initialize(self):
         def setEnabled(checkBox, pushButton, lineEdit):
             checkBox.setChecked(True)
             pushButton.setEnabled(True)
             lineEdit.setEnabled(True)
-          
+            
+        def makedir(dir):
+            if not os.path.exists(dir):
+                os.makedirs(dir)
+        
 #        self.directory = "C:/ChEsher/"
-        abs_path = pth.abspath('.')
-        self.directory = pth.join(abs_path, 'examples/').replace('\\', '/')
+        abs_path = os.path.abspath('.')
+        self.directory = os.path.join(abs_path, 'examples/').replace('\\', '/')
+
+        makedir(self.directory + "example_01/output/")
+        makedir(self.directory + "example_02/output/")  
+        makedir(self.directory + "example_03/output/")
+        makedir(self.directory + "example_04/output/")
+        makedir(self.directory + "example_05/output/")
+        makedir(self.directory + "example_06/output/")
+        makedir(self.directory + "example_07/output/")
+        makedir(self.directory + "example_08/output/")
+        makedir(self.directory + "example_09/output/")
+        makedir(self.directory + "example_10/output/")
         
         ###   ~   module DXF2BK   ~   ###
         
@@ -1244,22 +1243,27 @@ class ChEsher(QtGui.QMainWindow):
         self.ui.stackedWidget.setCurrentIndex(9)
 
     def setDirectory(self):
-        self.directory = QFileDialog.getExistingDirectory(self, "Select directory", self.directory)
-
+        dir = QFileDialog.getExistingDirectory(self, "Select directory", self.directory)
+        if dir != "":
+            self.directory = dir
+        else:
+            return
+            
     def setColour(self):
         row = self.ui.tableWidgetCont2DXF.currentRow()
-        rows = self.ui.tableWidgetCont2DXF.rowCount()
         item1 = self.ui.tableWidgetCont2DXF.item(row, 2)
         initCol = item1.backgroundColor()
         coldia = QtGui.QColorDialog()
         col = coldia.getColor(initCol)
-        
-        item = QtGui.QTableWidgetItem()
-        item.setBackground(col)
-        item.setFlags(QtCore.Qt.ItemIsEnabled)
-        item.setText(str(col.red()) + ", " + str(col.green()) + ", " + str(col.blue()))
-        self.ui.tableWidgetCont2DXF.setItem(row, 2, item)
-
+        if col.isValid():
+            item = QtGui.QTableWidgetItem()
+            item.setBackground(col)
+            item.setFlags(QtCore.Qt.ItemIsEnabled)
+            item.setText(str(col.red()) + ", " + str(col.green()) + ", " + str(col.blue()))
+            self.ui.tableWidgetCont2DXF.setItem(row, 2, item)
+        else:
+            return
+    
     def interpolatePoint(self, xa, ya, za, xb, yb, zb, xc, yc, zc, xp, yp):
         dot1 = (yb - ya)*(xp - xa) + (-xb + xa)*(yp - ya)
         dot2 = (yc - yb)*(xp - xb) + (-xc + xb)*(yp - yb)
@@ -1818,11 +1822,11 @@ class ChEsher(QtGui.QMainWindow):
             QMessageBox.critical(self, "Error", "Not able to create mesh!\nCheck inputs!")
             return
         
-        try:
-            self.writeOutput()
-        except:
-            QMessageBox.critical(self, "Error", "Not able to write output!")
-            return
+#        try:
+        self.writeOutput()
+#        except:
+#            QMessageBox.critical(self, "Error", "Not able to write output!")
+#            return
         
         QMessageBox.information(self, "Module Mesh", info)
 
@@ -1841,68 +1845,69 @@ class ChEsher(QtGui.QMainWindow):
             OL = {1:mc.getNodeIDsOutline(self.mesh.proMesh)}
             fh.writeI3S(self.mesh.nodMesh, OL, self.ui.lineEditOL.text())
 
-        view = """"""
-        counter = -1
-        content = """"""
+        if self.ui.checkBoxWS.isChecked():
+            view = """"""
+            counter = -1
+            content = """"""
 
-        content += ws.lineSet.format(self.getDim(self.ui.lineEditProfiles), self.getPath(self.ui.lineEditProfiles), "0xff0000", "raw profiles")
-        counter += 1
-        view += ":ObjectView {0} 0\n".format(counter)
-
-        content += ws.lineSet.format(self.getDim(self.ui.lineEditReach), self.getPath(self.ui.lineEditReach), "0xffff00", "channel reach")
-        counter += 1
-        view += ":ObjectView {0} 0\n".format(counter)
-
-        if self.ui.checkBoxLBL.isChecked():
-            content += ws.lineSet.format(self.getDim(self.ui.lineEditLBL), self.getPath(self.ui.lineEditLBL), "0x00ff00", "left breakline")
+            content += ws.lineSet.format(self.getDim(self.ui.lineEditProfiles), self.getPath(self.ui.lineEditProfiles), "0xff0000", "raw profiles")
             counter += 1
             view += ":ObjectView {0} 0\n".format(counter)
 
-        if self.ui.checkBoxRBL.isChecked():
-            content += ws.lineSet.format(self.getDim(self.ui.lineEditRBL), self.getPath(self.ui.lineEditRBL), "0x00ff00", "right breakline")
+            content += ws.lineSet.format(self.getDim(self.ui.lineEditReach), self.getPath(self.ui.lineEditReach), "0xffff00", "channel reach")
             counter += 1
             view += ":ObjectView {0} 0\n".format(counter)
 
-        if self.ui.checkBoxLBO.isChecked():
-            content += ws.lineSet.format(self.getDim(self.ui.lineEditLBO), self.getPath(self.ui.lineEditLBO), "0x0000ff", "left boundary")
+            if self.ui.checkBoxLBL.isChecked():
+                content += ws.lineSet.format(self.getDim(self.ui.lineEditLBL), self.getPath(self.ui.lineEditLBL), "0x00ff00", "left breakline")
+                counter += 1
+                view += ":ObjectView {0} 0\n".format(counter)
+
+            if self.ui.checkBoxRBL.isChecked():
+                content += ws.lineSet.format(self.getDim(self.ui.lineEditRBL), self.getPath(self.ui.lineEditRBL), "0x00ff00", "right breakline")
+                counter += 1
+                view += ":ObjectView {0} 0\n".format(counter)
+
+            if self.ui.checkBoxLBO.isChecked():
+                content += ws.lineSet.format(self.getDim(self.ui.lineEditLBO), self.getPath(self.ui.lineEditLBO), "0x0000ff", "left boundary")
+                counter += 1
+                view += ":ObjectView {0} 0\n".format(counter)
+
+            if self.ui.checkBoxRBO.isChecked():
+                content += ws.lineSet.format(self.getDim(self.ui.lineEditRBO), self.getPath(self.ui.lineEditRBO), "0x0000ff", "right boundary")
+                counter += 1
+                view += ":ObjectView {0} 0\n".format(counter)
+
+            content += ws.meshScalar.format(self.getPath(self.ui.lineEditMesh), "0xc0c0c0", "mesh")
             counter += 1
             view += ":ObjectView {0} 0\n".format(counter)
 
-        if self.ui.checkBoxRBO.isChecked():
-            content += ws.lineSet.format(self.getDim(self.ui.lineEditRBO), self.getPath(self.ui.lineEditRBO), "0x0000ff", "right boundary")
-            counter += 1
-            view += ":ObjectView {0} 0\n".format(counter)
 
-        content += ws.meshScalar.format(self.getPath(self.ui.lineEditMesh), "0xc0c0c0", "mesh")
-        counter += 1
-        view += ":ObjectView {0} 0\n".format(counter)
+            if self.ui.checkBoxIP.isChecked():
+                content += ws.lineSet.format(self.getDim(self.ui.lineEditIP), self.getPath(self.ui.lineEditIP), "0x8000ff", "interpolated profiles")
+                counter += 1
+                view += ":ObjectView {0} 1\n".format(counter)
 
+            if self.ui.checkBoxLE.isChecked():
+                content += ws.lineSet.format(self.getDim(self.ui.lineEditLE), self.getPath(self.ui.lineEditLE), "0x0080ff", "left edge")
+                counter += 1
+                view += ":ObjectView {0} 1\n".format(counter)
 
-        if self.ui.checkBoxIP.isChecked():
-            content += ws.lineSet.format(self.getDim(self.ui.lineEditIP), self.getPath(self.ui.lineEditIP), "0x8000ff", "interpolated profiles")
-            counter += 1
-            view += ":ObjectView {0} 1\n".format(counter)
+            if self.ui.checkBoxRE.isChecked():
+                content += ws.lineSet.format(self.getDim(self.ui.lineEditRE), self.getPath(self.ui.lineEditRE), "0x0080ff", "right edge")
+                counter += 1
+                view += ":ObjectView {0} 1\n".format(counter)
 
-        if self.ui.checkBoxLE.isChecked():
-            content += ws.lineSet.format(self.getDim(self.ui.lineEditLE), self.getPath(self.ui.lineEditLE), "0x0080ff", "left edge")
-            counter += 1
-            view += ":ObjectView {0} 1\n".format(counter)
+            if self.ui.checkBoxOL.isChecked():
+                content += ws.lineSet.format(self.getDim(self.ui.lineEditOL), self.getPath(self.ui.lineEditOL), "0x800080", "outline")
+                counter += 1
+                view += ":ObjectView {0} 1\n".format(counter)
 
-        if self.ui.checkBoxRE.isChecked():
-            content += ws.lineSet.format(self.getDim(self.ui.lineEditRE), self.getPath(self.ui.lineEditRE), "0x0080ff", "right edge")
-            counter += 1
-            view += ":ObjectView {0} 1\n".format(counter)
-
-        if self.ui.checkBoxOL.isChecked():
-            content += ws.lineSet.format(self.getDim(self.ui.lineEditOL), self.getPath(self.ui.lineEditOL), "0x800080", "outline")
+            content += ws.meshScalar.format(self.getPath(self.ui.lineEditMesh), "0x808080", "mesh")
             counter += 1
             view += ":ObjectView {0} 1\n".format(counter)
 
-        content += ws.meshScalar.format(self.getPath(self.ui.lineEditMesh), "0x808080", "mesh")
-        counter += 1
-        view += ":ObjectView {0} 1\n".format(counter)
-
-        fh.writeEWS(content, view, self.ui.lineEditWS.text())
+            fh.writeEWS(content, view, self.ui.lineEditWS.text())
 
     def getDim(self, lineEdit):
         return lineEdit.text().split('.')[-1][1]
@@ -1969,18 +1974,16 @@ class ChEsher(QtGui.QMainWindow):
         if filename == "": return
         lineEdit.setText(filename)
         self.refreshDXF()
-    
-#    def enableDataset(self):
-#        if self.ui.lineEditInputData.text() == "":
-#            self.ui.lineEdit2dmData.
         
     def getOpenFileName(self, title, fileFormat, lineEdit):
         filename = QFileDialog.getOpenFileName(self, title, self.directory, fileFormat)
-        lineEdit.setText(filename)
+        if filename != "":
+            lineEdit.setText(filename)
 
     def getSaveFileName(self, title, fileFormat, lineEdit):
         filename = QFileDialog.getSaveFileName(self, title, self.directory, fileFormat)
-        lineEdit.setText(filename)
+        if filename != "":
+            lineEdit.setText(filename)
         
     def applyLegend(self, levels, colHEX_RGB):
 
@@ -2008,46 +2011,48 @@ class ChEsher(QtGui.QMainWindow):
     def loadLegend(self):
         filename = QFileDialog.getOpenFileName(self, "Load an EnSim ColourScale definition file", self.directory, "EnSim ColourScale Files (*.cs1)")
         
-        try:
-            levels, colHEX_BGR = fh.readCS1(filename)
+        if filename != "":
+            try:
+                levels, colHEX_BGR = fh.readCS1(filename)
 
-            colHEX_RGB = []
+                colHEX_RGB = []
 
-            for col in range(len(colHEX_BGR)):
-                colFloat_BGR = colors.hex2color(colHEX_BGR[col])
-                colFloat_RGB = [colFloat_BGR[2], colFloat_BGR[1], colFloat_BGR[0]]
-                colHEX_RGB.append(colors.rgb2hex(colFloat_RGB)) 
+                for col in range(len(colHEX_BGR)):
+                    colFloat_BGR = colors.hex2color(colHEX_BGR[col])
+                    colFloat_RGB = [colFloat_BGR[2], colFloat_BGR[1], colFloat_BGR[0]]
+                    colHEX_RGB.append(colors.rgb2hex(colFloat_RGB)) 
 
-            self.applyLegend(levels, colHEX_RGB)
-            
-            info = "Legend loaded with {0} levels.".format(len(levels))     
-            QMessageBox.information(self, "Legend", info)
-        except:
-            QMessageBox.critical(self, "Error", "Not able to load legend!")
+                self.applyLegend(levels, colHEX_RGB)
+
+                info = "Legend loaded with {0} levels.".format(len(levels))     
+                QMessageBox.information(self, "Legend", info)
+            except:
+                QMessageBox.critical(self, "Error", "Not able to load legend!")
 
     def saveLegend(self):
         filename = QFileDialog.getSaveFileName(self, "Save an EnSim ColourScale definition file", self.directory, "EnSim ColourScale Files (*.cs1)")
    
-        try:
-            levels, levels_ok, coloursHEX_RGB, coloursRGB, coloursHEX_BGR, coloursBGR, col_ok = self.getLevels()
-        except:
-            QMessageBox.critical(self, "Error", "Check level inputs!")
-            return        
+        if filename != "":
+            try:
+                levels, levels_ok, coloursHEX_RGB, coloursRGB, coloursHEX_BGR, coloursBGR, col_ok = self.getLevels()
+            except:
+                QMessageBox.critical(self, "Error", "Check level inputs!")
+                return        
 
-        if not levels_ok:
-            QMessageBox.critical(self, "Error", "Check level ranges!")
-            return
-        if not col_ok:
-            QMessageBox.critical(self, "Error", "Check colours!")
-            return
-        
-        try:
-            fh.writeCS1(filename, levels, coloursHEX_BGR)
-            info = "Legend saved with {0} levels.".format(len(levels))     
-            QMessageBox.information(self, "Legend", info)
-        except:
-            QMessageBox.critical(self, "Error", "Not able to save legend!")
-            return
+            if not levels_ok:
+                QMessageBox.critical(self, "Error", "Check level ranges!")
+                return
+            if not col_ok:
+                QMessageBox.critical(self, "Error", "Check colours!")
+                return
+
+            try:
+                fh.writeCS1(filename, levels, coloursHEX_BGR)
+                info = "Legend saved with {0} levels.".format(len(levels))     
+                QMessageBox.information(self, "Legend", info)
+            except:
+                QMessageBox.critical(self, "Error", "Not able to save legend!")
+                return
         
     def defaultLegend(self):
         
@@ -2151,8 +2156,8 @@ class ChEsher(QtGui.QMainWindow):
 
     def help(self):
         
-        abs_path = pth.abspath('.')
-        filename = pth.join(abs_path, 'documentation/00_index.html')
+        abs_path = os.path.abspath('.')
+        filename = os.path.join(abs_path, 'documentation/00_index.html')
         webbrowser.open(filename)
 
     def helpAbout(self):

@@ -26,6 +26,6 @@ ChEsher is separated to various modules:
 A solid knowledge in the use of Blue Kenue&trade; and in performing hydraulic simulations with Telemac 2d is required to take advantage from ChEsher.
 
 <h2>Download & Install</h2>
-ChEsher is an Open Source project written in Python 2.7.3 and comes under the GNU General Public License v2.0. Get ChEsher by downloading the repository as ZIP. There are precompiled installers for windows available. For other operating systems you can use the source code and run ChEsher with Python, which then has to be installed on your operating system with all the necessary python packages.
+ChEsher is an Open Source project written in Python 2.7 and comes under the GNU General Public License v2.0. Get ChEsher by downloading the repository as ZIP. There are precompiled installers for windows available. For other operating systems you can use the source code and run ChEsher with Python, which then has to be installed on your operating system with all the necessary python packages.
 
 

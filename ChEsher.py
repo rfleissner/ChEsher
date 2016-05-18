@@ -29,6 +29,9 @@ import matplotlib.tri as tri
 from matplotlib import colors
 import matplotlib.pyplot as plt
 
+
+from moduleHyDesign import WrapHyDesign
+
 import triangle
 import triangle.plot
 import numpy as np
@@ -75,6 +78,13 @@ class ChEsher(QtGui.QMainWindow):
         # setup user interface of main window
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
+        # setup instance of module ENGINEERING
+        self.moduleHyDesign = WrapHyDesign()
+        # setup widget of module ENGINEERING
+        self.widgetHyDesign = self.moduleHyDesign.widget
+        self.ui.stackedWidget.insertWidget(12,self.widgetHyDesign)
+        
         # actions in menu
         self.fileSetDirectory = self.createAction("Set working directory", slot=self.setDirectory)
         self.fileQuitAction = self.createAction("Close", slot=self.close, \
@@ -91,6 +101,7 @@ class ChEsher(QtGui.QMainWindow):
         self.set2DMAction = self.createAction("2DM2BK", slot=self.set2DM2BK, shortcut="F9")
         self.setCont2DXFAction = self.createAction("Cont2DXF", slot=self.setCont2DXF, shortcut="F10")
         self.setTubeAction = self.createAction("Tube", slot=self.setTube, shortcut="F11")
+        self.setHyDesignAction = self.createAction("HyDesign", slot=self.setHyDesign, shortcut="F12")
 
         self.helpAboutAction = self.createAction("&About", \
             self.helpAbout)
@@ -100,7 +111,7 @@ class ChEsher(QtGui.QMainWindow):
         self.helpMenu = self.menuBar().addMenu("Help")
         # add actions to menu
         self.addActions(self.fileMenu, (self.fileSetDirectory, self.fileSetExamples, None, self.fileQuitAction))
-        self.addActions(self.moduleMenu, (self.setDXFtoBKAction, self.setBK2DXFAction, self.setMeshAction, self.setXMLAction, self.setScalarAction, self.setVectorAction, self.setCSAction, self.set2DMAction, self.setCont2DXFAction, self.setTubeAction ))
+        self.addActions(self.moduleMenu, (self.setDXFtoBKAction, self.setBK2DXFAction, self.setMeshAction, self.setXMLAction, self.setScalarAction, self.setVectorAction, self.setCSAction, self.set2DMAction, self.setCont2DXFAction, self.setTubeAction, self.setHyDesignAction ))
         self.addActions(self.helpMenu, (self.helpAction, None, self.helpAboutAction))
 
         # variables
@@ -392,6 +403,7 @@ class ChEsher(QtGui.QMainWindow):
         QtCore.QObject.connect(self.ui.pushButton2dmConvert, QtCore.SIGNAL("clicked()"), self.create2DM2BK)
 
 # module Cont2DXF
+
         self.callbackCont2DXFOpenMeshFile = functools.partial(self.getOpenFileName, "Open T3S-file", "2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s)", self.ui.lineEditCont2DXFInput)
         QtCore.QObject.connect(self.ui.pushButtonCont2DXFInput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackCont2DXFOpenMeshFile)
 
@@ -422,6 +434,7 @@ class ChEsher(QtGui.QMainWindow):
         header.setStretchLastSection(True)
 
 # module Tube
+
         self.callbackTubeOpenMeshFile = functools.partial(self.getOpenFileName, "Open T3S-file", "2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s)", self.ui.lineEditTubeInputMesh)
         QtCore.QObject.connect(self.ui.pushButtonTubeInputMesh, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackTubeOpenMeshFile)
         
@@ -433,9 +446,14 @@ class ChEsher(QtGui.QMainWindow):
         
         QtCore.QObject.connect(self.ui.pushButtonTubeCreate, QtCore.SIGNAL("clicked()"), self.createTube)
 
-        self.setDXF2BK()   
+
+        self.setDXF2BK()
 #        self.setCont2DXF()
 #        self.initialize()
+        
+    def setType(self):
+        self.calcDischarge()
+        self.updateUi()
         
     def setSymbol(self, i):
         self.scalarSymbol = i
@@ -1241,7 +1259,12 @@ class ChEsher(QtGui.QMainWindow):
     def setTube(self):
         self.ui.labelModule.setText("~   Module Tube   ~")
         self.ui.stackedWidget.setCurrentIndex(9)
+        
+    def setHyDesign(self):
+        self.ui.labelModule.setText("~   Module HyDesign   ~")
+        self.ui.stackedWidget.setCurrentIndex(12)
 
+        
     def setDirectory(self):
         dir = QFileDialog.getExistingDirectory(self, "Select directory", self.directory)
         if dir != "":

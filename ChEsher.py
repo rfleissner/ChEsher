@@ -127,7 +127,7 @@ class ChEsher(QtGui.QMainWindow):
         self.setCont2DXFAction = self.createAction("Cont2DXF", slot=self.setCont2DXF, shortcut="F10")
         self.setTubeAction = self.createAction("Tube", slot=self.setTube, shortcut="F11")
         self.setHyDesignAction = self.createAction("HyDesign", slot=self.setHyDesign, shortcut="F12")
-        self.setProfiles = self.createAction("Profiles", slot=self.setProfiles)
+        self.setProfilesAction = self.createAction("Profiles", slot=self.setProfiles)
         
         self.helpAboutAction = self.createAction("&About", \
             self.helpAbout)
@@ -137,7 +137,7 @@ class ChEsher(QtGui.QMainWindow):
         self.helpMenu = self.menuBar().addMenu("Help")
         # add actions to menu
         self.addActions(self.fileMenu, (self.fileSetDirectory, self.fileSetExamples, None, self.fileQuitAction))
-        self.addActions(self.moduleMenu, (self.setDXFtoBKAction, self.setBK2DXFAction, self.setMeshAction, self.setXMLAction, self.setScalarAction, self.setVectorAction, self.setCSAction, self.set2DMAction, self.setCont2DXFAction, self.setTubeAction, self.setHyDesignAction, self.setProfiles))
+        self.addActions(self.moduleMenu, (self.setDXFtoBKAction, self.setBK2DXFAction, self.setMeshAction, self.setXMLAction, self.setScalarAction, self.setVectorAction, self.setCSAction, self.set2DMAction, self.setCont2DXFAction, self.setTubeAction, self.setHyDesignAction, self.setProfilesAction))
         self.addActions(self.helpMenu, (self.helpAction, None, self.helpAboutAction))
 
 
@@ -455,9 +455,11 @@ class ChEsher(QtGui.QMainWindow):
         QtCore.QObject.connect(self.ui.pushButtonTubeCreate, QtCore.SIGNAL("clicked()"), self.createTube)
 
 
-        self.setDXF2BK()
+#        self.setDXF2BK()
 #        self.setCont2DXF()
-#        self.initialize()
+        self.setProfiles()
+        self.initialize()
+
         
     def setType(self):
         self.calcDischarge()
@@ -1075,6 +1077,7 @@ class ChEsher(QtGui.QMainWindow):
         makedir(self.directory + "example_08/output/")
         makedir(self.directory + "example_09/output/")
         makedir(self.directory + "example_10/output/")
+        makedir(self.directory + "example_12/output/")
         
         ###   ~   module DXF2BK   ~   ###
         
@@ -1227,6 +1230,12 @@ class ChEsher(QtGui.QMainWindow):
         self.ui.lineEditTubeInputMesh.setText(self.directory + "example_10/mesh.t3s")
         self.ui.lineEditTubeInputLineSet.setText(self.directory + "example_10/tubes.i2s")
         self.ui.lineEditTubeOutput.setText(self.directory + "example_10/tubes.txt")
+
+        ###   ~   module Profile   ~   ###
+        
+        self.moduleProfiles.ui.lineEditInputProfiles.setText(self.directory + "example_12/profiles.i2s")
+        self.moduleProfiles.ui.lineEditInputReach.setText(self.directory + "example_12/reach.i2s")
+        self.moduleProfiles.ui.lineEditInputPoints.setText(self.directory + "example_12/points.xyz")
         
     def setDXF2BK(self):
         self.ui.labelModule.setText("~   Module DXF2BK   ~")

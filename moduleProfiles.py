@@ -26,6 +26,8 @@ from PyQt4.QtGui import QMessageBox
 from uiProfiles import Ui_Profiles
 import uiHandler as uih
 import fileHandler as fh
+import macro as mc
+import numpy as np
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -52,11 +54,9 @@ class WrapProfiles():
         self.proProfiles = {}
 
         # results
+        self.proArranged = {}
         self.proNormalized = {}
         self.nodNormalized = {}
-
-    def setDir(self, directory):
-        self.directory = directory
 
 # module Mesh
 
@@ -70,7 +70,10 @@ class WrapProfiles():
         QtCore.QObject.connect(self.ui.pushButtonInputPoints, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenPointsFile)
 
         QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.create)
-
+        
+    def setDir(self, directory):
+        self.directory = directory
+        
     def create(self):
         info = "Input data:\n"
 
@@ -86,16 +89,126 @@ class WrapProfiles():
         except:
             QMessageBox.critical(self.widget, "Error", "Not able to load reach file!\nCheck filename or content!")
             return
-#        try:
-#            self.points = fh.readXYZ(self.ui.lineEditInputPoints.text())
-#            info += " - Points:\t\t{0}\n".format(len(self.nodReach))
-#        except:
-#            QMessageBox.critical(self.widget, "Error", "Not able to load points file!\nCheck filename or content!")
-#            return        
+        try:
+            self.points = fh.readXYZ(self.ui.lineEditInputPoints.text())
+            info += " - Points:\t\t{0}\n".format(len(self.points))
+        except:
+            QMessageBox.critical(self.widget, "Error", "Not able to load points file!\nCheck filename or content!")
+            return
         
         print self.nodProfiles
-        print self.nodReach
         print self.proProfiles
+        print self.nodReach
+        print self.points
+
+        self.determineFlowDirection()
+        self.normalizeProfiles()
         
+    def determineFlowDirection(self):
+
+        profilecounter = 1
+        direction = {}
+
+        for nID_reach in range(len(self.nodReach)):
+            nID_reach += 1
+
+            # determine flow direction of reach segments
+            if nID_reach <= len(self.nodReach)-1:
+                xa = self.nodReach[nID_reach][0]
+                xe = self.nodReach[nID_reach+1][0]
+                ya = self.nodReach[nID_reach][1]
+                ye = self.nodReach[nID_reach+1][1]
+                dx = xa - xe
+                dy = ya - ye
+                if dx >=0.0 and dy >= 0.0 and abs(dx) <= abs(dy):
+                    direction[nID_reach] = 'S'
+                elif dx <=0.0 and dy >= 0.0 and abs(dx) <= abs(dy):
+                    direction[nID_reach] = 'S'
+                elif dx <=0.0 and dy >= 0.0 and abs(dx) >= abs(dy):
+                    direction[nID_reach] = 'E'
+                elif dx <=0.0 and dy <= 0.0 and abs(dx) >= abs(dy):
+                    direction[nID_reach] = 'E'
+                elif dx <=0.0 and dy <= 0.0 and abs(dx) <= abs(dy):
+                    direction[nID_reach] = 'N'
+                elif dx >=0.0 and dy <= 0.0 and abs(dx) <= abs(dy):
+                    direction[nID_reach] = 'N'
+                elif dx >=0.0 and dy <= 0.0 and abs(dx) >= abs(dy):
+                    direction[nID_reach] = 'W'
+                elif dx >=0.0 and dy >= 0.0 and abs(dx) >= abs(dy):
+                    direction[nID_reach] = 'W'
+            else:
+                direction[nID_reach] = direction[nID_reach-1]
+
+            # determine closest profile node to current reach node
+            closestnode = mc.getClosestNode(self.nodReach[nID_reach], self.nodProfiles.keys(), self.nodProfiles)
+
+            # determine profile that inherits closest profile node
+            for pID_raw in self.proProfiles:
+
+                for nID_raw in range(len(self.proProfiles[pID_raw])):
+                    if closestnode == self.proProfiles[pID_raw][nID_raw]:
+
+                        startnode = self.proProfiles[pID_raw][0]
+                        endnode = self.proProfiles[pID_raw][-1]
+
+                        if direction[profilecounter] == 'N':
+                            if self.nodProfiles[startnode][0] > self.nodProfiles[endnode][0]:
+                                self.proProfiles[pID_raw].reverse()
+                        elif direction[profilecounter] == 'E':
+                            if self.nodProfiles[startnode][1] < self.nodProfiles[endnode][1]:
+                                self.proProfiles[pID_raw].reverse()
+                        elif direction[profilecounter] == 'S':
+                            if self.nodProfiles[startnode][0] < self.nodProfiles[endnode][0]:
+                                self.proProfiles[pID_raw].reverse()
+                        elif direction[profilecounter] == 'W':
+                            if self.nodProfiles[startnode][1] > self.nodProfiles[endnode][1]:
+                                self.proProfiles[pID_raw].reverse()
+
+                        self.proArranged[profilecounter] = self.proProfiles[pID_raw]
+                        profilecounter += 1
+                        break
+
+        info = "\nFlow direction:\n"
+        for pID_Arranged in direction:
+            info += ' - Profile {0}:\t{1}\n'.format(pID_Arranged, direction[pID_Arranged])
+            
+        return info
         
+    def normalizeProfiles(self):
         
+        for pID in self.proArranged:
+
+            for pnID in range(len(self.proArranged[pID])-1):
+                print "-----------------------------------------------------------------"
+                nID_i = self.proArranged[pID][pnID]
+                nID_j = self.proArranged[pID][pnID+1]
+                for nID in self.points:
+                    a = self.nodProfiles[nID_i][0:2]
+                    b = self.nodProfiles[nID_j][0:2]
+                    u = np.subtract(b, a)
+                    x = self.points[nID][0:2]
+                    P = a + np.dot(np.subtract(x, a), u)/np.dot(u, u)*u
+                    distance = np.linalg.norm(np.array(x)-np.array(P))
+
+                    ab = math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
+                    aP = math.sqrt((a[0]-P[0])**2 + (a[1]-P[1])**2)
+                    bP = math.sqrt((b[0]-P[0])**2 + (b[1]-P[1])**2)
+                    onsegment = False
+                    
+                    if abs(aP + bP - ab) < 0.00000001:
+                        onsegment = False
+                    else:
+                        onsegment = True
+                    
+                    
+                    print pID, P, distance, onsegment
+                    # speichere Pg in array
+                    # speichere distance in array
+                    
+#                    temp = list(Pg)
+#                    temp.append(self.points[nID][2])
+
+        # loop ueber profile
+        #   loop ueber punkte, ordne punkte zu profilen zu (ueber kuerzesten orthogonalabstand)
+        # loop ueber profile 
+        #   ordne normalisierte punkte von links nach rechts

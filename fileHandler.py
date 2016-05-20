@@ -203,6 +203,30 @@ def read2DM(filename):
 def readI2S(filename):
     return readI3S(filename, 2)
 
+def readXYZ(filename):
+
+    nodes = {}
+
+    file = open(filename, 'r')
+    content = file.readlines()
+    file.close()
+
+    endheader = False
+    nodecounter = 0
+
+    for line in range(len(content)):
+        if endheader is True:
+            nodecounter += 1
+            values = content[line].split()
+            coords = []
+            for i in range(3):
+                coords.append(float(values[i]))
+            nodes[nodecounter] = coords
+        if content[line].startswith(':EndHeader'):
+            endheader = True
+
+    return nodes
+
 def readI3S(filename, dim=3):
     def num(s):
         try:

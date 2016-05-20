@@ -1,0 +1,150 @@
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'uiProfiles.ui'
+#
+# Created: Fri May 20 15:11:32 2016
+#      by: PyQt4 UI code generator 4.11.2
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt4 import QtCore, QtGui
+
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
+
+class Ui_Profiles(object):
+    def setupUi(self, Profiles):
+        Profiles.setObjectName(_fromUtf8("Profiles"))
+        Profiles.resize(630, 759)
+        self.gridLayout = QtGui.QGridLayout(Profiles)
+        self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
+        self.label_106 = QtGui.QLabel(Profiles)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setUnderline(True)
+        self.label_106.setFont(font)
+        self.label_106.setIndent(-4)
+        self.label_106.setObjectName(_fromUtf8("label_106"))
+        self.gridLayout.addWidget(self.label_106, 0, 0, 1, 1)
+        self.label_105 = QtGui.QLabel(Profiles)
+        self.label_105.setIndent(18)
+        self.label_105.setObjectName(_fromUtf8("label_105"))
+        self.gridLayout.addWidget(self.label_105, 1, 0, 1, 1)
+        self.pushButtonInputProfiles = QtGui.QPushButton(Profiles)
+        self.pushButtonInputProfiles.setMinimumSize(QtCore.QSize(20, 0))
+        self.pushButtonInputProfiles.setMaximumSize(QtCore.QSize(40, 16777215))
+        self.pushButtonInputProfiles.setObjectName(_fromUtf8("pushButtonInputProfiles"))
+        self.gridLayout.addWidget(self.pushButtonInputProfiles, 1, 1, 1, 1)
+        self.lineEditInputProfiles = QtGui.QLineEdit(Profiles)
+        self.lineEditInputProfiles.setObjectName(_fromUtf8("lineEditInputProfiles"))
+        self.gridLayout.addWidget(self.lineEditInputProfiles, 1, 2, 1, 1)
+        self.label_103 = QtGui.QLabel(Profiles)
+        self.label_103.setIndent(18)
+        self.label_103.setObjectName(_fromUtf8("label_103"))
+        self.gridLayout.addWidget(self.label_103, 2, 0, 1, 1)
+        self.pushButtonInputReach = QtGui.QPushButton(Profiles)
+        self.pushButtonInputReach.setMinimumSize(QtCore.QSize(20, 0))
+        self.pushButtonInputReach.setMaximumSize(QtCore.QSize(40, 16777215))
+        self.pushButtonInputReach.setObjectName(_fromUtf8("pushButtonInputReach"))
+        self.gridLayout.addWidget(self.pushButtonInputReach, 2, 1, 1, 1)
+        self.lineEditInputReach = QtGui.QLineEdit(Profiles)
+        self.lineEditInputReach.setObjectName(_fromUtf8("lineEditInputReach"))
+        self.gridLayout.addWidget(self.lineEditInputReach, 2, 2, 1, 1)
+        self.label_107 = QtGui.QLabel(Profiles)
+        self.label_107.setIndent(18)
+        self.label_107.setObjectName(_fromUtf8("label_107"))
+        self.gridLayout.addWidget(self.label_107, 3, 0, 1, 1)
+        self.pushButtonInputPoints = QtGui.QPushButton(Profiles)
+        self.pushButtonInputPoints.setMinimumSize(QtCore.QSize(20, 0))
+        self.pushButtonInputPoints.setMaximumSize(QtCore.QSize(40, 16777215))
+        self.pushButtonInputPoints.setObjectName(_fromUtf8("pushButtonInputPoints"))
+        self.gridLayout.addWidget(self.pushButtonInputPoints, 3, 1, 1, 1)
+        self.lineEditInputPoints = QtGui.QLineEdit(Profiles)
+        self.lineEditInputPoints.setObjectName(_fromUtf8("lineEditInputPoints"))
+        self.gridLayout.addWidget(self.lineEditInputPoints, 3, 2, 1, 1)
+        spacerItem = QtGui.QSpacerItem(609, 227, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.gridLayout.addItem(spacerItem, 4, 0, 1, 3)
+        self.label_104 = QtGui.QLabel(Profiles)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setUnderline(True)
+        self.label_104.setFont(font)
+        self.label_104.setObjectName(_fromUtf8("label_104"))
+        self.gridLayout.addWidget(self.label_104, 5, 0, 1, 1)
+        self.checkBoxOutputTextfile = QtGui.QCheckBox(Profiles)
+        self.checkBoxOutputTextfile.setObjectName(_fromUtf8("checkBoxOutputTextfile"))
+        self.gridLayout.addWidget(self.checkBoxOutputTextfile, 6, 0, 1, 1)
+        self.pushButtonOutputTextfile = QtGui.QPushButton(Profiles)
+        self.pushButtonOutputTextfile.setEnabled(False)
+        self.pushButtonOutputTextfile.setMinimumSize(QtCore.QSize(20, 0))
+        self.pushButtonOutputTextfile.setMaximumSize(QtCore.QSize(40, 16777215))
+        self.pushButtonOutputTextfile.setObjectName(_fromUtf8("pushButtonOutputTextfile"))
+        self.gridLayout.addWidget(self.pushButtonOutputTextfile, 6, 1, 1, 1)
+        self.lineEditOutputTextfile = QtGui.QLineEdit(Profiles)
+        self.lineEditOutputTextfile.setEnabled(False)
+        self.lineEditOutputTextfile.setObjectName(_fromUtf8("lineEditOutputTextfile"))
+        self.gridLayout.addWidget(self.lineEditOutputTextfile, 6, 2, 1, 1)
+        self.checkBoxOutputDXF = QtGui.QCheckBox(Profiles)
+        self.checkBoxOutputDXF.setObjectName(_fromUtf8("checkBoxOutputDXF"))
+        self.gridLayout.addWidget(self.checkBoxOutputDXF, 7, 0, 1, 1)
+        self.pushButtonOutputDXF = QtGui.QPushButton(Profiles)
+        self.pushButtonOutputDXF.setEnabled(False)
+        self.pushButtonOutputDXF.setMinimumSize(QtCore.QSize(20, 0))
+        self.pushButtonOutputDXF.setMaximumSize(QtCore.QSize(40, 16777215))
+        self.pushButtonOutputDXF.setObjectName(_fromUtf8("pushButtonOutputDXF"))
+        self.gridLayout.addWidget(self.pushButtonOutputDXF, 7, 1, 1, 1)
+        self.lineEditOutputDXF = QtGui.QLineEdit(Profiles)
+        self.lineEditOutputDXF.setEnabled(False)
+        self.lineEditOutputDXF.setObjectName(_fromUtf8("lineEditOutputDXF"))
+        self.gridLayout.addWidget(self.lineEditOutputDXF, 7, 2, 1, 1)
+        self.checkBoxOutputHECRAS = QtGui.QCheckBox(Profiles)
+        self.checkBoxOutputHECRAS.setObjectName(_fromUtf8("checkBoxOutputHECRAS"))
+        self.gridLayout.addWidget(self.checkBoxOutputHECRAS, 8, 0, 1, 1)
+        self.pushButtonOutputHECRAS = QtGui.QPushButton(Profiles)
+        self.pushButtonOutputHECRAS.setEnabled(False)
+        self.pushButtonOutputHECRAS.setMinimumSize(QtCore.QSize(20, 0))
+        self.pushButtonOutputHECRAS.setMaximumSize(QtCore.QSize(40, 16777215))
+        self.pushButtonOutputHECRAS.setObjectName(_fromUtf8("pushButtonOutputHECRAS"))
+        self.gridLayout.addWidget(self.pushButtonOutputHECRAS, 8, 1, 1, 1)
+        self.lineEditOutputHECRAS = QtGui.QLineEdit(Profiles)
+        self.lineEditOutputHECRAS.setEnabled(False)
+        self.lineEditOutputHECRAS.setObjectName(_fromUtf8("lineEditOutputHECRAS"))
+        self.gridLayout.addWidget(self.lineEditOutputHECRAS, 8, 2, 1, 1)
+        spacerItem1 = QtGui.QSpacerItem(609, 255, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.gridLayout.addItem(spacerItem1, 9, 0, 1, 3)
+        self.pushButtonCreate = QtGui.QPushButton(Profiles)
+        self.pushButtonCreate.setObjectName(_fromUtf8("pushButtonCreate"))
+        self.gridLayout.addWidget(self.pushButtonCreate, 10, 0, 1, 3)
+
+        self.retranslateUi(Profiles)
+        QtCore.QMetaObject.connectSlotsByName(Profiles)
+
+    def retranslateUi(self, Profiles):
+        Profiles.setWindowTitle(_translate("Profiles", "Form", None))
+        self.label_106.setText(_translate("Profiles", "Inputs:", None))
+        self.label_105.setText(_translate("Profiles", "Channel profiles file:", None))
+        self.pushButtonInputProfiles.setText(_translate("Profiles", "...", None))
+        self.label_103.setText(_translate("Profiles", "Channel reach file:", None))
+        self.pushButtonInputReach.setText(_translate("Profiles", "...", None))
+        self.label_107.setText(_translate("Profiles", "Points file:", None))
+        self.pushButtonInputPoints.setText(_translate("Profiles", "...", None))
+        self.label_104.setText(_translate("Profiles", "Outputs:", None))
+        self.checkBoxOutputTextfile.setText(_translate("Profiles", "Textfile:", None))
+        self.pushButtonOutputTextfile.setText(_translate("Profiles", "...", None))
+        self.checkBoxOutputDXF.setText(_translate("Profiles", "DXF file:", None))
+        self.pushButtonOutputDXF.setText(_translate("Profiles", "...", None))
+        self.checkBoxOutputHECRAS.setText(_translate("Profiles", "HEC-RAS Gemetry Data file:", None))
+        self.pushButtonOutputHECRAS.setText(_translate("Profiles", "...", None))
+        self.pushButtonCreate.setText(_translate("Profiles", "Let\'s go!", None))
+

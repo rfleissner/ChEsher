@@ -175,39 +175,122 @@ class WrapProfiles():
         return info
         
     def normalizeProfiles(self):
-        
-        for pID in self.proArranged:
 
+        # 
+        tempDist = dict([(key+1, []) for key in range(len(self.points))])
+        tempProfileID = dict([(key+1, []) for key in range(len(self.points))])
+        tempProfileSegmentID = dict([(key+1, []) for key in range(len(self.points))])
+        tempP = dict([(key+1, []) for key in range(len(self.points))])
+        tempOnsegment = dict([(key+1, []) for key in range(len(self.points))])
+        tempStation = dict([(key+1, []) for key in range(len(self.points))])
+        segmentStation = dict([(key, []) for key in self.proArranged])
+
+        # loop over profiles
+        for pID in self.proArranged:
+            s = 0.0
+            # loop over profile segments
             for pnID in range(len(self.proArranged[pID])-1):
-                print "-----------------------------------------------------------------"
                 nID_i = self.proArranged[pID][pnID]
                 nID_j = self.proArranged[pID][pnID+1]
+                a = self.nodProfiles[nID_i][0:2]
+                b = self.nodProfiles[nID_j][0:2]
+                ab = math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
+                segmentStation[pID].append(ab)
+                # loop over points
                 for nID in self.points:
-                    a = self.nodProfiles[nID_i][0:2]
-                    b = self.nodProfiles[nID_j][0:2]
+        
+                    # determine orthogonal projection to profile segment
                     u = np.subtract(b, a)
                     x = self.points[nID][0:2]
                     P = a + np.dot(np.subtract(x, a), u)/np.dot(u, u)*u
                     distance = np.linalg.norm(np.array(x)-np.array(P))
-
-                    ab = math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
+                    
                     aP = math.sqrt((a[0]-P[0])**2 + (a[1]-P[1])**2)
                     bP = math.sqrt((b[0]-P[0])**2 + (b[1]-P[1])**2)
-                    onsegment = False
-                    
-                    if abs(aP + bP - ab) < 0.00000001:
-                        onsegment = False
-                    else:
-                        onsegment = True
-                    
-                    
-                    print pID, P, distance, onsegment
-                    # speichere Pg in array
-                    # speichere distance in array
-                    
-#                    temp = list(Pg)
-#                    temp.append(self.points[nID][2])
 
+                    # check if point is on profile segment or not
+                    onsegment = False              
+                    if abs(aP + bP - ab) < 0.0000001:
+                        onsegment = True
+                    else:
+                        onsegment = False
+                
+                    tempDist[nID].append(distance)
+                    tempProfileID[nID].append(pID)
+                    tempProfileSegmentID[nID].append(pnID)
+                    tempP[nID].append(np.append(P,self.points[nID][2]))
+                    tempOnsegment[nID].append(onsegment)
+                    tempStation[nID].append(aP)
+        
+        pointsNormalized = {}
+        pointsStation = {}
+        pointsProfileID = {}
+        pointsProfileSegmentID = {}
+
+        
+        nodecounter = 0
+        for nID in tempDist:
+            while True:
+                ID = tempDist[nID].index(min(tempDist[nID]))
+                if tempOnsegment[nID][ID] is True:
+                    nodecounter += 1
+                    pID = tempProfileID[nID][ID]
+                    pointsProfileID[nodecounter] = tempProfileID[nID][ID]
+                    pointsNormalized[nodecounter] = tempP[nID][ID]
+                    pointsProfileSegmentID[nodecounter] = tempProfileSegmentID[nID][ID]
+                    
+                    station = tempStation[nID][ID]
+                    if pointsProfileSegmentID[nodecounter] > 0:
+                        for i in range(tempProfileSegmentID[nID][ID]):
+                            station += segmentStation[pID][i]
+                            
+                    pointsStation[nodecounter] = station
+                    break
+                else:
+                    del tempDist[nID][ID]
+                    del tempProfileID[nID][ID]
+                    del tempProfileSegmentID[nID][ID]
+                    del tempP[nID][ID]
+                    del tempOnsegment[nID][ID]
+                    del tempStation[nID][ID]
+        
+        # sort normalized points
+        tempPro = dict((key, np.array([])) for key in self.proArranged)
+
+        for key in pointsNormalized:
+            print pointsNormalized[key], pointsStation[key], pointsProfileID[key], pointsProfileSegmentID[key]
+            arr1 = np.array(pointsNormalized[key])
+            arr2 = np.array([pointsStation[key]])
+            arr = np.append(arr1, arr2)
+            tempPro[pointsProfileID[key]] = np.append(tempPro[pointsProfileID[key]], arr)
+        
+        for key in tempPro:
+            length = len(tempPro[key])
+            tempPro[key] = tempPro[key].reshape((length/4,4))
+            print tempPro[key]
+            
+#            
+#            # loop over profile segments
+#            for pnID in range(len(self.proArranged[pID])-1):
+#                nID_i = self.proArranged[pID][pnID]
+#                nID_j = self.proArranged[pID][pnID+1]
+#                
+#                # loop over normalized points
+#                for nID in pointsNormalized[pID]:
+#                    
+#                    # determine orthogonal projection to profile segment
+#                    a = self.nodProfiles[nID_i][0:2]
+#                    b = self.nodProfiles[nID_j][0:2]
+#                    
+#                    ab = math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
+#                    aP = math.sqrt((a[0]-P[0])**2 + (a[1]-P[1])**2)
+#                    bP = math.sqrt((b[0]-P[0])**2 + (b[1]-P[1])**2)
+                    
+                    
+                    
+                    
+        # loop ueber profile
+        #   
         # loop ueber profile
         #   loop ueber punkte, ordne punkte zu profilen zu (ueber kuerzesten orthogonalabstand)
         # loop ueber profile 

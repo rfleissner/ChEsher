@@ -30,3 +30,8 @@ def getSaveFileName(title, fileFormat, lineEdit, directory, wid):
     filename = QFileDialog.getSaveFileName(wid, title, directory, fileFormat)
     if filename != "":
         lineEdit.setText(filename)
+
+def setEnabled(checkBox, pushButton, lineEdit):
+        checked = checkBox.isChecked()
+        pushButton.setEnabled(checked)
+        lineEdit.setEnabled(checked)

@@ -1237,6 +1237,13 @@ class ChEsher(QtGui.QMainWindow):
         self.moduleProfiles.ui.lineEditInputReach.setText(self.directory + "example_12/reach.i2s")
         self.moduleProfiles.ui.lineEditInputPoints.setText(self.directory + "example_12/points.xyz")
         
+        setEnabled(self.moduleProfiles.ui.checkBoxOutputTextfile, self.moduleProfiles.ui.pushButtonOutputTextfile, self.moduleProfiles.ui.lineEditOutputTextfile)
+        self.moduleProfiles.ui.lineEditOutputTextfile.setText(self.directory + "example_12/output/points.txt")
+        
+        setEnabled(self.moduleProfiles.ui.checkBoxOutputDXF, self.moduleProfiles.ui.pushButtonOutputDXF, self.moduleProfiles.ui.lineEditOutputDXF)
+        self.moduleProfiles.ui.lineEditOutputDXF.setText(self.directory + "example_12/output/points.dxf")
+        
+        
     def setDXF2BK(self):
         self.ui.labelModule.setText("~   Module DXF2BK   ~")
         self.ui.stackedWidget.setCurrentIndex(0)

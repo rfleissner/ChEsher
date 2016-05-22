@@ -28,7 +28,7 @@ import uiHandler as uih
 import fileHandler as fh
 import macro as mc
 import numpy as np
-
+import ezdxf
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
@@ -54,9 +54,9 @@ class WrapProfiles():
         self.proProfiles = {}
 
         # results
+        self.pointsNormalized = []
+        self.segmentStation = []
         self.proArranged = {}
-        self.proNormalized = {}
-        self.nodNormalized = {}
 
 # module Mesh
 
@@ -69,6 +69,32 @@ class WrapProfiles():
         self.callbackOpenPointsFile = functools.partial(uih.getOpenFileName, "Open Points File", "Point Set (*.xyz)", self.ui.lineEditInputPoints, self.directory, self.widget)
         QtCore.QObject.connect(self.ui.pushButtonInputPoints, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenPointsFile)
 
+
+        self.callbackTextfile = functools.partial(uih.setEnabled, self.ui.checkBoxOutputTextfile, self.ui.pushButtonOutputTextfile, self.ui.lineEditOutputTextfile)
+        QtCore.QObject.connect(self.ui.checkBoxOutputTextfile, QtCore.SIGNAL("clicked()"), self.callbackTextfile)
+        
+        self.callbackDXFfile = functools.partial(uih.setEnabled, self.ui.checkBoxOutputDXF, self.ui.pushButtonOutputDXF, self.ui.lineEditOutputDXF)
+        QtCore.QObject.connect(self.ui.checkBoxOutputDXF, QtCore.SIGNAL("clicked()"), self.callbackDXFfile)
+        
+        self.callbackHECRAS = functools.partial(uih.setEnabled, self.ui.checkBoxOutputHECRAS, self.ui.pushButtonOutputHECRAS, self.ui.lineEditOutputHECRAS)
+        QtCore.QObject.connect(self.ui.checkBoxOutputHECRAS, QtCore.SIGNAL("clicked()"), self.callbackHECRAS)
+    
+    
+    
+    
+    
+        self.callbackSaveTextfile = functools.partial(uih.getSaveFileName, "Save textfile As", "Normal text file (*.txt)", self.ui.lineEditOutputTextfile, self.directory, self.widget)
+        QtCore.QObject.connect(self.ui.pushButtonOutputTextfile, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveTextfile)
+        
+        self.callbackSaveDXFfile = functools.partial(uih.getSaveFileName, "Save textfile As", "Normal text file (*.txt)", self.ui.lineEditOutputDXF, self.directory, self.widget)
+        QtCore.QObject.connect(self.ui.pushButtonOutputDXF, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveDXFfile)
+        
+        self.callbackSaveHECRAS = functools.partial(uih.getSaveFileName, "Save textfile As", "Normal text file (*.txt)", self.ui.lineEditOutputHECRAS, self.directory, self.widget)
+        QtCore.QObject.connect(self.ui.pushButtonOutputHECRAS, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveHECRAS)
+                
+        
+        
+        
         QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.create)
         
     def setDir(self, directory):
@@ -102,8 +128,23 @@ class WrapProfiles():
         print self.points
 
         self.determineFlowDirection()
-        self.normalizeProfiles()
+        self.pointsNormalized, self.segmentStation = self.normalizeProfiles()
         
+        if self.ui.checkBoxOutputTextfile.isChecked():
+            try:
+                self.writeTXT()
+                info += " - Textfile created with {0} profiles and {1} points.\n".format(len(self.pointsNormalized), np.size(self.pointsNormalized)) 
+            except:
+                info += " - ERROR: Not able to write textfile!\n"
+
+        if self.ui.checkBoxOutputDXF.isChecked():
+            self.writeDXF()
+#            try:
+#                self.writeDXF()
+#                info += " - DXF file created.\n"
+#            except:
+#                info += " - ERROR: Not able to write DXF file!\n"
+                
     def determineFlowDirection(self):
 
         profilecounter = 1
@@ -222,10 +263,10 @@ class WrapProfiles():
                     tempOnsegment[nID].append(onsegment)
                     tempStation[nID].append(aP)
         
-        pointsNormalized = {}
-        pointsStation = {}
-        pointsProfileID = {}
-        pointsProfileSegmentID = {}
+        tempPointsNormalized = {}
+        tempPointsStation = {}
+        tempPointsProfileID = {}
+        tempPointsProfileSegmentID = {}
 
         
         nodecounter = 0
@@ -235,16 +276,16 @@ class WrapProfiles():
                 if tempOnsegment[nID][ID] is True:
                     nodecounter += 1
                     pID = tempProfileID[nID][ID]
-                    pointsProfileID[nodecounter] = tempProfileID[nID][ID]
-                    pointsNormalized[nodecounter] = tempP[nID][ID]
-                    pointsProfileSegmentID[nodecounter] = tempProfileSegmentID[nID][ID]
+                    tempPointsProfileID[nodecounter] = tempProfileID[nID][ID]
+                    tempPointsNormalized[nodecounter] = tempP[nID][ID]
+                    tempPointsProfileSegmentID[nodecounter] = tempProfileSegmentID[nID][ID]
                     
                     station = tempStation[nID][ID]
-                    if pointsProfileSegmentID[nodecounter] > 0:
+                    if tempPointsProfileSegmentID[nodecounter] > 0:
                         for i in range(tempProfileSegmentID[nID][ID]):
                             station += segmentStation[pID][i]
                             
-                    pointsStation[nodecounter] = station
+                    tempPointsStation[nodecounter] = station
                     break
                 else:
                     del tempDist[nID][ID]
@@ -255,43 +296,121 @@ class WrapProfiles():
                     del tempStation[nID][ID]
         
         # sort normalized points
-        tempPro = dict((key, np.array([])) for key in self.proArranged)
+        pointsNormalized = dict((key, np.array([])) for key in self.proArranged)
 
-        for key in pointsNormalized:
-            print pointsNormalized[key], pointsStation[key], pointsProfileID[key], pointsProfileSegmentID[key]
-            arr1 = np.array(pointsNormalized[key])
-            arr2 = np.array([pointsStation[key]])
+        for key in tempPointsNormalized:
+#            print tempPointsNormalized[key], tempPointsStation[key], tempPointsProfileID[key], tempPointsProfileSegmentID[key]
+            arr1 = np.array(tempPointsNormalized[key])
+            arr2 = np.array([tempPointsStation[key]])
             arr = np.append(arr1, arr2)
-            tempPro[pointsProfileID[key]] = np.append(tempPro[pointsProfileID[key]], arr)
+            pointsNormalized[tempPointsProfileID[key]] = np.append(pointsNormalized[tempPointsProfileID[key]], arr)
         
-        for key in tempPro:
-            length = len(tempPro[key])
-            tempPro[key] = tempPro[key].reshape((length/4,4))
-            print tempPro[key]
+        # arrange normalized points for each profile
+        for key in pointsNormalized:
+            length = len(pointsNormalized[key])
+            pointsNormalized[key] = pointsNormalized[key].reshape((length/4,4))
+            # sort points by increasing stationing
+            pointsNormalized[key] = pointsNormalized[key][pointsNormalized[key][:,3].argsort()]
             
-#            
-#            # loop over profile segments
-#            for pnID in range(len(self.proArranged[pID])-1):
-#                nID_i = self.proArranged[pID][pnID]
-#                nID_j = self.proArranged[pID][pnID+1]
-#                
-#                # loop over normalized points
-#                for nID in pointsNormalized[pID]:
-#                    
-#                    # determine orthogonal projection to profile segment
-#                    a = self.nodProfiles[nID_i][0:2]
-#                    b = self.nodProfiles[nID_j][0:2]
-#                    
-#                    ab = math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
-#                    aP = math.sqrt((a[0]-P[0])**2 + (a[1]-P[1])**2)
-#                    bP = math.sqrt((b[0]-P[0])**2 + (b[1]-P[1])**2)
-                    
-                    
-                    
-                    
-        # loop ueber profile
-        #   
-        # loop ueber profile
-        #   loop ueber punkte, ordne punkte zu profilen zu (ueber kuerzesten orthogonalabstand)
-        # loop ueber profile 
-        #   ordne normalisierte punkte von links nach rechts
+#            print pointsNormalized[key]
+        
+        return pointsNormalized, segmentStation
+    
+    def writeTXT(self):
+
+        fname = self.ui.lineEditOutputTextfile.text()
+        file = open(fname, 'w')
+        
+        for pID in self.pointsNormalized:
+            file.write(str(len(self.pointsNormalized[pID])) + '\n')
+            for nID in range(len(self.pointsNormalized[pID])):
+#                for i in range(len(self.pointsNormalized[pID][nID])):
+                file.write(str(self.pointsNormalized[pID][nID][3]) + ' ' + str(self.pointsNormalized[pID][nID][2]) + '\n')
+        file.close()
+        
+    def writeDXF(self):
+        
+        fname = self.ui.lineEditOutputDXF.text()
+        file = open(fname, 'w')
+        
+        layer = "0"
+        
+        dwg = ezdxf.new(dxfversion='AC1018')
+
+        msp = dwg.modelspace()
+
+#        pointsNormalized, 
+        for pID in self.pointsNormalized:
+            
+            xmax = 0.0
+            zmax = 0.0
+            
+            for i in range(len(self.segmentStation[pID])):
+                xmax += self.segmentStation[pID][i]
+            print "xmax", xmax
+            
+            
+            # ermittle ausdehnung in x und z
+            # zeichne rahmen
+            # zeichne band fuer stationierung, hoehe
+            # zeichne profil und marker
+            
+            
+            for segment in contour[c]['segments']:
+
+                p1 = contour[c]['vertices'][segment[0]]
+                p2 = contour[c]['vertices'][segment[1]]
+
+                poly = msp.add_line(p1, p2, dxfattribs={'layer': layer})
+                poly.rgb = coloursRGB[c]
+
+        if writelegend:
+
+            b = 75.0
+            ht = 8.0
+            h = 5.0
+            dxc = 5.0
+            bc = 20.0
+
+            legend = dwg.blocks.new(name='LEGEND')
+            legend.add_line([0.0, 0.0], [b, 0.0])
+            legend.add_line([0.0, 0.0], [0.0, -ht])
+            legend.add_line([b, 0.0], [b, -ht])
+            legend.add_line([0.0, -ht], [b, -ht])
+
+            tit = legend.add_text(title, dxfattribs={'insert': [b/2.0, -h/2.0], 'height':4.0/5.0*h, 'halign':1, 'valign':0})
+            tit.set_pos([b/2.0, -ht/2.0], align='MIDDLE_CENTER')
+
+            lc = 1
+            if subtitle != "":
+                legend.add_line([0.0, -ht], [b, -ht])
+                legend.add_line([0.0, -ht], [0.0, -2.0*ht])
+                legend.add_line([b, -ht], [b, -2.0*ht])
+                legend.add_line([0.0, -2.0*ht], [b, -2.0*ht])
+                tit = legend.add_text(subtitle, dxfattribs={'height':4.0/5.0*h})
+                tit.set_pos([b/2.0, -3.0*ht/2.0], align='MIDDLE_CENTER')
+                lc = 2
+            i = 0
+            for l in range(len(coloursRGB)):
+                p1 = [dxc, -lc*ht-l*h-h]
+                p2 = [dxc+bc, -lc*ht-l*h-h]
+                line = legend.add_line(p1, p2)
+                if reverse_order:
+                    i = len(coloursRGB)-l-1
+                else:
+                    i = l
+                line.rgb = coloursRGB[i]
+                ran = str(levels[i]) + separator + str(levels[i+1])
+                lev = legend.add_text(ran, dxfattribs={'height':2.0/5.0*h})
+                lev.set_pos([2*dxc+bc, -lc*ht-l*h-h], align='MIDDLE_LEFT')
+
+            legend.add_line([0, -lc*ht], [0, -lc*ht-len(coloursRGB)*h-h])
+            legend.add_line([b, -lc*ht], [b, -lc*ht-len(coloursRGB)*h-h])
+            legend.add_line([0, -lc*ht-len(coloursRGB)*h-h], [b, -lc*ht-len(coloursRGB)*h-h])
+
+            msp.add_blockref('LEGEND', origin, dxfattribs={
+                'xscale': 1.0,
+                'yscale': 1.0,
+                'rotation': 0.0})
+
+        dwg.saveas(str(fname))

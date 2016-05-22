@@ -325,7 +325,7 @@ class WrapProfiles():
             file.write(str(len(self.pointsNormalized[pID])) + '\n')
             for nID in range(len(self.pointsNormalized[pID])):
 #                for i in range(len(self.pointsNormalized[pID][nID])):
-                file.write(str(self.pointsNormalized[pID][nID][3]) + ' ' + str(self.pointsNormalized[pID][nID][2]) + '\n')
+                file.write(str(self.pointsNormalized[pID][nID][3]) + '\t' + str(self.pointsNormalized[pID][nID][2]) + '\n')
         file.close()
         
     def writeDXF(self):
@@ -342,75 +342,92 @@ class WrapProfiles():
 #        pointsNormalized, 
         for pID in self.pointsNormalized:
             
-            xmax = 0.0
-            zmax = 0.0
+
+            x = self.pointsNormalized[pID].transpose()[0]
+            y = self.pointsNormalized[pID].transpose()[1]
+            z = self.pointsNormalized[pID].transpose()[2]
+            d = self.pointsNormalized[pID].transpose()[3]
             
-            for i in range(len(self.segmentStation[pID])):
-                xmax += self.segmentStation[pID][i]
+            xmax = max(d)
+            zmin = min(z)
+            zmax = max(z)
+            
+#            print max(self.pointsNormalized[pID][self.pointsNormalized[pID][:,1]])
+            print x
+            print y
+            print z
+            print d
+            print 
             print "xmax", xmax
+            print "zmin", zmin
+            print "zmax", zmax
+            
+#            for i in range(len(self.segmentStation[pID])):
+#                xmax += self.segmentStation[pID][i]
+#            print "xmax", xmax
             
             
             # ermittle ausdehnung in x und z
             # zeichne rahmen
             # zeichne band fuer stationierung, hoehe
             # zeichne profil und marker
-            
-            
-            for segment in contour[c]['segments']:
-
-                p1 = contour[c]['vertices'][segment[0]]
-                p2 = contour[c]['vertices'][segment[1]]
-
-                poly = msp.add_line(p1, p2, dxfattribs={'layer': layer})
-                poly.rgb = coloursRGB[c]
-
-        if writelegend:
-
-            b = 75.0
-            ht = 8.0
-            h = 5.0
-            dxc = 5.0
-            bc = 20.0
-
-            legend = dwg.blocks.new(name='LEGEND')
-            legend.add_line([0.0, 0.0], [b, 0.0])
-            legend.add_line([0.0, 0.0], [0.0, -ht])
-            legend.add_line([b, 0.0], [b, -ht])
-            legend.add_line([0.0, -ht], [b, -ht])
-
-            tit = legend.add_text(title, dxfattribs={'insert': [b/2.0, -h/2.0], 'height':4.0/5.0*h, 'halign':1, 'valign':0})
-            tit.set_pos([b/2.0, -ht/2.0], align='MIDDLE_CENTER')
-
-            lc = 1
-            if subtitle != "":
-                legend.add_line([0.0, -ht], [b, -ht])
-                legend.add_line([0.0, -ht], [0.0, -2.0*ht])
-                legend.add_line([b, -ht], [b, -2.0*ht])
-                legend.add_line([0.0, -2.0*ht], [b, -2.0*ht])
-                tit = legend.add_text(subtitle, dxfattribs={'height':4.0/5.0*h})
-                tit.set_pos([b/2.0, -3.0*ht/2.0], align='MIDDLE_CENTER')
-                lc = 2
-            i = 0
-            for l in range(len(coloursRGB)):
-                p1 = [dxc, -lc*ht-l*h-h]
-                p2 = [dxc+bc, -lc*ht-l*h-h]
-                line = legend.add_line(p1, p2)
-                if reverse_order:
-                    i = len(coloursRGB)-l-1
-                else:
-                    i = l
-                line.rgb = coloursRGB[i]
-                ran = str(levels[i]) + separator + str(levels[i+1])
-                lev = legend.add_text(ran, dxfattribs={'height':2.0/5.0*h})
-                lev.set_pos([2*dxc+bc, -lc*ht-l*h-h], align='MIDDLE_LEFT')
-
-            legend.add_line([0, -lc*ht], [0, -lc*ht-len(coloursRGB)*h-h])
-            legend.add_line([b, -lc*ht], [b, -lc*ht-len(coloursRGB)*h-h])
-            legend.add_line([0, -lc*ht-len(coloursRGB)*h-h], [b, -lc*ht-len(coloursRGB)*h-h])
-
-            msp.add_blockref('LEGEND', origin, dxfattribs={
-                'xscale': 1.0,
-                'yscale': 1.0,
-                'rotation': 0.0})
-
+#
+#            
+#            for segment in contour[c]['segments']:
+#
+#                p1 = contour[c]['vertices'][segment[0]]
+#                p2 = contour[c]['vertices'][segment[1]]
+#
+#                poly = msp.add_line(p1, p2, dxfattribs={'layer': layer})
+#                poly.rgb = coloursRGB[c]
+#
+#        if writelegend:
+#
+#            b = 75.0
+#            ht = 8.0
+#            h = 5.0
+#            dxc = 5.0
+#            bc = 20.0
+#
+#            legend = dwg.blocks.new(name='LEGEND')
+#            legend.add_line([0.0, 0.0], [b, 0.0])
+#            legend.add_line([0.0, 0.0], [0.0, -ht])
+#            legend.add_line([b, 0.0], [b, -ht])
+#            legend.add_line([0.0, -ht], [b, -ht])
+#
+#            tit = legend.add_text(title, dxfattribs={'insert': [b/2.0, -h/2.0], 'height':4.0/5.0*h, 'halign':1, 'valign':0})
+#            tit.set_pos([b/2.0, -ht/2.0], align='MIDDLE_CENTER')
+#
+#            lc = 1
+#            if subtitle != "":
+#                legend.add_line([0.0, -ht], [b, -ht])
+#                legend.add_line([0.0, -ht], [0.0, -2.0*ht])
+#                legend.add_line([b, -ht], [b, -2.0*ht])
+#                legend.add_line([0.0, -2.0*ht], [b, -2.0*ht])
+#                tit = legend.add_text(subtitle, dxfattribs={'height':4.0/5.0*h})
+#                tit.set_pos([b/2.0, -3.0*ht/2.0], align='MIDDLE_CENTER')
+#                lc = 2
+#            i = 0
+#            for l in range(len(coloursRGB)):
+#                p1 = [dxc, -lc*ht-l*h-h]
+#                p2 = [dxc+bc, -lc*ht-l*h-h]
+#                line = legend.add_line(p1, p2)
+#                if reverse_order:
+#                    i = len(coloursRGB)-l-1
+#                else:
+#                    i = l
+#                line.rgb = coloursRGB[i]
+#                ran = str(levels[i]) + separator + str(levels[i+1])
+#                lev = legend.add_text(ran, dxfattribs={'height':2.0/5.0*h})
+#                lev.set_pos([2*dxc+bc, -lc*ht-l*h-h], align='MIDDLE_LEFT')
+#
+#            legend.add_line([0, -lc*ht], [0, -lc*ht-len(coloursRGB)*h-h])
+#            legend.add_line([b, -lc*ht], [b, -lc*ht-len(coloursRGB)*h-h])
+#            legend.add_line([0, -lc*ht-len(coloursRGB)*h-h], [b, -lc*ht-len(coloursRGB)*h-h])
+#
+#            msp.add_blockref('LEGEND', origin, dxfattribs={
+#                'xscale': 1.0,
+#                'yscale': 1.0,
+#                'rotation': 0.0})
+#
         dwg.saveas(str(fname))

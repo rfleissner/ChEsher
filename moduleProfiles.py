@@ -380,7 +380,6 @@ class WrapProfiles():
                     
             file.write('\nSURFACE LINE:\n')
             for nID in range(len(self.pointsNormalized[pID])):
-#                for i in range(len(self.pointsNormalized[pID][nID])):
                 file.write(str(self.pointsNormalized[pID][nID][0])+ ', ' + str(self.pointsNormalized[pID][nID][1])+ ', ' + str(self.pointsNormalized[pID][nID][2]) + '\n')        
             file.write('\nEND:\n\n')
             

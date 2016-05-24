@@ -50,6 +50,7 @@ class WrapProfiles():
         # inputs
         self.points = {}
         self.nodReach = {}
+        self.reachStation = []
         self.nodProfiles = {}
         self.proProfiles = {}
 
@@ -129,13 +130,13 @@ class WrapProfiles():
 
         self.determineFlowDirection()
         self.pointsNormalized, self.segmentStation = self.normalizeProfiles()
-        
-        if self.ui.checkBoxOutputTextfile.isChecked():
-            try:
-                self.writeTXT()
-                info += " - Textfile created with {0} profiles and {1} points.\n".format(len(self.pointsNormalized), np.size(self.pointsNormalized)) 
-            except:
-                info += " - ERROR: Not able to write textfile!\n"
+        self.writeTXT()
+#        if self.ui.checkBoxOutputTextfile.isChecked():
+#            try:
+#                self.writeTXT()
+#                info += " - Textfile created with {0} profiles and {1} points.\n".format(len(self.pointsNormalized), np.size(self.pointsNormalized)) 
+#            except:
+#                info += " - ERROR: Not able to write textfile!\n"
 
         if self.ui.checkBoxOutputDXF.isChecked():
             self.writeDXF()
@@ -149,10 +150,17 @@ class WrapProfiles():
 
         profilecounter = 1
         direction = {}
-
+        self.reachStation.append(0.0)
         for nID_reach in range(len(self.nodReach)):
             nID_reach += 1
-
+            if nID_reach < len(self.nodReach):
+                nID_i = nID_reach
+                nID_j = nID_reach+1
+                a = self.nodReach[nID_i][0:2]
+                b = self.nodReach[nID_j][0:2]
+                ab = math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
+                self.reachStation.append(ab)
+            
             # determine flow direction of reach segments
             if nID_reach <= len(self.nodReach)-1:
                 xa = self.nodReach[nID_reach][0]
@@ -316,16 +324,66 @@ class WrapProfiles():
         
         return pointsNormalized, segmentStation
     
+#    def writeTXT(self):
+#
+#        fname = self.ui.lineEditOutputTextfile.text()
+#        file = open(fname, 'w')
+#        
+#        for pID in self.pointsNormalized:
+#            file.write(str(len(self.pointsNormalized[pID])) + '\n')
+#            for nID in range(len(self.pointsNormalized[pID])):
+##                for i in range(len(self.pointsNormalized[pID][nID])):
+#                file.write(str(self.pointsNormalized[pID][nID][3]) + '\t' + str(self.pointsNormalized[pID][nID][2]) + '\n')
+#        file.close()
+        
     def writeTXT(self):
 
         fname = self.ui.lineEditOutputTextfile.text()
         file = open(fname, 'w')
+        file.write('river\n\n')
+        file.write('BEGIN HEADER:\n\n')
+        file.write('NUMBER OF REACHES: 1\n')
+        file.write('NUMBER OF CROSS SECTIONS:'+str(len(self.proArranged))+'\n')
+        file.write('UNITS: Meters\n\n')
+        file.write('END HEADER:\n\n')
         
+        file.write('BEGIN STREAM NETWORK:\n')
+        for nID in self.nodReach:
+            file.write('Endpoint: '+str(self.nodReach[nID][0])+', '+str(self.nodReach[nID][1])+', 0.0, '+str(nID)+'\n')
+            
+        file.write('\nREACH:\n\n')
+        file.write('STREAM ID: river\n')
+        file.write('REACH ID: reach\n')
+        file.write('FROM POINT: 1\n')
+        file.write('TO POINT: '+str(len(self.nodReach))+'\n\n')
+        file.write('CENTERLINE:\n')
+        station = 0.0
+        for nID in self.nodReach:
+            station += self.reachStation[nID-1]
+            file.write(str(self.nodReach[nID][0])+', '+str(self.nodReach[nID][1])+', 0.0, '+str(station)+'\n')
+        file.write('END:\n\n')
+        file.write('END STREAM NETWORK:\n\n\n')
+        file.write('BEGIN CROSS-SECTIONS:\n\n\n')
+        station = 0.0
         for pID in self.pointsNormalized:
-            file.write(str(len(self.pointsNormalized[pID])) + '\n')
+            file.write('CROSS-SECTION:\n\n')
+
+            file.write('STREAM ID: river\n')
+            file.write('REACH ID: reach\n')
+            file.write('STATION: '+str(station)+'\n')
+            station += self.reachStation[pID]
+            file.write('REACH LENGTHS: '+str(self.reachStation[pID])+', '+str(self.reachStation[pID])+', '+str(self.reachStation[pID])+'\n\n')
+
+            file.write('CUT LINE: \n')
+            for nID in self.proArranged[pID]:
+                file.write(str(self.nodProfiles[nID][0]) + ', '+str(self.nodProfiles[nID][1]) + '\n')   
+                    
+            file.write('\nSURFACE LINE:\n')
             for nID in range(len(self.pointsNormalized[pID])):
 #                for i in range(len(self.pointsNormalized[pID][nID])):
-                file.write(str(self.pointsNormalized[pID][nID][3]) + '\t' + str(self.pointsNormalized[pID][nID][2]) + '\n')
+                file.write(str(self.pointsNormalized[pID][nID][0])+ ', ' + str(self.pointsNormalized[pID][nID][1])+ ', ' + str(self.pointsNormalized[pID][nID][2]) + '\n')        
+            file.write('\nEND:\n\n')
+            
         file.close()
         
     def writeDXF(self):

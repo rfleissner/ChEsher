@@ -1238,11 +1238,13 @@ class ChEsher(QtGui.QMainWindow):
         self.moduleProfiles.ui.lineEditInputPoints.setText(self.directory + "example_12/points.xyz")
         
         setEnabled(self.moduleProfiles.ui.checkBoxOutputTextfile, self.moduleProfiles.ui.pushButtonOutputTextfile, self.moduleProfiles.ui.lineEditOutputTextfile)
-        self.moduleProfiles.ui.lineEditOutputTextfile.setText(self.directory + "example_12/output/points.geo")
+        self.moduleProfiles.ui.lineEditOutputTextfile.setText(self.directory + "example_12/output/points.txt")
         
-#        setEnabled(self.moduleProfiles.ui.checkBoxOutputDXF, self.moduleProfiles.ui.pushButtonOutputDXF, self.moduleProfiles.ui.lineEditOutputDXF)
-#        self.moduleProfiles.ui.lineEditOutputDXF.setText(self.directory + "example_12/output/points.dxf")
-        
+        setEnabled(self.moduleProfiles.ui.checkBoxOutputDXF, self.moduleProfiles.ui.pushButtonOutputDXF, self.moduleProfiles.ui.lineEditOutputDXF)
+        self.moduleProfiles.ui.lineEditOutputDXF.setText(self.directory + "example_12/output/points.dxf")
+
+        setEnabled(self.moduleProfiles.ui.checkBoxOutputHECRAS, self.moduleProfiles.ui.pushButtonOutputHECRAS, self.moduleProfiles.ui.lineEditOutputHECRAS)
+        self.moduleProfiles.ui.lineEditOutputHECRAS.setText(self.directory + "example_12/output/points.geo")       
         
     def setDXF2BK(self):
         self.ui.labelModule.setText("~   Module DXF2BK   ~")

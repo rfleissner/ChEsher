@@ -6,7 +6,7 @@
 :Application              BlueKenue
 :Version                  3.3.4
 :WrittenBy                Reinhard Fleiﬂner
-:CreationDate             Fri, May 20, 2016 11:59 PM
+:CreationDate             Wed, May 25, 2016 09:31 PM
 #
 #------------------------------------------------------------------------
 :CurrentWorkingDirectory C:\Program Files\CHC\BlueKenue64
@@ -36,7 +36,7 @@
 :ViewMaximized 1
 :StreamLineMaxPoints 60
 :StreamLineTimeStep 180.000000
-:CurrentViewPosition -118.313 -24.9534 -66.9119 -8.90825
+:CurrentViewPosition -44713.1 -44427.1 212880 213058
 :EndViewType CEnSim2DView
 #
 :ObjectType CXYZPointSet
@@ -129,12 +129,12 @@
 :IsFontBold 0
 :IsFontItalics 0
 :IsFontUnderline 0
-:BaseColour 000000
+:BaseColour 0x008000
 :DrawingStyle 1
 :LineStyle 0
 :LineWidth 1.000000
 :PointStyle 0
-:PointSize 4.000000
+:PointSize 6.000000
 :IsVisible 1
 :IsAnimated 0
 :StartColourScale
@@ -205,12 +205,12 @@
 :IsFontBold 0
 :IsFontItalics 0
 :IsFontUnderline 0
-:BaseColour 000000
-:DrawingStyle 0
+:BaseColour 0xff0000
+:DrawingStyle 1
 :LineStyle 0
 :LineWidth 1.000000
 :PointStyle 0
-:PointSize 4.000000
+:PointSize 6.000000
 :IsVisible 1
 :IsAnimated 0
 :StartColourScale
@@ -268,6 +268,6 @@
 :ShiftZ 0.000000
 :CurrentFrame 1
 :EndObjectType CLine2DSet
+:ObjectView 1 0
 :ObjectView 2 0
 :ObjectView 0 0
-:ObjectView 1 0

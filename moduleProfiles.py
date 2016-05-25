@@ -52,11 +52,12 @@ class WrapProfiles():
         # inputs
         self.points = {}
         self.nodReach = {}
-        self.reachStation = []
         self.nodProfiles = {}
         self.proProfiles = {}
 
         # results
+        self.profileStation = {}
+        self.reachStation = {}
         self.pointsNormalized = []
         self.segmentStation = []
         self.proArranged = {}
@@ -125,15 +126,16 @@ class WrapProfiles():
             QMessageBox.critical(self.widget, "Error", "Not able to load points file!\nCheck filename or content!")
             return
         
-        print self.nodProfiles
-        print self.proProfiles
-        print self.nodReach
-        print self.points
+#        print self.nodProfiles
+#        print self.proProfiles
+#        print self.nodReach
+#        print self.points
 
         self.determineFlowDirection()
         self.pointsNormalized, self.segmentStation = self.normalizeProfiles()
-        self.writeTXT()
-#        if self.ui.checkBoxOutputTextfile.isChecked():
+
+        if self.ui.checkBoxOutputTextfile.isChecked():
+            self.writeTXT()
 #            try:
 #                self.writeTXT()
 #                info += " - Textfile created with {0} profiles and {1} points.\n".format(len(self.pointsNormalized), np.size(self.pointsNormalized)) 
@@ -147,27 +149,59 @@ class WrapProfiles():
 #                info += " - DXF file created.\n"
 #            except:
 #                info += " - ERROR: Not able to write DXF file!\n"
-                
+
+        if self.ui.checkBoxOutputHECRAS.isChecked():
+            self.writeGEO()
+#            try:
+#                self.writeGEO()
+#                info += " - GEO file created with {0} profiles and {1} points.\n".format(len(self.pointsNormalized), np.size(self.pointsNormalized)) 
+#            except:
+#                info += " - ERROR: Not able to write geo file!\n"
+
+        print "finish"
+        
     def determineFlowDirection(self):
 
-
+        station_reach = 0.0
         profilecounter = 1
         direction = {}
-        self.reachStation.append(0.0)
         
+        # get total length of reach
+        reachlength = 0.0
+        for nID_reach in range(len(self.nodReach)-1):
+            nID_reach += 1
+            nID_i = nID_reach
+            nID_j = nID_reach+1
+        
+            xa = self.nodReach[nID_i][0]
+            ya = self.nodReach[nID_i][1]
+            xe = self.nodReach[nID_j][0]
+            ye = self.nodReach[nID_j][1]
+            
+            reach_line = LineString([(xa, ya), (xe, ye)])            
+            reachlength += reach_line.length
+ 
+        # loop over reach points
         for nID_reach in range(len(self.nodReach)-1):
             nID_reach += 1
             nID_i = nID_reach
             nID_j = nID_reach+1
             
-            xi = self.nodReach[nID_i][0]
-            yi = self.nodReach[nID_i][1]
-            xj = self.nodReach[nID_j][0]
-            yj = self.nodReach[nID_j][1]
+            xa = self.nodReach[nID_i][0]
+            ya = self.nodReach[nID_i][1]
+            xe = self.nodReach[nID_j][0]
+            ye = self.nodReach[nID_j][1]
             
-            reach_line = LineString([(xi, yi), (xj, yj)])
+            reach_line = LineString([(xa, ya), (xe, ye)])
             
+            # reach point station (zero on last point)
+            self.reachStation[nID_reach] = reachlength-station_reach
+            station_reach += reach_line.length
+            
+            # loop over profiles
             for pID in self.proProfiles:
+                
+                # loop over profile points
                 for nID in range(len(self.proProfiles[pID])-1):
 
                     ri = self.nodProfiles[self.proProfiles[pID][nID]][0]
@@ -177,90 +211,64 @@ class WrapProfiles():
 
                     profile_line = LineString([(ri, rj), (si, sj)])
 
-                    print reach_line.intersection(profile_line)
-
-            # erstelle mit i und j ein linestring R
-            # loop ueber alle profile
-            #   erstelle linestring und verschneide mit linestring R
-            #   ermittle stationierung von profil
-            #   bring profil in reihenfolge
-            
-            
-#            if nID_reach < len(self.nodReach):
-#                nID_i = nID_reach
-#                nID_j = nID_reach+1
-#                a = self.nodReach[nID_i][0:2]
-#                b = self.nodReach[nID_j][0:2]
-#                ab = math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
-#                self.reachStation.append(ab)
-            
-            
-        for nID_reach in range(len(self.nodReach)):
-            # determine flow direction of reach segments
-            if nID_reach <= len(self.nodReach)-1:
-                xa = self.nodReach[nID_reach][0]
-                xe = self.nodReach[nID_reach+1][0]
-                ya = self.nodReach[nID_reach][1]
-                ye = self.nodReach[nID_reach+1][1]
-                dx = xa - xe
-                dy = ya - ye
-                if dx >=0.0 and dy >= 0.0 and abs(dx) <= abs(dy):
-                    direction[nID_reach] = 'S'
-                elif dx <=0.0 and dy >= 0.0 and abs(dx) <= abs(dy):
-                    direction[nID_reach] = 'S'
-                elif dx <=0.0 and dy >= 0.0 and abs(dx) >= abs(dy):
-                    direction[nID_reach] = 'E'
-                elif dx <=0.0 and dy <= 0.0 and abs(dx) >= abs(dy):
-                    direction[nID_reach] = 'E'
-                elif dx <=0.0 and dy <= 0.0 and abs(dx) <= abs(dy):
-                    direction[nID_reach] = 'N'
-                elif dx >=0.0 and dy <= 0.0 and abs(dx) <= abs(dy):
-                    direction[nID_reach] = 'N'
-                elif dx >=0.0 and dy <= 0.0 and abs(dx) >= abs(dy):
-                    direction[nID_reach] = 'W'
-                elif dx >=0.0 and dy >= 0.0 and abs(dx) >= abs(dy):
-                    direction[nID_reach] = 'W'
-            else:
-                direction[nID_reach] = direction[nID_reach-1]
-
-            # determine closest profile node to current reach node
-            closestnode = mc.getClosestNode(self.nodReach[nID_reach], self.nodProfiles.keys(), self.nodProfiles)
-
-            # determine profile that inherits closest profile node
-            for pID_raw in self.proProfiles:
-
-                for nID_raw in range(len(self.proProfiles[pID_raw])):
-                    if closestnode == self.proProfiles[pID_raw][nID_raw]:
-
-                        startnode = self.proProfiles[pID_raw][0]
-                        endnode = self.proProfiles[pID_raw][-1]
-
+                    # if intersection between reach segment and profile segment?
+                    if reach_line.intersects(profile_line) is True:
+                        intersection = reach_line.intersection(profile_line)
+                        
+                        # profile station
+                        delta = LineString([intersection, (xe, ye)]).length
+                        self.profileStation[profilecounter] = reachlength - station_reach + delta
+                        
+                        # get flow direction of profile
+                        dx = xa - xe
+                        dy = ya - ye
+                        if dx >=0.0 and dy >= 0.0 and abs(dx) <= abs(dy):
+                            direction[profilecounter] = 'S'
+                        elif dx <=0.0 and dy >= 0.0 and abs(dx) <= abs(dy):
+                            direction[profilecounter] = 'S'
+                        elif dx <=0.0 and dy >= 0.0 and abs(dx) >= abs(dy):
+                            direction[profilecounter] = 'E'
+                        elif dx <=0.0 and dy <= 0.0 and abs(dx) >= abs(dy):
+                            direction[profilecounter] = 'E'
+                        elif dx <=0.0 and dy <= 0.0 and abs(dx) <= abs(dy):
+                            direction[profilecounter] = 'N'
+                        elif dx >=0.0 and dy <= 0.0 and abs(dx) <= abs(dy):
+                            direction[profilecounter] = 'N'
+                        elif dx >=0.0 and dy <= 0.0 and abs(dx) >= abs(dy):
+                            direction[profilecounter] = 'W'
+                        elif dx >=0.0 and dy >= 0.0 and abs(dx) >= abs(dy):
+                            direction[profilecounter] = 'W'                        
+                        
+                        startnode = self.proProfiles[pID][0]
+                        endnode = self.proProfiles[pID][-1]
+                        
+                        # reverse profile, if flow direction shows against reach direction
                         if direction[profilecounter] == 'N':
                             if self.nodProfiles[startnode][0] > self.nodProfiles[endnode][0]:
-                                self.proProfiles[pID_raw].reverse()
+                                self.proProfiles[pID].reverse()
                         elif direction[profilecounter] == 'E':
                             if self.nodProfiles[startnode][1] < self.nodProfiles[endnode][1]:
-                                self.proProfiles[pID_raw].reverse()
+                                self.proProfiles[pID].reverse()
                         elif direction[profilecounter] == 'S':
                             if self.nodProfiles[startnode][0] < self.nodProfiles[endnode][0]:
-                                self.proProfiles[pID_raw].reverse()
+                                self.proProfiles[pID].reverse()
                         elif direction[profilecounter] == 'W':
                             if self.nodProfiles[startnode][1] > self.nodProfiles[endnode][1]:
-                                self.proProfiles[pID_raw].reverse()
+                                self.proProfiles[pID].reverse()                        
 
-                        self.proArranged[profilecounter] = self.proProfiles[pID_raw]
+                        self.proArranged[profilecounter] = self.proProfiles[pID]
                         profilecounter += 1
-                        break
+
+        self.reachStation[len(self.reachStation)+1] = station_reach
 
         info = "\nFlow direction:\n"
         for pID_Arranged in direction:
             info += ' - Profile {0}:\t{1}\n'.format(pID_Arranged, direction[pID_Arranged])
-            
+
         return info
         
     def normalizeProfiles(self):
 
-        # 
         tempDist = dict([(key+1, []) for key in range(len(self.points))])
         tempProfileID = dict([(key+1, []) for key in range(len(self.points))])
         tempProfileSegmentID = dict([(key+1, []) for key in range(len(self.points))])
@@ -271,7 +279,7 @@ class WrapProfiles():
 
         # loop over profiles
         for pID in self.proArranged:
-            s = 0.0
+            
             # loop over profile segments
             for pnID in range(len(self.proArranged[pID])-1):
                 nID_i = self.proArranged[pID][pnID]
@@ -280,6 +288,7 @@ class WrapProfiles():
                 b = self.nodProfiles[nID_j][0:2]
                 ab = math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
                 segmentStation[pID].append(ab)
+                
                 # loop over points
                 for nID in self.points:
         
@@ -311,7 +320,6 @@ class WrapProfiles():
         tempPointsProfileID = {}
         tempPointsProfileSegmentID = {}
 
-        
         nodecounter = 0
         for nID in tempDist:
             while True:
@@ -340,9 +348,7 @@ class WrapProfiles():
         
         # sort normalized points
         pointsNormalized = dict((key, np.array([])) for key in self.proArranged)
-
         for key in tempPointsNormalized:
-#            print tempPointsNormalized[key], tempPointsStation[key], tempPointsProfileID[key], tempPointsProfileSegmentID[key]
             arr1 = np.array(tempPointsNormalized[key])
             arr2 = np.array([tempPointsStation[key]])
             arr = np.append(arr1, arr2)
@@ -352,30 +358,42 @@ class WrapProfiles():
         for key in pointsNormalized:
             length = len(pointsNormalized[key])
             pointsNormalized[key] = pointsNormalized[key].reshape((length/4,4))
+            
             # sort points by increasing stationing
             pointsNormalized[key] = pointsNormalized[key][pointsNormalized[key][:,3].argsort()]
-            
-#            print pointsNormalized[key]
-        
+
         return pointsNormalized, segmentStation
     
-#    def writeTXT(self):
-#
-#        fname = self.ui.lineEditOutputTextfile.text()
-#        file = open(fname, 'w')
-#        
-#        for pID in self.pointsNormalized:
-#            file.write(str(len(self.pointsNormalized[pID])) + '\n')
-#            for nID in range(len(self.pointsNormalized[pID])):
-##                for i in range(len(self.pointsNormalized[pID][nID])):
-#                file.write(str(self.pointsNormalized[pID][nID][3]) + '\t' + str(self.pointsNormalized[pID][nID][2]) + '\n')
-#        file.close()
-        
     def writeTXT(self):
-
+        
         fname = self.ui.lineEditOutputTextfile.text()
         file = open(fname, 'w')
-        file.write('river\n\n')
+        
+        dec = self.ui.spinBoxDecimal.value()
+        
+        for pID in self.pointsNormalized:
+            file.write(str(len(self.pointsNormalized[pID])) + '\n')
+            for nID in range(len(self.pointsNormalized[pID])):
+#                for i in range(len(self.pointsNormalized[pID][nID])):
+                file.write(str(round(self.pointsNormalized[pID][nID][3],dec)) + '\t' + str(round(self.pointsNormalized[pID][nID][2],dec)) + '\n')
+        file.close()
+        
+    def writeGEO(self):
+    
+        fname = self.ui.lineEditOutputHECRAS.text()
+        file = open(fname, 'w')
+        
+        dec = self.ui.spinBoxDecimal.value()
+        
+        rivername = ""
+        if self.ui.lineEditInputRiverName.text() == "":
+            rivername = "river"
+            
+        reachname = ""
+        if self.ui.lineEditInputReachName.text() == "":
+            reachname = "reach"
+
+        file.write(rivername + '\n\n')
         file.write('BEGIN HEADER:\n\n')
         file.write('NUMBER OF REACHES: 1\n')
         file.write('NUMBER OF CROSS SECTIONS:'+str(len(self.proArranged))+'\n')
@@ -384,38 +402,40 @@ class WrapProfiles():
         
         file.write('BEGIN STREAM NETWORK:\n')
         for nID in self.nodReach:
-            file.write('Endpoint: '+str(self.nodReach[nID][0])+', '+str(self.nodReach[nID][1])+', 0.0, '+str(nID)+'\n')
+            file.write('Endpoint: '+str(round(self.nodReach[nID][0],dec))+', '+str(round(self.nodReach[nID][1],dec))+', 0.0, '+str(nID)+'\n')
             
         file.write('\nREACH:\n\n')
-        file.write('STREAM ID: river\n')
-        file.write('REACH ID: reach\n')
+        file.write('STREAM ID: ' + rivername + '\n')
+        file.write('REACH ID: ' + reachname + '\n')
         file.write('FROM POINT: 1\n')
         file.write('TO POINT: '+str(len(self.nodReach))+'\n\n')
         file.write('CENTERLINE:\n')
-        station = 0.0
         for nID in self.nodReach:
-            station += self.reachStation[nID-1]
-            file.write(str(self.nodReach[nID][0])+', '+str(self.nodReach[nID][1])+', 0.0, '+str(station)+'\n')
+            file.write(str(round(self.nodReach[nID][0],dec))+', '+str(round(self.nodReach[nID][1],dec))+', 0.0, '+str(round(self.reachStation[nID],dec))+'\n')
         file.write('END:\n\n')
         file.write('END STREAM NETWORK:\n\n\n')
         file.write('BEGIN CROSS-SECTIONS:\n\n\n')
-        station = 0.0
+
         for pID in self.pointsNormalized:
             file.write('CROSS-SECTION:\n\n')
 
-            file.write('STREAM ID: river\n')
-            file.write('REACH ID: reach\n')
-            file.write('STATION: '+str(station)+'\n')
-            station += self.reachStation[pID]
-            file.write('REACH LENGTHS: '+str(self.reachStation[pID])+', '+str(self.reachStation[pID])+', '+str(self.reachStation[pID])+'\n\n')
+            file.write('STREAM ID: ' + rivername + '\n')
+            file.write('REACH ID: ' + reachname + '\n')
+            file.write('STATION: '+str(round(self.profileStation[pID],dec))+'\n')
+            if pID < len(self.pointsNormalized):
+                reachlength = self.profileStation[pID]-self.profileStation[pID+1]
+            else:
+                reachlength = self.profileStation[pID]
+                
+            file.write('REACH LENGTHS: '+str(round(reachlength,dec))+', '+str(round(reachlength,dec))+', '+str(round(reachlength,dec))+'\n\n')
 
             file.write('CUT LINE: \n')
             for nID in self.proArranged[pID]:
-                file.write(str(self.nodProfiles[nID][0]) + ', '+str(self.nodProfiles[nID][1]) + '\n')   
+                file.write(str(round(self.nodProfiles[nID][0],dec)) + ', '+str(round(self.nodProfiles[nID][1],dec)) + '\n')   
                     
             file.write('\nSURFACE LINE:\n')
             for nID in range(len(self.pointsNormalized[pID])):
-                file.write(str(self.pointsNormalized[pID][nID][0])+ ', ' + str(self.pointsNormalized[pID][nID][1])+ ', ' + str(self.pointsNormalized[pID][nID][2]) + '\n')        
+                file.write(str(round(self.pointsNormalized[pID][nID][0],dec))+ ', ' + str(round(self.pointsNormalized[pID][nID][1],dec))+ ', ' + str(round(self.pointsNormalized[pID][nID][2],dec)) + '\n')        
             file.write('\nEND:\n\n')
             
         file.close()
@@ -426,23 +446,39 @@ class WrapProfiles():
         file = open(fname, 'w')
         
         layer = "0"
+
+        dz = -25.0
         
         dwg = ezdxf.new(dxfversion='AC1018')
 
         msp = dwg.modelspace()
-
+        
 #        pointsNormalized, 
         for pID in self.pointsNormalized:
             
-
+            off_z = pID*dz
+            
             x = self.pointsNormalized[pID].transpose()[0]
             y = self.pointsNormalized[pID].transpose()[1]
             z = self.pointsNormalized[pID].transpose()[2]
             d = self.pointsNormalized[pID].transpose()[3]
             
+            xmin = min(d)
             xmax = max(d)
-            zmin = min(z)
-            zmax = max(z)
+            zmin = math.floor(min(z))
+            zmax = math.ceil(max(z))
+
+            frame = msp.add_line((xmin, off_z+zmin),(xmax,off_z+zmin), dxfattribs={'layer': 'frame'})
+            frame = msp.add_line((xmax,off_z+zmin),(xmax,off_z+zmax), dxfattribs={'layer': 'frame'})
+            frame = msp.add_line((xmin, off_z+zmin),(xmin,off_z+zmax), dxfattribs={'layer': 'frame'})
+            frame = msp.add_line((xmin, off_z+zmax),(xmax,off_z+zmax), dxfattribs={'layer': 'frame'})
+
+            for nID in range(len(self.pointsNormalized[pID])-1):
+                p1 = (self.pointsNormalized[pID][nID][3],off_z+self.pointsNormalized[pID][nID][2])
+                p2 = (self.pointsNormalized[pID][nID+1][3],off_z+self.pointsNormalized[pID][nID+1][2])
+                profile = msp.add_line(p1,p2, dxfattribs={'layer': 'profile'})
+                
+#            frame.rgb = coloursRGB[c]
             
 #            print max(self.pointsNormalized[pID][self.pointsNormalized[pID][:,1]])
 #            print x

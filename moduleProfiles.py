@@ -29,6 +29,8 @@ import fileHandler as fh
 import macro as mc
 import numpy as np
 import ezdxf
+from shapely.geometry import LineString
+
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
@@ -148,19 +150,52 @@ class WrapProfiles():
                 
     def determineFlowDirection(self):
 
+
         profilecounter = 1
         direction = {}
         self.reachStation.append(0.0)
-        for nID_reach in range(len(self.nodReach)):
+        
+        for nID_reach in range(len(self.nodReach)-1):
             nID_reach += 1
-            if nID_reach < len(self.nodReach):
-                nID_i = nID_reach
-                nID_j = nID_reach+1
-                a = self.nodReach[nID_i][0:2]
-                b = self.nodReach[nID_j][0:2]
-                ab = math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
-                self.reachStation.append(ab)
+            nID_i = nID_reach
+            nID_j = nID_reach+1
             
+            xi = self.nodReach[nID_i][0]
+            yi = self.nodReach[nID_i][1]
+            xj = self.nodReach[nID_j][0]
+            yj = self.nodReach[nID_j][1]
+            
+            reach_line = LineString([(xi, yi), (xj, yj)])
+            
+            for pID in self.proProfiles:
+                for nID in range(len(self.proProfiles[pID])-1):
+
+                    ri = self.nodProfiles[self.proProfiles[pID][nID]][0]
+                    rj = self.nodProfiles[self.proProfiles[pID][nID]][1]
+                    si = self.nodProfiles[self.proProfiles[pID][nID+1]][0]
+                    sj = self.nodProfiles[self.proProfiles[pID][nID+1]][1]
+
+                    profile_line = LineString([(ri, rj), (si, sj)])
+
+                    print reach_line.intersection(profile_line)
+
+            # erstelle mit i und j ein linestring R
+            # loop ueber alle profile
+            #   erstelle linestring und verschneide mit linestring R
+            #   ermittle stationierung von profil
+            #   bring profil in reihenfolge
+            
+            
+#            if nID_reach < len(self.nodReach):
+#                nID_i = nID_reach
+#                nID_j = nID_reach+1
+#                a = self.nodReach[nID_i][0:2]
+#                b = self.nodReach[nID_j][0:2]
+#                ab = math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
+#                self.reachStation.append(ab)
+            
+            
+        for nID_reach in range(len(self.nodReach)):
             # determine flow direction of reach segments
             if nID_reach <= len(self.nodReach)-1:
                 xa = self.nodReach[nID_reach][0]
@@ -410,14 +445,14 @@ class WrapProfiles():
             zmax = max(z)
             
 #            print max(self.pointsNormalized[pID][self.pointsNormalized[pID][:,1]])
-            print x
-            print y
-            print z
-            print d
-            print 
-            print "xmax", xmax
-            print "zmin", zmin
-            print "zmax", zmax
+#            print x
+#            print y
+#            print z
+#            print d
+#            print 
+#            print "xmax", xmax
+#            print "zmin", zmin
+#            print "zmax", zmax
             
 #            for i in range(len(self.segmentStation[pID])):
 #                xmax += self.segmentStation[pID][i]

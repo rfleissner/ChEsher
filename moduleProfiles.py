@@ -58,6 +58,7 @@ class WrapProfiles():
         # results
         self.profileStation = {}
         self.reachStation = {}
+        self.profileIntersectingStation={}
         self.pointsNormalized = []
         self.segmentStation = []
         self.proArranged = {}
@@ -90,10 +91,10 @@ class WrapProfiles():
         self.callbackSaveTextfile = functools.partial(uih.getSaveFileName, "Save textfile As", "Normal text file (*.txt)", self.ui.lineEditOutputTextfile, self.directory, self.widget)
         QtCore.QObject.connect(self.ui.pushButtonOutputTextfile, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveTextfile)
         
-        self.callbackSaveDXFfile = functools.partial(uih.getSaveFileName, "Save textfile As", "Normal text file (*.txt)", self.ui.lineEditOutputDXF, self.directory, self.widget)
+        self.callbackSaveDXFfile = functools.partial(uih.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputDXF, self.directory, self.widget)
         QtCore.QObject.connect(self.ui.pushButtonOutputDXF, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveDXFfile)
         
-        self.callbackSaveHECRAS = functools.partial(uih.getSaveFileName, "Save textfile As", "Normal text file (*.txt)", self.ui.lineEditOutputHECRAS, self.directory, self.widget)
+        self.callbackSaveHECRAS = functools.partial(uih.getSaveFileName, "Save GIS Format data file As", "GIS Format data file (*.geo)", self.ui.lineEditOutputHECRAS, self.directory, self.widget)
         QtCore.QObject.connect(self.ui.pushButtonOutputHECRAS, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveHECRAS)
                 
         
@@ -133,7 +134,7 @@ class WrapProfiles():
 
         self.determineFlowDirection()
         self.pointsNormalized, self.segmentStation = self.normalizeProfiles()
-
+        
         if self.ui.checkBoxOutputTextfile.isChecked():
             self.writeTXT()
 #            try:
@@ -181,6 +182,21 @@ class WrapProfiles():
             reach_line = LineString([(xa, ya), (xe, ye)])            
             reachlength += reach_line.length
  
+        # get total length of profiles
+        profileLength = {}
+        for pID in self.proProfiles:
+            totLen = 0.0
+            # loop over profile points
+            for nID in range(len(self.proProfiles[pID])-1):
+                ri = self.nodProfiles[self.proProfiles[pID][nID]][0]
+                rj = self.nodProfiles[self.proProfiles[pID][nID]][1]
+                si = self.nodProfiles[self.proProfiles[pID][nID+1]][0]
+                sj = self.nodProfiles[self.proProfiles[pID][nID+1]][1]
+
+                profile_line = LineString([(ri, rj), (si, sj)])
+                totLen += profile_line.length
+            profileLength[pID] = totLen
+        
         # loop over reach points
         for nID_reach in range(len(self.nodReach)-1):
             nID_reach += 1
@@ -197,10 +213,11 @@ class WrapProfiles():
             # reach point station (zero on last point)
             self.reachStation[nID_reach] = reachlength-station_reach
             station_reach += reach_line.length
-            
+                    
             # loop over profiles
             for pID in self.proProfiles:
-                
+                cutStat = 0.0
+ 
                 # loop over profile points
                 for nID in range(len(self.proProfiles[pID])-1):
 
@@ -210,14 +227,19 @@ class WrapProfiles():
                     sj = self.nodProfiles[self.proProfiles[pID][nID+1]][1]
 
                     profile_line = LineString([(ri, rj), (si, sj)])
-
+                    
                     # if intersection between reach segment and profile segment?
                     if reach_line.intersects(profile_line) is True:
                         intersection = reach_line.intersection(profile_line)
-                        
+
                         # profile station
-                        delta = LineString([intersection, (xe, ye)]).length
-                        self.profileStation[profilecounter] = reachlength - station_reach + delta
+                        delta_reach = LineString([(intersection.x,intersection.y), (xe, ye)]).length
+                        self.profileStation[profilecounter] = reachlength - station_reach + delta_reach
+                        
+                        # intersecting station of profile
+                        delta_profile = LineString([(intersection.x,intersection.y), (ri, rj)]).length
+                        cutStat+=delta_profile
+                        profileIntersectingStation = cutStat
                         
                         # get flow direction of profile
                         dx = xa - xe
@@ -241,24 +263,32 @@ class WrapProfiles():
                         
                         startnode = self.proProfiles[pID][0]
                         endnode = self.proProfiles[pID][-1]
-                        
+
                         # reverse profile, if flow direction shows against reach direction
                         if direction[profilecounter] == 'N':
                             if self.nodProfiles[startnode][0] > self.nodProfiles[endnode][0]:
                                 self.proProfiles[pID].reverse()
+                                profileIntersectingStation = profileLength[pID] - profileIntersectingStation
                         elif direction[profilecounter] == 'E':
                             if self.nodProfiles[startnode][1] < self.nodProfiles[endnode][1]:
                                 self.proProfiles[pID].reverse()
+                                profileIntersectingStation = profileLength[pID] - profileIntersectingStation
                         elif direction[profilecounter] == 'S':
                             if self.nodProfiles[startnode][0] < self.nodProfiles[endnode][0]:
                                 self.proProfiles[pID].reverse()
+                                profileIntersectingStation = profileLength[pID] - profileIntersectingStation
                         elif direction[profilecounter] == 'W':
                             if self.nodProfiles[startnode][1] > self.nodProfiles[endnode][1]:
-                                self.proProfiles[pID].reverse()                        
-
+                                self.proProfiles[pID].reverse()
+                                profileIntersectingStation = profileLength[pID] - profileIntersectingStation
+ 
                         self.proArranged[profilecounter] = self.proProfiles[pID]
+                        self.profileIntersectingStation[profilecounter] = profileIntersectingStation
                         profilecounter += 1
 
+                    else:
+                        cutStat += profile_line.length
+          
         self.reachStation[len(self.reachStation)+1] = station_reach
 
         info = "\nFlow direction:\n"
@@ -266,7 +296,7 @@ class WrapProfiles():
             info += ' - Profile {0}:\t{1}\n'.format(pID_Arranged, direction[pID_Arranged])
 
         return info
-        
+
     def normalizeProfiles(self):
 
         tempDist = dict([(key+1, []) for key in range(len(self.points))])
@@ -385,11 +415,11 @@ class WrapProfiles():
         
         dec = self.ui.spinBoxDecimal.value()
         
-        rivername = ""
+        rivername = self.ui.lineEditInputRiverName.text()
         if self.ui.lineEditInputRiverName.text() == "":
             rivername = "river"
             
-        reachname = ""
+        reachname = self.ui.lineEditInputReachName.text()
         if self.ui.lineEditInputReachName.text() == "":
             reachname = "reach"
 
@@ -447,13 +477,22 @@ class WrapProfiles():
         
         layer = "0"
 
+        dec = 2
         dz = -25.0
+        superelev = 1.0
+        scale = 100.0
+        scale_mm = scale/1000.0
+        off_band_x = 75.0*scale_mm
+        off_band_z = 2.5*scale_mm
+        h_band = 15*scale_mm
+        textheight_bandtitle = 4.0*scale_mm
+        textheight_band = 1.5*scale_mm
+        markerlength = 2.5*scale_mm
         
         dwg = ezdxf.new(dxfversion='AC1018')
 
         msp = dwg.modelspace()
         
-#        pointsNormalized, 
         for pID in self.pointsNormalized:
             
             off_z = pID*dz
@@ -465,19 +504,92 @@ class WrapProfiles():
             
             xmin = min(d)
             xmax = max(d)
-            zmin = math.floor(min(z))
-            zmax = math.ceil(max(z))
+            zmin = math.floor(min(z*superelev))
+            zmax = math.ceil(max(z*superelev))
 
-            frame = msp.add_line((xmin, off_z+zmin),(xmax,off_z+zmin), dxfattribs={'layer': 'frame'})
-            frame = msp.add_line((xmax,off_z+zmin),(xmax,off_z+zmax), dxfattribs={'layer': 'frame'})
-            frame = msp.add_line((xmin, off_z+zmin),(xmin,off_z+zmax), dxfattribs={'layer': 'frame'})
-            frame = msp.add_line((xmin, off_z+zmax),(xmax,off_z+zmax), dxfattribs={'layer': 'frame'})
+            # frame
+            msp.add_line((xmin, off_z+zmin),(xmax,off_z+zmin), dxfattribs={'layer': 'frame'})
+            msp.add_line((xmax,off_z+zmin),(xmax,off_z+zmax), dxfattribs={'layer': 'frame'})
+            msp.add_line((xmin, off_z+zmin),(xmin,off_z+zmax), dxfattribs={'layer': 'frame'})
+            
+            # title
+            text_frame = msp.add_text("NN = %.1f m" % round(math.floor(min(z)), 2), dxfattribs={'height': textheight_bandtitle})
+            text_frame.set_pos((xmin-off_band_x+h_band/2.0, off_z+zmin), align='BOTTOM_LEFT')
+#            frame = msp.add_line((xmin, off_z+zmax),(xmax,off_z+zmax), dxfattribs={'layer': 'frame'})
+            text_pTitle = msp.add_text("Profil-Nr. {0}".format(len(self.pointsNormalized)-pID+1), dxfattribs={'height': textheight_bandtitle*1.5})
+            text_pTitle.set_pos((xmin-off_band_x, off_z+zmax+textheight_bandtitle*1.5), align='BOTTOM_LEFT')
+            text_pKm = msp.add_text("km %.3f" % round(self.profileStation[pID]/1000,3), dxfattribs={'height': textheight_bandtitle})
+            text_pKm.set_pos((xmin-off_band_x, off_z+zmax), align='BOTTOM_LEFT')
+            
+            # scale factor
+            text_M = msp.add_text("M = 1:%i/%i"%(int(scale),int(scale/superelev)), dxfattribs={'height': 0.75*textheight_bandtitle})
+            text_M.set_pos((xmin-off_band_x, off_z+zmax-1.5*textheight_bandtitle*1.5), align='BOTTOM_LEFT')
 
-            for nID in range(len(self.pointsNormalized[pID])-1):
-                p1 = (self.pointsNormalized[pID][nID][3],off_z+self.pointsNormalized[pID][nID][2])
-                p2 = (self.pointsNormalized[pID][nID+1][3],off_z+self.pointsNormalized[pID][nID+1][2])
-                profile = msp.add_line(p1,p2, dxfattribs={'layer': 'profile'})
+            
+            # axis 
+            msp.add_line((self.profileIntersectingStation[pID], off_z+zmin),(self.profileIntersectingStation[pID],off_z+zmax), dxfattribs={'layer': 'axis', 'color':1})
+            
+            # band Hoehe
+            msp.add_line((xmin-off_band_x, off_z+zmin-off_band_z),(xmax,off_z+zmin-off_band_z), dxfattribs={'layer': 'frame'})
+            msp.add_line((xmin-off_band_x, off_z+zmin-off_band_z-h_band),(xmax,off_z+zmin-off_band_z-h_band), dxfattribs={'layer': 'frame'})
+            msp.add_line((xmin-off_band_x, off_z+zmin-off_band_z),(xmin-off_band_x,off_z+zmin-off_band_z-h_band), dxfattribs={'layer': 'frame'})
+#            msp.add_line((xmin, off_z+zmin-off_band_z),(xmin,off_z+zmin-off_band_z-h_band), dxfattribs={'layer': 'frame'})
+#            msp.add_line((xmax, off_z+zmin-off_band_z),(xmax,off_z+zmin-off_band_z-h_band), dxfattribs={'layer': 'frame'})
+            title_height = msp.add_text("Hoehe [m]", dxfattribs={'height': textheight_bandtitle})
+            title_height.set_pos((xmin-off_band_x+h_band/2.0, off_z+zmin-off_band_z-h_band/2.0), align='MIDDLE_LEFT')
+            
+            # band Stationierung
+            msp.add_line((xmin-off_band_x, off_z+zmin-off_band_z-2*h_band),(xmax,off_z+zmin-off_band_z-2*h_band), dxfattribs={'layer': 'frame'})
+            msp.add_line((xmin-off_band_x, off_z+zmin-off_band_z-h_band),(xmin-off_band_x,off_z+zmin-off_band_z-2*h_band), dxfattribs={'layer': 'frame'})
+#            msp.add_line((xmin, off_z+zmin-off_band_z-h_band),(xmin,off_z+zmin-off_band_z-2*h_band), dxfattribs={'layer': 'frame'})
+#            msp.add_line((xmax, off_z+zmin-off_band_z-h_band),(xmax,off_z+zmin-off_band_z-2*h_band), dxfattribs={'layer': 'frame'})
+            title_stationing = msp.add_text("Stationierung [m]", dxfattribs={'height': textheight_bandtitle})
+            title_stationing.set_pos((xmin-off_band_x+h_band/2.0, off_z+zmin-off_band_z-3*h_band/2.0), align='MIDDLE_LEFT')
+            
+#            frame = msp.add_line((xmax,off_z+zmin),(xmax,off_z+zmax), dxfattribs={'layer': 'frame'})
+#            frame = msp.add_line((xmin, off_z+zmin),(xmin,off_z+zmax), dxfattribs={'layer': 'frame'})
+#            frame = msp.add_line((xmin, off_z+zmax),(xmax,off_z+zmax), dxfattribs={'layer': 'frame'})            
+            
+            
+            profilepoints = []
+            
+            mx = []
+            for nID in range(len(self.pointsNormalized[pID])):
+                x1 = self.pointsNormalized[pID][nID][3]
+                z1 = off_z+self.pointsNormalized[pID][nID][2]*superelev
                 
+                p1 = (x1, z1)
+                profilepoints.append(p1)
+                            
+                # marker
+                mx.append(x1)
+                if nID != 0 and nID != len(self.pointsNormalized[pID])-1:
+                    msp.add_line(p1,(x1,off_z+zmin), dxfattribs={'layer': 'marker', 'color':253})
+                    if mx[nID]-mx[nID-1] < 1.5*textheight_band:
+                        mx[nID] = mx[nID-1] + 1.5*textheight_band
+                        msp.add_line((x1,off_z+zmin),(mx[nID],off_z+zmin-off_band_z), dxfattribs={'layer': 'marker', 'color':253})
+                    else:
+                        msp.add_line((x1,off_z+zmin),(x1,off_z+zmin-off_band_z), dxfattribs={'layer': 'marker', 'color':253})
+                    
+                msp.add_line((mx[nID], off_z+zmin-off_band_z), (mx[nID], off_z+zmin-off_band_z-markerlength),  dxfattribs={'layer': 'band'})   
+                msp.add_line((mx[nID], off_z+zmin-off_band_z-h_band), (mx[nID], off_z+zmin-off_band_z-h_band+markerlength),  dxfattribs={'layer': 'band'})
+                msp.add_line((mx[nID], off_z+zmin-off_band_z-h_band), (mx[nID], off_z+zmin-off_band_z-h_band-markerlength),  dxfattribs={'layer': 'band'})   
+                msp.add_line((mx[nID], off_z+zmin-off_band_z-2*h_band), (mx[nID], off_z+zmin-off_band_z-2*h_band+markerlength),  dxfattribs={'layer': 'band'})
+
+                # band text
+                text_stationing = msp.add_text("%.{0}f".format(dec)%(x1-self.profileIntersectingStation[pID]), dxfattribs={'height': textheight_band, 'rotation': 90.0})
+                text_stationing.set_pos((mx[nID], off_z+zmin-off_band_z-3*h_band/2.0), align='MIDDLE')
+                text_height = msp.add_text("%.{0}f".format(dec)%self.pointsNormalized[pID][nID][2], dxfattribs={'height': textheight_band, 'rotation': 90.0})
+                text_height.set_pos((mx[nID], off_z+zmin-off_band_z-h_band/2.0), align='MIDDLE')
+                                
+            profile = msp.add_polyline2d(profilepoints, dxfattribs={'layer': 'profile'})
+       
+#        print self.profileStation
+#        print self.reachStation
+#        print self.pointsNormalized
+#        print self.segmentStation
+#        print self.proArranged            
+
 #            frame.rgb = coloursRGB[c]
             
 #            print max(self.pointsNormalized[pID][self.pointsNormalized[pID][:,1]])

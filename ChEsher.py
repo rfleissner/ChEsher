@@ -32,6 +32,8 @@ import matplotlib.pyplot as plt
 
 from moduleHyDesign import WrapHyDesign
 from moduleProfiles import WrapProfiles
+from moduleHEC2DXF import WrapHEC2DXF
+from moduleXYZ2DXF import WrapXYZ2DXF
 
 import triangle
 import triangle.plot
@@ -108,7 +110,17 @@ class ChEsher(QtGui.QMainWindow):
         # setup instance of module Profiles
         self.moduleProfiles = WrapProfiles(self.directory)
         self.widgetProfiles = self.moduleProfiles.widget
-        self.ui.stackedWidget.insertWidget(12,self.widgetProfiles)        
+        self.ui.stackedWidget.insertWidget(12,self.widgetProfiles)    
+        
+        # setup instance of module HEC2DXF
+        self.moduleHEC2DXF = WrapHEC2DXF(self.directory)
+        self.widgetHEC2DXF = self.moduleHEC2DXF.widget
+        self.ui.stackedWidget.insertWidget(13,self.widgetHEC2DXF)  
+        
+        # setup instance of module XYZ2DXF
+        self.moduleXYZ2DXF = WrapXYZ2DXF(self.directory)
+        self.widgetXYZ2DXF = self.moduleXYZ2DXF.widget
+        self.ui.stackedWidget.insertWidget(14,self.widgetXYZ2DXF)                
         
         # actions in menu
         self.fileSetDirectory = self.createAction("Set working directory", slot=self.setDirectory)
@@ -128,6 +140,8 @@ class ChEsher(QtGui.QMainWindow):
         self.setTubeAction = self.createAction("Tube", slot=self.setTube, shortcut="F11")
         self.setHyDesignAction = self.createAction("HyDesign", slot=self.setHyDesign, shortcut="F12")
         self.setProfilesAction = self.createAction("Profiles", slot=self.setProfiles)
+        self.setHEC2DXFAction = self.createAction("HEC2DXF", slot=self.setHEC2DXF)
+        self.setXYZ2DXFAction = self.createAction("XYZ2DXF", slot=self.setXYZ2DXF)
         
         self.helpAboutAction = self.createAction("&About", \
             self.helpAbout)
@@ -137,11 +151,10 @@ class ChEsher(QtGui.QMainWindow):
         self.helpMenu = self.menuBar().addMenu("Help")
         # add actions to menu
         self.addActions(self.fileMenu, (self.fileSetDirectory, self.fileSetExamples, None, self.fileQuitAction))
-        self.addActions(self.moduleMenu, (self.setDXFtoBKAction, self.setBK2DXFAction, self.setMeshAction, self.setXMLAction, self.setScalarAction, self.setVectorAction, self.setCSAction, self.set2DMAction, self.setCont2DXFAction, self.setTubeAction, self.setHyDesignAction, self.setProfilesAction))
+        self.addActions(self.moduleMenu, (self.setDXFtoBKAction, self.setBK2DXFAction, self.setMeshAction, self.setXMLAction, self.setScalarAction, self.setVectorAction, self.setCSAction, self.set2DMAction, self.setCont2DXFAction, self.setTubeAction, self.setHyDesignAction, self.setProfilesAction, self.setHEC2DXFAction, self.setXYZ2DXFAction))
         self.addActions(self.helpMenu, (self.helpAction, None, self.helpAboutAction))
 
 
-        
 # module DXF2BK
         self.callbackOpenDXFFile = functools.partial(self.openDXFFile, "Open DXF-file", "Drawing Interchange File (*.dxf)", self.ui.lineEditDXF2BKInput)
         QtCore.QObject.connect(self.ui.pushButtonDXF2BKInput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenDXFFile)
@@ -457,6 +470,7 @@ class ChEsher(QtGui.QMainWindow):
 
 #        self.setDXF2BK()
 #        self.setCont2DXF()
+#        self.setHEC2DXF()
         self.setProfiles()
         self.initialize()
 
@@ -1078,6 +1092,7 @@ class ChEsher(QtGui.QMainWindow):
         makedir(self.directory + "example_09/output/")
         makedir(self.directory + "example_10/output/")
         makedir(self.directory + "example_12/output/")
+        makedir(self.directory + "example_13/output/")
         
         ###   ~   module DXF2BK   ~   ###
         
@@ -1237,15 +1252,21 @@ class ChEsher(QtGui.QMainWindow):
         self.moduleProfiles.ui.lineEditInputReach.setText(self.directory + "example_12/reach.i2s")
         self.moduleProfiles.ui.lineEditInputPoints.setText(self.directory + "example_12/points.xyz")
         
-        setEnabled(self.moduleProfiles.ui.checkBoxOutputTextfile, self.moduleProfiles.ui.pushButtonOutputTextfile, self.moduleProfiles.ui.lineEditOutputTextfile)
-        self.moduleProfiles.ui.lineEditOutputTextfile.setText(self.directory + "example_12/output/points.txt")
+#        setEnabled(self.moduleProfiles.ui.checkBoxOutputTextfile, self.moduleProfiles.ui.pushButtonOutputTextfile, self.moduleProfiles.ui.lineEditOutputTextfile)
+#        self.moduleProfiles.ui.lineEditOutputTextfile.setText(self.directory + "example_12/output/points.txt")
         
         setEnabled(self.moduleProfiles.ui.checkBoxOutputDXF, self.moduleProfiles.ui.pushButtonOutputDXF, self.moduleProfiles.ui.lineEditOutputDXF)
         self.moduleProfiles.ui.lineEditOutputDXF.setText(self.directory + "example_12/output/points.dxf")
 
-        setEnabled(self.moduleProfiles.ui.checkBoxOutputHECRAS, self.moduleProfiles.ui.pushButtonOutputHECRAS, self.moduleProfiles.ui.lineEditOutputHECRAS)
-        self.moduleProfiles.ui.lineEditOutputHECRAS.setText(self.directory + "example_12/output/points.geo")       
+#        setEnabled(self.moduleProfiles.ui.checkBoxOutputHECRAS, self.moduleProfiles.ui.pushButtonOutputHECRAS, self.moduleProfiles.ui.lineEditOutputHECRAS)
+#        self.moduleProfiles.ui.lineEditOutputHECRAS.setText(self.directory + "example_12/output/points.geo")       
+
         
+        ###   ~   module HEC2DXF   ~   ###
+        
+        self.moduleHEC2DXF.ui.lineEditInputSDF.setText(self.directory + "example_13/results.sdf")
+        self.moduleHEC2DXF.ui.lineEditOutputDXF.setText(self.directory + "example_13/output/results.dxf")
+
     def setDXF2BK(self):
         self.ui.labelModule.setText("~   Module DXF2BK   ~")
         self.ui.stackedWidget.setCurrentIndex(0)
@@ -1294,9 +1315,19 @@ class ChEsher(QtGui.QMainWindow):
         self.ui.labelModule.setText("~   Module Profiles   ~")
         self.ui.stackedWidget.setCurrentIndex(11)
         
+    def setHEC2DXF(self):
+        self.ui.labelModule.setText("~   HEC2DXF   ~")
+        self.ui.stackedWidget.setCurrentIndex(12)
+        
+    def setXYZ2DXF(self):
+        self.ui.labelModule.setText("~   XYZ2DXF   ~")
+        self.ui.stackedWidget.setCurrentIndex(13)
+        
     def setDirectory(self):
         dir = QFileDialog.getExistingDirectory(self, "Select directory", self.directory)
         self.moduleProfiles.setDir(dir)
+        self.moduleHEC2DXF.setDir(dir)
+        self.moduleXYZ2DXF.setDir(dir)
         if dir != "":
             self.directory = dir
         else:
@@ -1552,12 +1583,12 @@ class ChEsher(QtGui.QMainWindow):
         nameCS = {}
         nodeIDsCS = {}
         try:
-            nCS, nameCS, nodeIDsCS = fh.readCSDefinition(self.ui.lineEditCSInputDefinition.text())
+            nCS, nameCS, nodeIDsCS, coordsCS, type = fh.readCSDefinition(self.ui.lineEditCSInputDefinition.text())
             info += " - Control section definition loaded with {0} control sections.\n".format(nCS)
         except:
             QMessageBox.critical(self, "Error", "Not able to load control sections definition file!\nCheck filename or content!")
             return
-        
+
         # read control sections results file
         time = []
         resultsCS = {}
@@ -1580,15 +1611,22 @@ class ChEsher(QtGui.QMainWindow):
             except:
                 QMessageBox.critical(self, "Error", "Not able to write formatted data file!")
                 return
-            
+
         if self.ui.checkBoxCSOutputCS.isChecked():
             try:
                 nodesCS = {}
                 valuesCS = {}
-                for nID in nodeIDsCS:
-                    nodesCS[nodeIDsCS[nID][0]] = nodes[nodeIDsCS[nID][0]]
-                    nodesCS[nodeIDsCS[nID][1]] = nodes[nodeIDsCS[nID][1]]
-                    valuesCS[nID] = [min(resultsCS[nID]), max(resultsCS[nID])]
+
+                if type == "1":
+                    nodesCS = coordsCS
+                    for nID in nodeIDsCS:
+                        valuesCS[nID] = [min(resultsCS[nID]), max(resultsCS[nID])]
+                else:
+                    for nID in nodeIDsCS:
+                        nodesCS[nodeIDsCS[nID][0]] = nodes[nodeIDsCS[nID][0]]
+                        nodesCS[nodeIDsCS[nID][1]] = nodes[nodeIDsCS[nID][1]]
+                        valuesCS[nID] = [min(resultsCS[nID]), max(resultsCS[nID])]
+
                 scale = self.ui.doubleSpinBoxCSSizeFactor.value()
                 prefix = self.ui.lineEditCSInputPrefix.text()
                 suffix = self.ui.lineEditCSInputSuffix.text()

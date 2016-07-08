@@ -14,22 +14,6 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="label_106">
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-       <underline>true</underline>
-      </font>
-     </property>
-     <property name="text">
-      <string>Inputs:</string>
-     </property>
-     <property name="indent">
-      <number>-4</number>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="0">
     <widget class="QLabel" name="label_105">
      <property name="text">
@@ -188,24 +172,11 @@
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>609</width>
+       <width>500</width>
        <height>227</height>
       </size>
      </property>
     </spacer>
-   </item>
-   <item row="8" column="0">
-    <widget class="QLabel" name="label_104">
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-       <underline>true</underline>
-      </font>
-     </property>
-     <property name="text">
-      <string>Outputs:</string>
-     </property>
-    </widget>
    </item>
    <item row="9" column="0">
     <widget class="QCheckBox" name="checkBoxOutputTextfile">
@@ -315,6 +286,13 @@
      </property>
     </widget>
    </item>
+   <item row="13" column="0" colspan="3">
+    <widget class="QPushButton" name="pushButtonCreate">
+     <property name="text">
+      <string>Let's go!</string>
+     </property>
+    </widget>
+   </item>
    <item row="12" column="0" colspan="3">
     <spacer name="verticalSpacer_30">
      <property name="orientation">
@@ -328,10 +306,32 @@
      </property>
     </spacer>
    </item>
-   <item row="13" column="0" colspan="3">
-    <widget class="QPushButton" name="pushButtonCreate">
+   <item row="0" column="0" colspan="3">
+    <widget class="QLabel" name="label_106">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+       <underline>true</underline>
+      </font>
+     </property>
      <property name="text">
-      <string>Let's go!</string>
+      <string>Inputs:</string>
+     </property>
+     <property name="indent">
+      <number>-4</number>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0" colspan="3">
+    <widget class="QLabel" name="label_104">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+       <underline>true</underline>
+      </font>
+     </property>
+     <property name="text">
+      <string>Outputs:</string>
      </property>
     </widget>
    </item>

@@ -282,23 +282,31 @@ def readCSDefinition(filename):
     file = open(filename, 'r')
     content = file.readlines()
     file.close()
-
+    
     nCS = int(content[1].split()[0])
+    type = str(content[1].split()[1])
+
     nameCS = {}
     nodesCS = {}
+    coordsCS = {}
     
     counterCS = 0
 
     del content[0:2]
-        
+    
     for line in range(2*nCS):
         if line % 2 == 0:
             counterCS +=1
             nameCS[counterCS] = content[line].split()[0]
         else:
-            nodesCS[counterCS] = [int(content[line].split()[0]), int(content[line].split()[1])]
+            if type == "1":
+                coordsCS[2*counterCS-1] = [float(content[line].split()[0]), float(content[line].split()[1])]
+                coordsCS[2*counterCS] = [float(content[line].split()[2]), float(content[line].split()[3])]                
+                nodesCS[counterCS] = [2*counterCS-1, 2*counterCS]
+            else:
+                nodesCS[counterCS] = [int(content[line].split()[0]), int(content[line].split()[1])]
 
-    return nCS, nameCS, nodesCS
+    return nCS, nameCS, nodesCS, coordsCS, type
 
 def readCSResults(filename, nCS):
 

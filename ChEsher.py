@@ -472,7 +472,7 @@ class ChEsher(QtGui.QMainWindow):
 #        self.setCont2DXF()
 #        self.setHEC2DXF()
         self.setProfiles()
-        self.initialize()
+#        self.initialize()
 
         
     def setType(self):
@@ -499,23 +499,23 @@ class ChEsher(QtGui.QMainWindow):
 
     def create2DM2BK(self):
     
-        try:
-            SMS_elements, \
-                SMS_nodes,\
-                SMS_strings,\
-                SMS_materials,\
-                SMS_bc_nodes,\
-                SMS_bc_strings_1,\
-                SMS_bc_strings_2,\
-                SMS_bc_strings_3,\
-                SMS_bc_strings_4,\
-                SMS_bc_strings_5,\
-                SMS_bc_strings_6,\
-                SMS_bc_strings_7 = fh.read2DM(self.ui.lineEdit2dmInput.text())
-        except:
-            QMessageBox.critical(self, "Error", "Not able to load file!\nCheck filename or content!")
-            return
-        
+#        try:
+        SMS_elements, \
+            SMS_nodes,\
+            SMS_strings,\
+            SMS_materials,\
+            SMS_bc_nodes,\
+            SMS_bc_strings_1,\
+            SMS_bc_strings_2,\
+            SMS_bc_strings_3,\
+            SMS_bc_strings_4,\
+            SMS_bc_strings_5,\
+            SMS_bc_strings_6,\
+            SMS_bc_strings_7 = fh.read2DM(self.ui.lineEdit2dmInput.text())
+#        except:
+#            QMessageBox.critical(self, "Error", "Not able to load file!\nCheck filename or content!")
+#            return
+
         # BK_materials = {BK_node_id: strickler's value}
         BK_materials = {}
         
@@ -596,10 +596,16 @@ class ChEsher(QtGui.QMainWindow):
         def getStrings(allstrings, strings):
             i = 1
             profiles = {}
+            bk_profiles = {}
             for key in strings:
                 profiles[i] = allstrings[key]
+                bk_profiles[i] = []
                 i += 1
-            return profiles
+            for pID in profiles:
+                for nID in profiles[pID]:
+                    bk_profiles[pID].append(MAP_node_id[nID])
+
+            return bk_profiles
         
         info = ""
     

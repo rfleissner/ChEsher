@@ -26,6 +26,8 @@ from PyQt4.QtGui import QMessageBox
 from uiHEC2DXF import Ui_HEC2DXF
 import uiHandler as uih
 import fileHandler as fh
+import profileWriter as pw
+import numpy as np
 from dxfwrite import DXFEngine as dxf
 
 try:
@@ -56,10 +58,23 @@ class WrapHEC2DXF():
         QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.create)
         
         self.NUMBER_OF_PROFILES = 0
-        self. PROFILE_NAMES = []
+        self.PROFILE_NAMES = []
         self.NUMBER_OF_REACHES = 0
         self.NUMBER_OF_CROSS_SECTIONS = 0
-        
+        self.STREAM_ID = ""
+        self.REACH_ID = ""
+        self.CENTERLINE = {"x":[], "y":[]}
+        self.CROSS_SECTIONS = {\
+            "PROFILE_ID":[],\
+            "STREAM_ID":[], \
+            "REACH_ID":[],\
+            "STATION":[],\
+            "NODE_NAME":[],\
+            "CUT_LINE":{"x":[], "y":[]},\
+            "REACH_LENGTHS":[],\
+            "WATER_ELEVATION":{},\
+            "SURFACE_LINE":{"x":[], "y":[], "z":[]}\
+            }
     def setDir(self, directory):
         self.directory = directory
         
@@ -67,6 +82,57 @@ class WrapHEC2DXF():
         info = "Input data:\n"
 
         self.readSDF(self.ui.lineEditInputSDF.text())
+        
+        from shapely.geometry import LineString
+        
+        reachStation = {}
+        profileStation = {}
+        bottom = {}
+        for pID in range(len(self.CROSS_SECTIONS["SURFACE_LINE"]["x"])):
+            
+            d = []
+            x_ = []
+            y_ = []
+            z_ = []
+            x_.append(self.CROSS_SECTIONS["SURFACE_LINE"]["x"][pID][0])
+            y_.append(self.CROSS_SECTIONS["SURFACE_LINE"]["y"][pID][0])
+            z_.append(self.CROSS_SECTIONS["SURFACE_LINE"]["z"][pID][0])            
+            d.append(0.0)
+            
+            totLen = 0.0
+            for nID in range(len(self.CROSS_SECTIONS["SURFACE_LINE"]["x"][pID])-1):
+                xi = self.CROSS_SECTIONS["SURFACE_LINE"]["x"][pID][nID]
+                xj = self.CROSS_SECTIONS["SURFACE_LINE"]["x"][pID][nID+1]
+                yi = self.CROSS_SECTIONS["SURFACE_LINE"]["y"][pID][nID]
+                yj = self.CROSS_SECTIONS["SURFACE_LINE"]["y"][pID][nID+1]
+#                print xi
+#                print xj
+                profile_line = LineString([(xi, yi), (xj, yj)])
+                totLen += profile_line.length
+                if profile_line.length >= 0.005:
+                    d.append(totLen)
+                    x_.append(self.CROSS_SECTIONS["SURFACE_LINE"]["x"][pID][nID+1])
+                    y_.append(self.CROSS_SECTIONS["SURFACE_LINE"]["y"][pID][nID+1])
+                    z_.append(self.CROSS_SECTIONS["SURFACE_LINE"]["z"][pID][nID+1])
+
+            x = np.array(x_)
+            y = np.array(y_)
+            z = np.array(z_)
+            
+            reachStation[self.CROSS_SECTIONS["PROFILE_ID"][pID]] = self.CROSS_SECTIONS["STATION"][pID]
+            profileStation[self.CROSS_SECTIONS["PROFILE_ID"][pID]] = 0.0            
+            bottom[self.CROSS_SECTIONS["PROFILE_ID"][pID]] = [x, y, z, d]
+
+        print self.CROSS_SECTIONS["WATER_ELEVATION"]
+        
+        
+        pw.writeProfile(self.ui.lineEditOutputDXF.text(),\
+            bottom,
+            reachStation,
+            profileStation,
+            self.PROFILE_NAMES,
+            self.CROSS_SECTIONS["WATER_ELEVATION"]
+        )
 
 #        try:
 #            self.points = fh.readXYZ(self.ui.lineEditInputPoints.text())
@@ -84,19 +150,17 @@ class WrapHEC2DXF():
 #                info += " - DXF file created.\n"
 #            except:
 #                info += " - ERROR: Not able to write DXF file!\n"
-    
+        print "finish"
+        
     def readSDF(self, filename):
 
         file = open(filename, 'r')
         content = file.readlines()
         file.close()
-
+        CS_counter = 0
         for lID in range(len(content)):
             line = content[lID].split()
-#            if len(line) > 0:
-#                print line
-#                if line[0] == ':NUMBER OF PROFILES:':
-#                    print content[lID].split()[-1]
+
             if content[lID].startswith('  NUMBER OF PROFILES:'):
                 self.NUMBER_OF_PROFILES = int(content[lID].split()[-1])
             if content[lID].startswith('  PROFILE NAMES:'):
@@ -107,23 +171,91 @@ class WrapHEC2DXF():
                 self.NUMBER_OF_REACHES = int(content[lID].split()[-1])
             if content[lID].startswith('  NUMBER OF CROSS-SECTIONS:'):
                 self.NUMBER_OF_CROSS_SECTIONS = int(content[lID].split()[-1])                
+            if content[lID].startswith('REACH:'):
+                lID += 1
+                self.STREAM_ID = content[lID].split()[-1]
+                lID += 1
+                self.REACH_ID = content[lID].split()[-1]
+                lID += 4
 
-    
-                
-                
-    #                levels.append(float(content[line].split()[-1]))
-    #            elif content[line].startswith(':ScaleColour '):
-    #                colHEX_BGR.append(content[line].split()[-1][1:].replace('x', '#'))
-    
-        self.print_content()
+                while True:
+                    self.CENTERLINE["x"].append(float(content[lID].split(",")[0]))
+                    self.CENTERLINE["y"].append(float(content[lID].split(",")[1]))
+                    lID += 1
+                    if content[lID].startswith(' END:'):
+                        break
+
+            
+            if content[lID].startswith('  CROSS-SECTION:'):
+                CS_counter += 1
+                self.CROSS_SECTIONS["PROFILE_ID"].append(CS_counter)
+                lID += 1
+                if content[lID].startswith('    STREAM ID:'):
+                    self.CROSS_SECTIONS["STREAM_ID"].append(content[lID].split(":")[1].strip())
+                    lID += 1
+                if content[lID].startswith('    REACH ID:'):
+                    self.CROSS_SECTIONS["REACH_ID"].append(content[lID].split(":")[1].strip())
+                    lID += 1
+                if content[lID].startswith('    STATION:'):
+                    self.CROSS_SECTIONS["STATION"].append(float(content[lID].split(":")[1].strip()))
+                    lID += 1
+                if content[lID].startswith('    NODE NAME:'):
+                    self.CROSS_SECTIONS["NODE_NAME"].append(content[lID].split(":")[1].strip())
+                    lID += 1
+                if content[lID].startswith('    CUT LINE:'):
+                    lID += 1
+                    x = []
+                    y = []
+                    while True:
+                        try:
+                            x.append(float(content[lID].split(",")[0]))
+                            y.append(float(content[lID].split(",")[1]))
+                            lID += 1
+                        except:
+                            self.CROSS_SECTIONS["CUT_LINE"]["x"].append(x)
+                            self.CROSS_SECTIONS["CUT_LINE"]["y"].append(y)
+                            break
+                if content[lID].startswith('    REACH LENGTHS:'):
+                    self.CROSS_SECTIONS["REACH_LENGTHS"].append([float(content[lID].split(":")[1].split(",")[0]),\
+                    float(content[lID].split(":")[1].split(",")[1]),\
+                    float(content[lID].split(":")[1].split(",")[2])])
+                    lID += 1
+                if content[lID].startswith('    WATER ELEVATION:'):
+                    wel = []
+                    for i in range(len(content[lID].split(":")[1].split(","))):
+                        wel.append(float(content[lID].split(":")[1].split(",")[i]))
+                    self.CROSS_SECTIONS["WATER_ELEVATION"][CS_counter] = wel
+                    lID += 1
+                if content[lID].startswith('    SURFACE LINE:'):
+                    lID += 1
+                    x = []
+                    y = []
+                    z = []
+                    while True:
+                        try:
+                            x.append(float(content[lID].split(",")[0]))
+                            y.append(float(content[lID].split(",")[1]))
+                            z.append(float(content[lID].split(",")[2]))
+                            lID += 1
+                        except:
+                            self.CROSS_SECTIONS["SURFACE_LINE"]["x"].append(x)
+                            self.CROSS_SECTIONS["SURFACE_LINE"]["y"].append(y)
+                            self.CROSS_SECTIONS["SURFACE_LINE"]["z"].append(z)
+                            break
+#        self.print_content()
         return    
-    
-        
+
     def print_content(self):
         print 'NUMBER OF PROFILES:', self.NUMBER_OF_PROFILES
         print 'PROFILE NAMES:', self.PROFILE_NAMES
         print 'NUMBER OF REACHES:', self.NUMBER_OF_REACHES
         print 'NUMBER OF CROSS SECTIONS:', self.NUMBER_OF_CROSS_SECTIONS
+        print 'CENTERLINE:'
+        for i in range(len(self.CENTERLINE["x"])):
+            print self.CENTERLINE["x"][i], self.CENTERLINE["y"][i]
+        print 'CROSS SECTIONS:'
+        for key in self.CROSS_SECTIONS:
+            print key, self.CROSS_SECTIONS[key]
 
     def writeDXF(self):
         

@@ -470,9 +470,9 @@ class ChEsher(QtGui.QMainWindow):
 
 #        self.setDXF2BK()
 #        self.setCont2DXF()
-#        self.setHEC2DXF()
-        self.setProfiles()
-#        self.initialize()
+        self.setHEC2DXF()
+#        self.setProfiles()
+        self.initialize()
 
         
     def setType(self):
@@ -1258,14 +1258,14 @@ class ChEsher(QtGui.QMainWindow):
         self.moduleProfiles.ui.lineEditInputReach.setText(self.directory + "example_12/reach.i2s")
         self.moduleProfiles.ui.lineEditInputPoints.setText(self.directory + "example_12/points.xyz")
         
-#        setEnabled(self.moduleProfiles.ui.checkBoxOutputTextfile, self.moduleProfiles.ui.pushButtonOutputTextfile, self.moduleProfiles.ui.lineEditOutputTextfile)
-#        self.moduleProfiles.ui.lineEditOutputTextfile.setText(self.directory + "example_12/output/points.txt")
+        setEnabled(self.moduleProfiles.ui.checkBoxOutputTextfile, self.moduleProfiles.ui.pushButtonOutputTextfile, self.moduleProfiles.ui.lineEditOutputTextfile)
+        self.moduleProfiles.ui.lineEditOutputTextfile.setText(self.directory + "example_12/output/points.txt")
         
         setEnabled(self.moduleProfiles.ui.checkBoxOutputDXF, self.moduleProfiles.ui.pushButtonOutputDXF, self.moduleProfiles.ui.lineEditOutputDXF)
         self.moduleProfiles.ui.lineEditOutputDXF.setText(self.directory + "example_12/output/points.dxf")
 
-#        setEnabled(self.moduleProfiles.ui.checkBoxOutputHECRAS, self.moduleProfiles.ui.pushButtonOutputHECRAS, self.moduleProfiles.ui.lineEditOutputHECRAS)
-#        self.moduleProfiles.ui.lineEditOutputHECRAS.setText(self.directory + "example_12/output/points.geo")       
+        setEnabled(self.moduleProfiles.ui.checkBoxOutputHECRAS, self.moduleProfiles.ui.pushButtonOutputHECRAS, self.moduleProfiles.ui.lineEditOutputHECRAS)
+        self.moduleProfiles.ui.lineEditOutputHECRAS.setText(self.directory + "example_12/output/points.geo")       
 
         
         ###   ~   module HEC2DXF   ~   ###

@@ -34,6 +34,7 @@ from moduleHyDesign import WrapHyDesign
 from moduleProfiles import WrapProfiles
 from moduleHEC2DXF import WrapHEC2DXF
 from moduleXYZ2DXF import WrapXYZ2DXF
+from moduleProfilesDXF import WrapProfilesDXF
 
 import triangle
 import triangle.plot
@@ -121,6 +122,11 @@ class ChEsher(QtGui.QMainWindow):
         self.moduleXYZ2DXF = WrapXYZ2DXF(self.directory)
         self.widgetXYZ2DXF = self.moduleXYZ2DXF.widget
         self.ui.stackedWidget.insertWidget(14,self.widgetXYZ2DXF)                
+
+        # setup instance of module ProfilesDXF
+        self.moduleProfilesDXF = WrapProfilesDXF(self.directory)
+        self.widgetProfilesDXF = self.moduleProfilesDXF.widget
+        self.ui.stackedWidget.insertWidget(15,self.widgetProfilesDXF)   
         
         # actions in menu
         self.fileSetDirectory = self.createAction("Set working directory", slot=self.setDirectory)
@@ -142,6 +148,7 @@ class ChEsher(QtGui.QMainWindow):
         self.setProfilesAction = self.createAction("Profiles", slot=self.setProfiles)
         self.setHEC2DXFAction = self.createAction("HEC2DXF", slot=self.setHEC2DXF)
         self.setXYZ2DXFAction = self.createAction("XYZ2DXF", slot=self.setXYZ2DXF)
+        self.setProfilesDXFAction = self.createAction("ProfilesDXF", slot=self.setProfilesDXF)
         
         self.helpAboutAction = self.createAction("&About", \
             self.helpAbout)
@@ -151,7 +158,7 @@ class ChEsher(QtGui.QMainWindow):
         self.helpMenu = self.menuBar().addMenu("Help")
         # add actions to menu
         self.addActions(self.fileMenu, (self.fileSetDirectory, self.fileSetExamples, None, self.fileQuitAction))
-        self.addActions(self.moduleMenu, (self.setDXFtoBKAction, self.setBK2DXFAction, self.setMeshAction, self.setXMLAction, self.setScalarAction, self.setVectorAction, self.setCSAction, self.set2DMAction, self.setCont2DXFAction, self.setTubeAction, self.setHyDesignAction, self.setProfilesAction, self.setHEC2DXFAction, self.setXYZ2DXFAction))
+        self.addActions(self.moduleMenu, (self.setDXFtoBKAction, self.setBK2DXFAction, self.setMeshAction, self.setXMLAction, self.setScalarAction, self.setVectorAction, self.setCSAction, self.set2DMAction, self.setCont2DXFAction, self.setTubeAction, self.setHyDesignAction, self.setProfilesAction, self.setHEC2DXFAction, self.setXYZ2DXFAction, self.setProfilesDXFAction))
         self.addActions(self.helpMenu, (self.helpAction, None, self.helpAboutAction))
 
 
@@ -1328,6 +1335,10 @@ class ChEsher(QtGui.QMainWindow):
     def setXYZ2DXF(self):
         self.ui.labelModule.setText("~   XYZ2DXF   ~")
         self.ui.stackedWidget.setCurrentIndex(13)
+
+    def setProfilesDXF(self):
+        self.ui.labelModule.setText("~   Module ProfilesDXF   ~")
+        self.ui.stackedWidget.setCurrentIndex(14)
         
     def setDirectory(self):
         dir = QFileDialog.getExistingDirectory(self, "Select directory", self.directory)

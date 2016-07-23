@@ -72,6 +72,7 @@ class WrapHEC2DXF():
             "NODE_NAME":[],\
             "CUT_LINE":{"x":[], "y":[]},\
             "REACH_LENGTHS":[],\
+            "LEVEE_POSITIONS":{},\
             "WATER_ELEVATION":{},\
             "SURFACE_LINE":{"x":[], "y":[], "z":[]}\
             }
@@ -131,7 +132,8 @@ class WrapHEC2DXF():
             reachStation,
             profileStation,
             self.PROFILE_NAMES,
-            self.CROSS_SECTIONS["WATER_ELEVATION"]
+            self.CROSS_SECTIONS["WATER_ELEVATION"],
+            self.CROSS_SECTIONS["LEVEE_POSITIONS"]
         )
 
 #        try:
@@ -189,59 +191,76 @@ class WrapHEC2DXF():
             if content[lID].startswith('  CROSS-SECTION:'):
                 CS_counter += 1
                 self.CROSS_SECTIONS["PROFILE_ID"].append(CS_counter)
-                lID += 1
-                if content[lID].startswith('    STREAM ID:'):
-                    self.CROSS_SECTIONS["STREAM_ID"].append(content[lID].split(":")[1].strip())
+                while True:
                     lID += 1
-                if content[lID].startswith('    REACH ID:'):
-                    self.CROSS_SECTIONS["REACH_ID"].append(content[lID].split(":")[1].strip())
-                    lID += 1
-                if content[lID].startswith('    STATION:'):
-                    self.CROSS_SECTIONS["STATION"].append(float(content[lID].split(":")[1].strip()))
-                    lID += 1
-                if content[lID].startswith('    NODE NAME:'):
-                    self.CROSS_SECTIONS["NODE_NAME"].append(content[lID].split(":")[1].strip())
-                    lID += 1
-                if content[lID].startswith('    CUT LINE:'):
-                    lID += 1
-                    x = []
-                    y = []
-                    while True:
-                        try:
-                            x.append(float(content[lID].split(",")[0]))
-                            y.append(float(content[lID].split(",")[1]))
-                            lID += 1
-                        except:
-                            self.CROSS_SECTIONS["CUT_LINE"]["x"].append(x)
-                            self.CROSS_SECTIONS["CUT_LINE"]["y"].append(y)
-                            break
-                if content[lID].startswith('    REACH LENGTHS:'):
-                    self.CROSS_SECTIONS["REACH_LENGTHS"].append([float(content[lID].split(":")[1].split(",")[0]),\
-                    float(content[lID].split(":")[1].split(",")[1]),\
-                    float(content[lID].split(":")[1].split(",")[2])])
-                    lID += 1
-                if content[lID].startswith('    WATER ELEVATION:'):
-                    wel = []
-                    for i in range(len(content[lID].split(":")[1].split(","))):
-                        wel.append(float(content[lID].split(":")[1].split(",")[i]))
-                    self.CROSS_SECTIONS["WATER_ELEVATION"][CS_counter] = wel
-                    lID += 1
-                if content[lID].startswith('    SURFACE LINE:'):
-                    lID += 1
-                    x = []
-                    y = []
-                    z = []
-                    while True:
-                        try:
-                            x.append(float(content[lID].split(",")[0]))
-                            y.append(float(content[lID].split(",")[1]))
-                            z.append(float(content[lID].split(",")[2]))
-                            lID += 1
-                        except:
-                            self.CROSS_SECTIONS["SURFACE_LINE"]["x"].append(x)
-                            self.CROSS_SECTIONS["SURFACE_LINE"]["y"].append(y)
-                            self.CROSS_SECTIONS["SURFACE_LINE"]["z"].append(z)
-                            break
+                    if content[lID].startswith('    STREAM ID:'):
+                        self.CROSS_SECTIONS["STREAM_ID"].append(content[lID].split(":")[1].strip())
+                        continue
+                    if content[lID].startswith('    REACH ID:'):
+                        self.CROSS_SECTIONS["REACH_ID"].append(content[lID].split(":")[1].strip())
+                        continue
+                    if content[lID].startswith('    STATION:'):
+                        self.CROSS_SECTIONS["STATION"].append(float(content[lID].split(":")[1].strip()))
+                        continue
+                    if content[lID].startswith('    NODE NAME:'):
+                        self.CROSS_SECTIONS["NODE_NAME"].append(content[lID].split(":")[1].strip())
+                        continue
+                    if content[lID].startswith('    CUT LINE:'):
+                        lID += 1
+                        x = []
+                        y = []
+                        while True:
+                            try:
+                                x.append(float(content[lID].split(",")[0]))
+                                y.append(float(content[lID].split(",")[1]))
+                                lID += 1
+                            except:
+                                self.CROSS_SECTIONS["CUT_LINE"]["x"].append(x)
+                                self.CROSS_SECTIONS["CUT_LINE"]["y"].append(y)
+                                break
+                        continue
+                    if content[lID].startswith('    REACH LENGTHS:'):
+                        self.CROSS_SECTIONS["REACH_LENGTHS"].append([float(content[lID].split(":")[1].split(",")[0]),\
+                        float(content[lID].split(":")[1].split(",")[1]),\
+                        float(content[lID].split(":")[1].split(",")[2])])
+                        continue
+                    if content[lID].startswith('    LEVEE POSITIONS:'):
+                        lev = []
+                        while True:
+                            try:
+                                lID += 1
+                                lev.append([float(content[lID].split(",")[1]),\
+                                    float(content[lID].split(",")[2])])
+                                
+                            except:
+                                self.CROSS_SECTIONS["LEVEE_POSITIONS"][CS_counter] = lev
+                                lID -= 1
+                                break
+                        continue
+                    if content[lID].startswith('    WATER ELEVATION:'):
+                        wel = []
+                        for i in range(len(content[lID].split(":")[1].split(","))):
+                            wel.append(float(content[lID].split(":")[1].split(",")[i]))
+                        self.CROSS_SECTIONS["WATER_ELEVATION"][CS_counter] = wel
+                        continue
+                    if content[lID].startswith('    SURFACE LINE:'):
+                        lID += 1
+                        x = []
+                        y = []
+                        z = []
+                        while True:
+                            try:
+                                x.append(float(content[lID].split(",")[0]))
+                                y.append(float(content[lID].split(",")[1]))
+                                z.append(float(content[lID].split(",")[2]))
+                                lID += 1
+                            except:
+                                self.CROSS_SECTIONS["SURFACE_LINE"]["x"].append(x)
+                                self.CROSS_SECTIONS["SURFACE_LINE"]["y"].append(y)
+                                self.CROSS_SECTIONS["SURFACE_LINE"]["z"].append(z)
+                                break
+                    if content[lID].startswith('  END:'):
+                        break
 #        self.print_content()
         return    
 

@@ -24,7 +24,7 @@ from shapely.geometry import LineString, Polygon
 import os.path as pth
 ezdxf.options.template_dir = pth.abspath('.')
 
-def writeProfile(fname, bottom, reachStation, profileStation, wsNames=None, wsElevations=None):
+def writeProfile(fname, bottom, reachStation, profileStation, wsNames=None, wsElevations=None, levees=None):
     """
     bottom = {1: [[di], [zi]], ..., nOfProfiles:[[di],[zi]]}
     """
@@ -133,40 +133,41 @@ def writeProfile(fname, bottom, reachStation, profileStation, wsNames=None, wsEl
             text_height = msp.add_text("%.{0}f".format(dec)%z[nID], dxfattribs={'height': textheight_band, 'rotation': 90.0})
             text_height.set_pos((mx[nID], off_z+zmin-off_band_z-h_band/2.0), align='MIDDLE')
 
-        dxf_bottom = msp.add_polyline2d(profilepoints, dxfattribs={'layer': 'profile'})
+        # print bottom line
+        msp.add_polyline2d(profilepoints, dxfattribs={'layer': 'profile'})
 
+        # print water elevation
         if wsNames is not None:
-#            print "write ws"
 
             for wID in range(len(wsElevations[pID])):
 
                 wsElevation = wsElevations[pID][wID]
+                layerName = wsNames[wID]
+                layerColor = 4
                 
-#                print wsNames[wID], wsElevation
-                tup = tuple([(xmin,off_z+zmax*superelev)] + profilepoints + [(xmax,off_z+zmax*superelev)])
-
-#                print tup
+                tup = tuple([(xmin-1.0,off_z+zmax*superelev)] + profilepoints + [(xmax+1.0,off_z+zmax*superelev)])
                 bottomLine = Polygon(tup)
-  
                 wsLine = LineString([(xmin, off_z+wsElevation*superelev), (xmax, off_z+wsElevation*superelev)])
-
                 inters = bottomLine.intersection(wsLine)
-                
-                for i in range(len(inters)):
-                    print pID, wID, inters[i]
-                    
-                msp.add_line((xmin, off_z+wsElevation*superelev), (xmax, off_z+wsElevation*superelev),  dxfattribs={'layer': 'wsElevation'})
-                
-                
-                
-#                if off_z+wsElevation*superelev > profilepoints[0][1] and len(inters) > 0:
-#                    msp.add_line((xmin, off_z+wsElevation*superelev), (inters[0].x, off_z+wsElevation*superelev),  dxfattribs={'layer': 'wsElevation'})
-#                    
-#                    for i in range(len(inters)-2):
-#                        i += 1
-#                        msp.add_line((inters[i].x, off_z+wsElevation*superelev), (inters[i+1].x, off_z+wsElevation*superelev),  dxfattribs={'layer': 'wsElevation'})
-#                        print pID, inters[i]
-#                        
-#                    msp.add_line((inters[-1].x, off_z+wsElevation*superelev), (xmax, off_z+wsElevation*superelev),  dxfattribs={'layer': 'wsElevation'})
-                    
+
+                if inters.geom_type == "LineString":
+                    msp.add_line((inters.coords[:][0][0], off_z+wsElevation*superelev), (inters.coords[:][1][0], off_z+wsElevation*superelev),  dxfattribs={'layer': layerName, 'color':layerColor})
+
+                if inters.geom_type == "MultiLineString":     
+                    for i in range(len(inters)):
+                        ls = inters[i]
+                        msp.add_line((ls.coords[:][0][0], off_z+wsElevation*superelev), (ls.coords[:][1][0], off_z+wsElevation*superelev),  dxfattribs={'layer': layerName, 'color':layerColor})
+
+        # print levees
+        if levees is not None:
+            if pID in levees:
+                for lID in range(len(levees[pID])):
+                    levee_x = levees[pID][lID][0]*xmax
+                    levee_z = levees[pID][lID][1]
+                    bottomLine = LineString(tup)
+                    levee = LineString([(levee_x, off_z+zmin), (levee_x, off_z+zmax)])
+                    inters = bottomLine.intersection(levee)
+                    print inters
+                    msp.add_line((levee_x, inters.y), (levee_x, off_z+levee_z*superelev),  dxfattribs={'layer': 'levee', 'color':1})
+
     dwg.saveas(str(fname))

@@ -23,6 +23,7 @@ from copy import deepcopy as dc
 import ezdxf
 from dxfwrite import DXFEngine as dxf
 import math
+from shapely.geometry import Point, Polygon, MultiPolygon
 
 import os.path as pth
 ezdxf.options.template_dir = pth.abspath('.')
@@ -833,6 +834,61 @@ def readT3S(filename):
                 endheader = True
 
     return nodesT3S, mesh
+
+def readT3StoShapely(filename):
+    points = {}
+    polygons = []
+    
+    file = open(filename, 'r')
+    content = file.readlines()
+    file.close()
+
+    nodecounter = 0
+    elementcounter = 0
+    
+    nodecount = 0
+    elementcount = 0
+    
+    endheader = False
+
+    for line in range(len(content)):
+        keyword = ''
+        if len(content[line].split()) > 0:
+            keyword = content[line].split()[0]
+            values = content[line].split()
+            
+            if keyword == ':ElementCount':
+                elementcount = int(values[1])
+                
+            if keyword == ':NodeCount':
+                nodecount = int(values[1])
+                
+            if endheader is True:
+                
+                if nodecounter < nodecount:
+                    coords = []
+                    for i in range(3):
+                        coords.append(float(values[i]))
+                    nodecounter += 1
+                    points[nodecounter] = Point(coords) 
+
+                elif elementcounter < elementcount:
+                    pointList = []
+                    
+                    for i in range(3):
+                        pointList.append(points[int(values[i])])
+                        
+                    elementcounter += 1
+                    
+                    poly = Polygon([p.x, p.y, p.z] for p in pointList)
+                    polygons.append(poly)
+                    
+            if keyword == ':EndHeader':
+                endheader = True
+
+    mpolygon = MultiPolygon(polygons)
+
+    return mpolygon
 
 def writeCS1(fname, levels, colours):
     file = open(fname, 'w')

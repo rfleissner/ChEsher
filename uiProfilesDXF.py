@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'uiProfilesDXF.ui'
 #
-# Created: Sat Jul 23 16:16:58 2016
+# Created: Sun Jul 24 18:53:59 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -170,9 +170,9 @@ class Ui_ProfilesDXF(object):
         self.pushButtonCreate = QtGui.QPushButton(ProfilesDXF)
         self.pushButtonCreate.setObjectName(_fromUtf8("pushButtonCreate"))
         self.gridLayout.addWidget(self.pushButtonCreate, 17, 0, 1, 5)
-        self.lineEditInputRiverName = QtGui.QLineEdit(ProfilesDXF)
-        self.lineEditInputRiverName.setObjectName(_fromUtf8("lineEditInputRiverName"))
-        self.gridLayout.addWidget(self.lineEditInputRiverName, 4, 4, 1, 1)
+        self.lineEditInputReachName = QtGui.QLineEdit(ProfilesDXF)
+        self.lineEditInputReachName.setObjectName(_fromUtf8("lineEditInputReachName"))
+        self.gridLayout.addWidget(self.lineEditInputReachName, 4, 4, 1, 1)
         spacerItem3 = QtGui.QSpacerItem(50, 20, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
         self.gridLayout.addItem(spacerItem3, 7, 0, 1, 5)
 

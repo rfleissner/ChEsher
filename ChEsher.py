@@ -477,8 +477,9 @@ class ChEsher(QtGui.QMainWindow):
 
 #        self.setDXF2BK()
 #        self.setCont2DXF()
-        self.setHEC2DXF()
+#        self.setHEC2DXF()
 #        self.setProfiles()
+        self.setProfilesDXF()
         self.initialize()
 
         
@@ -1128,9 +1129,9 @@ class ChEsher(QtGui.QMainWindow):
         for row in range(rows):
             combobox = self.ui.tableWidgetDXF2BK.cellWidget(row, 0)
             combobox.setCurrentIndex(indices[row])
-            item = QtGui.QTableWidgetItem()
-            item.setText(files[row])
-            self.ui.tableWidgetDXF2BK.setItem(row, 1, item)
+            item3 = QtGui.QTableWidgetItem()
+            item3.setText(files[row])
+            self.ui.tableWidgetDXF2BK.setItem(row, 1, item3)
 
         ###   ~   module BK2DXF   ~   ###
         
@@ -1274,20 +1275,52 @@ class ChEsher(QtGui.QMainWindow):
         setEnabled(self.moduleProfiles.ui.checkBoxOutputHECRAS, self.moduleProfiles.ui.pushButtonOutputHECRAS, self.moduleProfiles.ui.lineEditOutputHECRAS)
         self.moduleProfiles.ui.lineEditOutputHECRAS.setText(self.directory + "example_12/output/points.geo")       
 
-        
         ###   ~   module HEC2DXF   ~   ###
         
         self.moduleHEC2DXF.ui.lineEditInputSDF.setText(self.directory + "example_13/results.sdf")
         self.moduleHEC2DXF.ui.lineEditOutputDXF.setText(self.directory + "example_13/output/results.dxf")
 
+        ###   ~   module ProfilesDXF   ~   ###
+        
+        self.moduleProfilesDXF.ui.lineEditInputProfiles.setText(self.directory + "example_15/profiles.i2s")
+        self.moduleProfilesDXF.ui.lineEditInputReach.setText(self.directory + "example_15/reach.i2s")
+        self.moduleProfilesDXF.ui.lineEditInputBottom.setText(self.directory + "example_15/BOTTOM_Case_A.t3s")
+        self.moduleProfilesDXF.ui.lineEditInputReachName.setText("Donau")
+
+        self.moduleProfilesDXF.ui.tableWidget.setRowCount(0)
+        self.moduleProfilesDXF.add()
+        
+        item1 = QtGui.QTableWidgetItem()
+        item1.setText(self.directory + "example_15/FREE SURFACE_S161.t3s")
+        self.moduleProfilesDXF.ui.tableWidget.setItem(0, 0, item1)
+        
+        item2 = QtGui.QTableWidgetItem()
+        item2.setText("HQ100")
+        self.moduleProfilesDXF.ui.tableWidget.setItem(0, 1, item2)
+        
+        row = self.moduleProfilesDXF.ui.tableWidget.currentRow()
+        item3 = self.moduleProfilesDXF.ui.tableWidget.item(0, 2)
+        initCol = item3.backgroundColor()
+        initCol.setRed(200)
+        initCol.setGreen(200)
+        initCol.setBlue(255)
+        item3 = QtGui.QTableWidgetItem()
+        item3.setBackground(initCol)
+        item3.setFlags(QtCore.Qt.ItemIsEnabled)
+        item3.setText(str(initCol.red()) + ", " + str(initCol.green()) + ", " + str(initCol.blue()))
+        self.moduleProfilesDXF.ui.tableWidget.setItem(0, 2, item3)
+
+        setEnabled(self.moduleProfilesDXF.ui.checkBoxOutputProfiles, self.moduleProfilesDXF.ui.pushButtonOutputProfiles, self.moduleProfilesDXF.ui.lineEditOutputProfiles)
+        self.moduleProfilesDXF.ui.lineEditOutputProfiles.setText(self.directory + "example_15/output/profiles.dxf")
+        
     def setDXF2BK(self):
         self.ui.labelModule.setText("~   Module DXF2BK   ~")
         self.ui.stackedWidget.setCurrentIndex(0)
-                
+
     def setBK2DXF(self):
         self.ui.labelModule.setText("~   Module BK2DXF   ~")
         self.ui.stackedWidget.setCurrentIndex(1)
-                
+
     def setMesh(self):
         self.ui.labelModule.setText("~   Module Mesh   ~")
         self.ui.stackedWidget.setCurrentIndex(2)

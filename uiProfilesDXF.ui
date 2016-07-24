@@ -427,7 +427,7 @@
     </widget>
    </item>
    <item row="4" column="4">
-    <widget class="QLineEdit" name="lineEditInputRiverName"/>
+    <widget class="QLineEdit" name="lineEditInputReachName"/>
    </item>
    <item row="7" column="0" colspan="5">
     <spacer name="verticalSpacer">

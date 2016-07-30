@@ -31,7 +31,8 @@ import profileWriter as pw
 import macro as mc
 import numpy as np
 import ezdxf
-from shapely.geometry import MultiLineString, LineString
+from shapely.geometry import MultiLineString, LineString, LinearRing, Point
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -124,7 +125,7 @@ class WrapProfilesDXF():
         print self.proArranged
         print self.nodProfiles
 #        print self.reachStation
-#        print self.profileStation
+        print self.profileStation
 #        print direction
         
         
@@ -135,7 +136,7 @@ class WrapProfilesDXF():
         mesh = fh.readT3StoShapely(self.ui.lineEditInputBottom.text())
 
         crossSections = {}
-#        linestrings = []
+
         for pID in self.proArranged:
             nodes = []
             for nID in range(len(self.proArranged[pID])):
@@ -143,20 +144,41 @@ class WrapProfilesDXF():
                 nodes.append(node)
                 
             crossSection = LineString(nodes)
+
             intersection = mesh.intersection(crossSection)
-            linestrings.append(crossSection)
+            
             
             print intersection
             print len(intersection)
             
-            for p in range(len(intersection)):
-                print intersection[p]
-                
-            crossSections[pID] = intersection
+
             
-#        mlinestring = MultiLineString(linestrings)
-#        inters = mesh.intersection(mlinestring)
-#        print len(inters)
+            for p in range(len(intersection)):
+                print intersection[p], intersection[p].geom_type
+
+            
+            print "punkte sortieren"
+            
+            print crossSection
+            for p in range(len(intersection)):
+                intersection_ = intersection[p]
+                
+                if intersection_.geom_type == "Point":
+                    inters = crossSection.project(intersection_)
+                    print inters-self.profileStation[pID], intersection_.z
+                elif intersection_.geom_type == "LineString":
+#                    print "punkte aus linestring"
+#                    print len(intersection_.coords),intersection_.coords[0]
+                    for i in range(len(intersection_.coords)):
+                        pt = Point(intersection_.coords[i])
+                        inters = crossSection.project(pt)
+                        print inters-self.profileStation[pID], pt.z
+
+#                print intersection_
+
+            crossSections[pID] = intersection
+
+        print "finish"
 
     def add(self):
         row = self.ui.tableWidget.currentRow()

@@ -23,7 +23,7 @@ from copy import deepcopy as dc
 import ezdxf
 from dxfwrite import DXFEngine as dxf
 import math
-from shapely.geometry import Point, Polygon, MultiPolygon
+from shapely.geometry import Point, Polygon, MultiPolygon, LinearRing, LineString, MultiLineString
 
 import os.path as pth
 ezdxf.options.template_dir = pth.abspath('.')

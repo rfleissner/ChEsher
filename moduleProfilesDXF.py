@@ -27,7 +27,8 @@ from uiProfilesDXF import Ui_ProfilesDXF
 import uiHandler as uih
 import fileHandler as fh
 import profileOrganizer as po
-import profileWriter as pw
+#import profileWriter as pw
+from profileWriter import ProfileWriter
 import macro as mc
 import numpy as np
 import ezdxf
@@ -103,8 +104,49 @@ class WrapProfilesDXF():
         QtCore.QObject.connect(self.ui.pushButtonOutputPlan, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSavePlan)
 
         QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.create)
+    
+    def getCrossSections(self, mesh):
+
+        crossSections = dict((key, np.array([])) for key in self.proArranged)
+
+        for pID in self.proArranged:
+            nodes = []
+            for nID in range(len(self.proArranged[pID])):
+                node = self.nodProfiles[self.proArranged[pID][nID]]
+                nodes.append(node)
+
+            crossSection = LineString(nodes)
+
+            intersection = mesh.intersection(crossSection)
+
+            values = []
+            for p in range(len(intersection)):
+                intersection_ = intersection[p]
+
+                if intersection_.geom_type == "Point":
+                    inters = crossSection.project(intersection_)
+                    values.append([intersection_.x, intersection_.y, intersection_.z, inters])
+                elif intersection_.geom_type == "LineString":
+                    for i in range(len(intersection_.coords)):
+                        pt = Point(intersection_.coords[i])
+                        inters = crossSection.project(pt)             
+                        values.append([pt.x, pt.y, pt.z, inters])
+
+            arr = np.array(values)
+            arr = arr[arr[:,3].argsort()]
+            arr.reshape((arr.size/4,4))
+
+            x = arr[:,0]
+            y = arr[:,1]
+            z = arr[:,2]
+            d = arr[:,3]
+
+            crossSections[pID] = [x,y,z,d]
+
+        return crossSections
         
     def create(self):
+    
         info = "Input data:\n"
 
         try:
@@ -122,102 +164,50 @@ class WrapProfilesDXF():
 
         self.proArranged, self.reachStation, self.profileStation, direction = po.determineFlowDirection(self.nodReach, self.nodProfiles, self.proProfiles)
         
-        print self.proArranged
-        print self.nodProfiles
+#        print self.proArranged
+#        print self.nodProfiles
 #        print self.reachStation
-        print self.profileStation
+#        print self.profileStation
 #        print direction
-        
-        
+
         info += "\nFlow direction:\n"
         for pID_Arranged in direction:
             info += ' - Profile {0}:\t{1}\n'.format(pID_Arranged, direction[pID_Arranged])
 
-        mesh = fh.readT3StoShapely(self.ui.lineEditInputBottom.text())
-
-        crossSections = dict((key, np.array([])) for key in self.proArranged)
-
-        for pID in self.proArranged:
-            nodes = []
-            for nID in range(len(self.proArranged[pID])):
-                node = self.nodProfiles[self.proArranged[pID][nID]]
-                nodes.append(node)
+        # create bottom cross sections
+        bottom = fh.readT3StoShapely(self.ui.lineEditInputBottom.text())
+        bottomCrossSections = self.getCrossSections(bottom)
+        
+        # create water surface cross sections
+        rows = self.ui.tableWidget.rowCount()
+        wsCrossSections = {}
+        if rows > 0:
+            for row in range(rows):
+                filename = self.ui.tableWidget.item(row, 0).text()
+                name = self.ui.tableWidget.item(row, 1).text()
+                watersurface = fh.readT3StoShapely(filename)
+                wsCrossSections[name] = self.getCrossSections(watersurface)
                 
-            crossSection = LineString(nodes)
-
-            intersection = mesh.intersection(crossSection)
-            
-            
-#            print intersection
-#            print len(intersection)
-            
-
-            
-#            for p in range(len(intersection)):
-#                print intersection[p], intersection[p].geom_type
-
-            
-#            print "punkte sortieren"
-
-            dz = []
-#            print crossSection
-            for p in range(len(intersection)):
-                intersection_ = intersection[p]
-
-                if intersection_.geom_type == "Point":
-                    inters = crossSection.project(intersection_)
-                    dz.append([inters-self.profileStation[pID], intersection_.z])
-                elif intersection_.geom_type == "LineString":
-                    for i in range(len(intersection_.coords)):
-                        pt = Point(intersection_.coords[i])
-                        inters = crossSection.project(pt)             
-                        dz.append([inters-self.profileStation[pID], pt.z])
-
-            
-            arr = np.array(dz)
-            arr = arr[arr[:,0].argsort()]
-            arr.reshape((arr.size/2,2))
-            
-            
-            d = arr[:,0]
-            z = arr[:,1]
-                        
-            crossSections[pID] = [z,d,z,d]
-            
-        print crossSections
+        print wsCrossSections
+        
         if self.ui.checkBoxOutputProfiles.isChecked():
-
-            pw.writeProfile(self.ui.lineEditOutputProfiles.text(),\
-                crossSections,
+            cs = ProfileWriter(self.ui.lineEditOutputProfiles.text(),\
+                bottomCrossSections,
                 self.reachStation,
-                self.profileStation
-            )
+                self.profileStation)
+
+            cs.drawBottom()
+            cs.drawWaterSurface(wsCrossSections)
+            cs.saveDXF()
+            
+#
+#            pw.writeProfile(self.ui.lineEditOutputProfiles.text(),\
+#                bottomCrossSections,
+#                self.reachStation,
+#                self.profileStation
+#            )                
 
         print "finish"
-
-#        # sort normalized points
-#        pointsNormalized = dict((key, np.array([])) for key in self.proArranged)
-#        for key in tempPointsNormalized:
-#            arr1 = np.array(tempPointsNormalized[key])
-#            arr2 = np.array([tempPointsStation[key]])
-#            arr = np.append(arr1, arr2)
-#            pointsNormalized[tempPointsProfileID[key]] = np.append(pointsNormalized[tempPointsProfileID[key]], arr)
-
-#        # arrange normalized points for each profile
-#        profile = {}
-#        for key in pointsNormalized:
-#            length = len(pointsNormalized[key])
-#            pointsNormalized[key] = pointsNormalized[key].reshape((length/4,4))
-#            
-#            # sort points by increasing stationing
-#            pointsNormalized[key] = pointsNormalized[key][pointsNormalized[key][:,3].argsort()]
-#
-#            x = pointsNormalized[key].transpose()[0]
-#            y = pointsNormalized[key].transpose()[1]
-#            z = pointsNormalized[key].transpose()[2]
-#            d = pointsNormalized[key].transpose()[3]
-#            
-#            profile[key] = [x,y,z,d]
 
     def add(self):
         row = self.ui.tableWidget.currentRow()

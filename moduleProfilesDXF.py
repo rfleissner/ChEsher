@@ -110,6 +110,7 @@ class WrapProfilesDXF():
         crossSections = dict((key, np.array([])) for key in self.proArranged)
 
         for pID in self.proArranged:
+            
             nodes = []
             for nID in range(len(self.proArranged[pID])):
                 node = self.nodProfiles[self.proArranged[pID][nID]]
@@ -142,7 +143,7 @@ class WrapProfilesDXF():
             d = arr[:,3]
 
             crossSections[pID] = [x,y,z,d]
-
+            print "cross section", pID, "done"
         return crossSections
         
     def create(self):

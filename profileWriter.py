@@ -46,21 +46,25 @@ class ProfileWriter():
         self.dec = 2
         self.dz = -25.0
         self.superelev = 1.0
-        self.scale = 200.0
+        self.scale = 100.0
         scale_mm = self.scale/1000.0
         self.off_band_x = 75.0*scale_mm
-        self.off_band_z = 2.5*scale_mm
-        self.h_band = 15*scale_mm
+        self.off_band_z = 0.0*scale_mm
+        self.h_band = 10*scale_mm
         self.textheight_bandtitle = 4.0*scale_mm
         self.textheight_band = 1.5*scale_mm
-        self.markerlength = 2.5*scale_mm
+        self.markerlength = 1.5*scale_mm
         self.drawBand = True
-        self.drawFrame = True
+        self.drawFrame = False
 
         self.dwg = ezdxf.new(dxfversion='AC1018')
 
         self.msp = self.dwg.modelspace()
 
+        self.offVE = 3.0
+        self.off_band = self.h_band
+        self.off_raster = 1.0
+        
     def drawBottom(self):
 
         for pID in self.bottom:
@@ -71,7 +75,7 @@ class ProfileWriter():
 
             xmin = min(d)
             xmax = max(d)
-            zmin = math.floor(min(z*self.superelev))
+            zmin = math.floor(min(z*self.superelev)-self.offVE)
             zmax = math.ceil(max(z*self.superelev))
 
             # frame
@@ -81,9 +85,8 @@ class ProfileWriter():
                 self.msp.add_line((xmin, off_z+zmin),(xmin,off_z+zmax), dxfattribs={'layer': 'frame'})
 
             # title
-            text_frame = self.msp.add_text("NN = %.1f m" % round(math.floor(min(z)), 2), dxfattribs={'height': self.textheight_bandtitle})
+            text_frame = self.msp.add_text("VE = %.1f m" % round(math.floor(min(z-self.offVE)), 2), dxfattribs={'height': self.textheight_bandtitle})
             text_frame.set_pos((xmin-self.off_band_x+self.h_band/2.0, off_z+zmin), align='BOTTOM_LEFT')
-    #            frame = msp.add_line((xmin, off_z+zmax),(xmax,off_z+zmax), dxfattribs={'layer': 'frame'})
             text_pTitle = self.msp.add_text("Profil-Nr. {0}".format(self.nOfProfiles-pID+1), dxfattribs={'height': self.textheight_bandtitle*1.5})
             text_pTitle.set_pos((xmin-self.off_band_x, off_z+zmax+self.textheight_bandtitle*1.5), align='BOTTOM_LEFT')
             text_pKm = self.msp.add_text("km %.3f" % round(self.reachStation[pID]/1000,3), dxfattribs={'height': self.textheight_bandtitle})
@@ -99,19 +102,19 @@ class ProfileWriter():
                 self.msp.add_line((self.profileStation[pID], off_z+zmin),(self.profileStation[pID],off_z+zmax), dxfattribs={'layer': 'axis', 'color':1})
 
             # band
-            if self.drawBand:
+#            if self.drawBand:
                 # elevation
-                self.msp.add_line((xmin-self.off_band_x, off_z+zmin-self.off_band_z),(xmax,off_z+zmin-self.off_band_z), dxfattribs={'layer': 'frame'})
-                self.msp.add_line((xmin-self.off_band_x, off_z+zmin-self.off_band_z-self.h_band),(xmax,off_z+zmin-self.off_band_z-self.h_band), dxfattribs={'layer': 'frame'})
-                self.msp.add_line((xmin-self.off_band_x, off_z+zmin-self.off_band_z),(xmin-self.off_band_x,off_z+zmin-self.off_band_z-self.h_band), dxfattribs={'layer': 'frame'})
-                title_height = self.msp.add_text("Hoehe [m]", dxfattribs={'height': self.textheight_bandtitle})
-                title_height.set_pos((xmin-self.off_band_x+self.h_band/2.0, off_z+zmin-self.off_band_z-self.h_band/2.0), align='MIDDLE_LEFT')
+#                self.msp.add_line((xmin-self.off_band_x, off_z+zmin-self.off_band_z+self.off_band),(xmax,off_z+zmin-self.off_band_z+self.off_band), dxfattribs={'layer': 'frame'})
+                self.msp.add_line((xmin-self.off_band_x, off_z+zmin-self.off_band_z-self.h_band+self.off_band),(xmax,off_z+zmin-self.off_band_z-self.h_band+self.off_band), dxfattribs={'layer': 'frame'})
+#                self.msp.add_line((xmin-self.off_band_x, off_z+zmin-self.off_band_z+self.off_band),(xmin-self.off_band_x,off_z+zmin-self.off_band_z-self.h_band+self.off_band), dxfattribs={'layer': 'frame'})
+#                title_height = self.msp.add_text("Hoehe [m]", dxfattribs={'height': self.textheight_bandtitle})
+#                title_height.set_pos((xmin-self.off_band_x+self.h_band/2.0, off_z+zmin-self.off_band_z-self.h_band/2.0+self.off_band), align='MIDDLE_LEFT')
 
                 # stationing
-                self.msp.add_line((xmin-self.off_band_x, off_z+zmin-self.off_band_z-2*self.h_band),(xmax,off_z+zmin-self.off_band_z-2*self.h_band), dxfattribs={'layer': 'frame'})
-                self.msp.add_line((xmin-self.off_band_x, off_z+zmin-self.off_band_z-self.h_band),(xmin-self.off_band_x,off_z+zmin-self.off_band_z-2*self.h_band), dxfattribs={'layer': 'frame'})
-                title_stationing = self.msp.add_text("Stationierung [m]", dxfattribs={'height': self.textheight_bandtitle})
-                title_stationing.set_pos((xmin-self.off_band_x+self.h_band/2.0, off_z+zmin-self.off_band_z-3*self.h_band/2.0), align='MIDDLE_LEFT')
+#                self.msp.add_line((xmin-self.off_band_x, off_z+zmin-self.off_band_z-2*self.h_band+self.off_band),(xmax,off_z+zmin-self.off_band_z-2*self.h_band+self.off_band), dxfattribs={'layer': 'frame'})
+#                self.msp.add_line((xmin-self.off_band_x, off_z+zmin-self.off_band_z-self.h_band+self.off_band),(xmin-self.off_band_x,off_z+zmin-self.off_band_z-2*self.h_band+self.off_band), dxfattribs={'layer': 'frame'})
+#                title_stationing = self.msp.add_text("Stationierung [m]", dxfattribs={'height': self.textheight_bandtitle})
+#                title_stationing.set_pos((xmin-self.off_band_x+self.h_band/2.0, off_z+zmin-self.off_band_z-3*self.h_band/2.0+self.off_band), align='MIDDLE_LEFT')
 
             profilepoints = []
             mx = []
@@ -126,21 +129,21 @@ class ProfileWriter():
                 if self.drawBand:
                     mx.append(x1)
                     if nID != 0 and nID != len(d)-1:
-                        self.msp.add_line(p1,(x1,off_z+zmin), dxfattribs={'layer': 'marker', 'color':253})
+                        self.msp.add_line(p1,(x1,off_z+zmin+self.off_raster), dxfattribs={'layer': 'marker', 'color':253})
                         if mx[nID]-mx[nID-1] < 1.5*self.textheight_band:
                             mx[nID] = mx[nID-1] + 1.5*self.textheight_band
-                            self.msp.add_line((x1,off_z+zmin),(mx[nID],off_z+zmin-self.off_band_z), dxfattribs={'layer': 'marker', 'color':253})
+                            self.msp.add_line((x1,off_z+zmin+self.off_raster),(mx[nID],off_z+zmin-self.off_band_z), dxfattribs={'layer': 'marker', 'color':253})
                         else:
-                            self.msp.add_line((x1,off_z+zmin),(x1,off_z+zmin-self.off_band_z), dxfattribs={'layer': 'marker', 'color':253})
+                            self.msp.add_line((x1,off_z+zmin+self.off_raster),(x1,off_z+zmin-self.off_band_z), dxfattribs={'layer': 'marker', 'color':253})
                     # band
-                    self.msp.add_line((mx[nID], off_z+zmin-self.off_band_z), (mx[nID], off_z+zmin-self.off_band_z-self.markerlength),  dxfattribs={'layer': 'band'})   
-                    self.msp.add_line((mx[nID], off_z+zmin-self.off_band_z-self.h_band), (mx[nID], off_z+zmin-self.off_band_z-self.h_band+self.markerlength),  dxfattribs={'layer': 'band'})
-                    self.msp.add_line((mx[nID], off_z+zmin-self.off_band_z-self.h_band), (mx[nID], off_z+zmin-self.off_band_z-self.h_band-self.markerlength),  dxfattribs={'layer': 'band'})   
-                    self.msp.add_line((mx[nID], off_z+zmin-self.off_band_z-2*self.h_band), (mx[nID], off_z+zmin-self.off_band_z-2*self.h_band+self.markerlength),  dxfattribs={'layer': 'band'})
+#                    self.msp.add_line((mx[nID], off_z+zmin-self.off_band_z+self.off_band), (mx[nID], off_z+zmin-self.off_band_z-self.markerlength+self.off_band),  dxfattribs={'layer': 'band'})   
+                    self.msp.add_line((mx[nID], off_z+zmin-self.off_band_z-self.h_band+self.off_band), (mx[nID], off_z+zmin-self.off_band_z-self.h_band+self.markerlength+self.off_band),  dxfattribs={'layer': 'band'})
+                    self.msp.add_line((mx[nID], off_z+zmin-self.off_band_z-self.h_band+self.off_band), (mx[nID], off_z+zmin-self.off_band_z-self.h_band-self.markerlength+self.off_band),  dxfattribs={'layer': 'band'})   
+#                    self.msp.add_line((mx[nID], off_z+zmin-self.off_band_z-2*self.h_band+self.off_band), (mx[nID], off_z+zmin-self.off_band_z-2*self.h_band+self.markerlength+self.off_band),  dxfattribs={'layer': 'band'})
                     text_stationing = self.msp.add_text("%.{0}f".format(self.dec)%(x1-self.profileStation[pID]), dxfattribs={'height': self.textheight_band, 'rotation': 90.0})
-                    text_stationing.set_pos((mx[nID], off_z+zmin-self.off_band_z-3*self.h_band/2.0), align='MIDDLE')
+                    text_stationing.set_pos((mx[nID], off_z+zmin-self.off_band_z-3*self.h_band/2.0+self.off_band), align='MIDDLE')
                     text_height = self.msp.add_text("%.{0}f".format(self.dec)%z[nID], dxfattribs={'height': self.textheight_band, 'rotation': 90.0})
-                    text_height.set_pos((mx[nID], off_z+zmin-self.off_band_z-self.h_band/2.0), align='MIDDLE')
+                    text_height.set_pos((mx[nID], off_z+zmin-self.off_band_z-self.h_band/2.0+self.off_band), align='MIDDLE')
 
             # draw bottom line
             self.msp.add_polyline2d(profilepoints, dxfattribs={'layer': 'profile'})

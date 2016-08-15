@@ -20,10 +20,11 @@ __date__ ="$18.05.2016 22:38:30$"
 import math
 import functools
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QFileDialog, QMessageBox
+from PyQt4.QtGui import QFileDialog, QMessageBox, QDialog
 
 # modules and classes
 from uiProfilesDXF import Ui_ProfilesDXF
+from uiProfileSettings import Ui_ProfileSettings
 import uiHandler as uih
 import fileHandler as fh
 import profileOrganizer as po
@@ -103,6 +104,8 @@ class WrapProfilesDXF():
         self.callbackSavePlan = functools.partial(uih.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputPlan, self.directory, self.widget)
         QtCore.QObject.connect(self.ui.pushButtonOutputPlan, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSavePlan)
 
+        QtCore.QObject.connect(self.ui.pushButtonProfileSettings, QtCore.SIGNAL("clicked()"), self.settings)
+        
         QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.create)
     
     def getCrossSections(self, mesh):
@@ -145,7 +148,12 @@ class WrapProfilesDXF():
             crossSections[pID] = [x,y,z,d]
             print "cross section", pID, "done"
         return crossSections
-        
+    
+    def settings(self):
+
+        self.uidialog = Ui_ProfileSettings()
+        self.uidialog.setupUi()
+    
     def create(self):
     
         info = "Input data:\n"
@@ -188,15 +196,16 @@ class WrapProfilesDXF():
                 name = self.ui.tableWidget.item(row, 1).text()
                 watersurface = fh.readT3StoShapely(filename)
                 wsCrossSections[name] = self.getCrossSections(watersurface)
-                
-        print wsCrossSections
+
+#        print wsCrossSections
         
         if self.ui.checkBoxOutputProfiles.isChecked():
             cs = ProfileWriter(self.ui.lineEditOutputProfiles.text(),\
                 bottomCrossSections,
                 self.reachStation,
                 self.profileStation)
-
+            
+            cs.dec = self.ui.spinBoxDecimal.value()
             cs.drawBottom()
             cs.drawWaterSurface(wsCrossSections)
             cs.saveDXF()

@@ -1282,49 +1282,58 @@ class ChEsher(QtGui.QMainWindow):
 
         ###   ~   module ProfilesDXF   ~   ###
         
-        self.moduleProfilesDXF.ui.lineEditInputProfiles.setText("K:/08-069_FA19B_RHB-Stanz/Wasserbau/Plaene/Ausfuehrungsplanung/AB_FB/DGM/Laengsdamm_Profile.i2s")
-        self.moduleProfilesDXF.ui.lineEditInputReach.setText("K:/08-069_FA19B_RHB-Stanz/Wasserbau/Plaene/Ausfuehrungsplanung/AB_FB/DGM/Laengsdamm_Achse.i2s")
-        self.moduleProfilesDXF.ui.lineEditInputBottom.setText("K:/08-069_FA19B_RHB-Stanz/Wasserbau/Plaene/Ausfuehrungsplanung/AB_FB/DGM/DGM_AB_FB_20151030.t3s")
-        self.moduleProfilesDXF.ui.lineEditInputReachName.setText("")
-
-        self.moduleProfilesDXF.ui.tableWidget.setRowCount(0)
-        self.moduleProfilesDXF.add()
-        
-        setEnabled(self.moduleProfilesDXF.ui.checkBoxOutputProfiles, self.moduleProfilesDXF.ui.pushButtonOutputProfiles, self.moduleProfilesDXF.ui.lineEditOutputProfiles)
-        self.moduleProfilesDXF.ui.lineEditOutputProfiles.setText("K:/08-069_FA19B_RHB-Stanz/Wasserbau/Plaene/Ausfuehrungsplanung/AB_FB/DGM/Laengdsdamm.dxf")
-
-#        ###   ~   module ProfilesDXF   ~   ###
-#        
-#        self.moduleProfilesDXF.ui.lineEditInputProfiles.setText(self.directory + "example_15/profiles.i2s")
-#        self.moduleProfilesDXF.ui.lineEditInputReach.setText(self.directory + "example_15/reach.i2s")
-#        self.moduleProfilesDXF.ui.lineEditInputBottom.setText(self.directory + "example_15/BOTTOM_Case_A.t3s")
-#        self.moduleProfilesDXF.ui.lineEditInputReachName.setText("Donau")
+#        self.moduleProfilesDXF.ui.lineEditInputProfiles.setText("K:/08-069_FA19B_RHB-Stanz/Wasserbau/Plaene/Ausfuehrungsplanung/AB_FB/DGM/Laengsdamm_Profile.i2s")
+#        self.moduleProfilesDXF.ui.lineEditInputReach.setText("K:/08-069_FA19B_RHB-Stanz/Wasserbau/Plaene/Ausfuehrungsplanung/AB_FB/DGM/Laengsdamm_Achse.i2s")
+#        self.moduleProfilesDXF.ui.lineEditInputBottom.setText("K:/08-069_FA19B_RHB-Stanz/Wasserbau/Plaene/Ausfuehrungsplanung/AB_FB/DGM/DGM_AB_FB_20151030.t3s")
+#        self.moduleProfilesDXF.ui.lineEditInputReachName.setText("")
 #
 #        self.moduleProfilesDXF.ui.tableWidget.setRowCount(0)
 #        self.moduleProfilesDXF.add()
 #        
-#        item1 = QtGui.QTableWidgetItem()
-#        item1.setText(self.directory + "example_15/FREE SURFACE_S161.t3s")
-#        self.moduleProfilesDXF.ui.tableWidget.setItem(0, 0, item1)
-#        
-#        item2 = QtGui.QTableWidgetItem()
-#        item2.setText("HQ100")
-#        self.moduleProfilesDXF.ui.tableWidget.setItem(0, 1, item2)
-#        
-#        row = self.moduleProfilesDXF.ui.tableWidget.currentRow()
-#        item3 = self.moduleProfilesDXF.ui.tableWidget.item(0, 2)
-#        initCol = item3.backgroundColor()
-#        initCol.setRed(200)
-#        initCol.setGreen(200)
-#        initCol.setBlue(255)
-#        item3 = QtGui.QTableWidgetItem()
-#        item3.setBackground(initCol)
-#        item3.setFlags(QtCore.Qt.ItemIsEnabled)
-#        item3.setText(str(initCol.red()) + ", " + str(initCol.green()) + ", " + str(initCol.blue()))
-#        self.moduleProfilesDXF.ui.tableWidget.setItem(0, 2, item3)
-#
 #        setEnabled(self.moduleProfilesDXF.ui.checkBoxOutputProfiles, self.moduleProfilesDXF.ui.pushButtonOutputProfiles, self.moduleProfilesDXF.ui.lineEditOutputProfiles)
-#        self.moduleProfilesDXF.ui.lineEditOutputProfiles.setText(self.directory + "example_15/output/profiles.dxf")
+#        self.moduleProfilesDXF.ui.lineEditOutputProfiles.setText("K:/08-069_FA19B_RHB-Stanz/Wasserbau/Plaene/Ausfuehrungsplanung/AB_FB/DGM/Laengdsdamm.dxf")
+
+#        ###   ~   module ProfilesDXF   ~   ###
+#        
+        self.moduleProfilesDXF.ui.lineEditInputProfiles.setText(self.directory + "example_15/profiles.i2s")
+        self.moduleProfilesDXF.ui.lineEditInputReach.setText(self.directory + "example_15/reach.i2s")
+        self.moduleProfilesDXF.ui.lineEditInputBottom.setText(self.directory + "example_15/BOTTOM_Case_A.t3s")
+        self.moduleProfilesDXF.ui.lineEditInputReachName.setText("Donau")
+
+        self.moduleProfilesDXF.ui.tableWidget.setRowCount(0)
+        self.moduleProfilesDXF.add()
+        self.moduleProfilesDXF.add()
+        
+        item1 = QtGui.QTableWidgetItem()
+        item1.setText(self.directory + "example_15/FREE SURFACE_S161_Case_A.t3s")
+        self.moduleProfilesDXF.ui.tableWidget.setItem(0, 0, item1)
+        
+        item2 = QtGui.QTableWidgetItem()
+        item2.setText("HQ100 Case A")
+        self.moduleProfilesDXF.ui.tableWidget.setItem(0, 1, item2)
+
+        item3 = QtGui.QTableWidgetItem()
+        item3.setText(self.directory + "example_15/FREE SURFACE_S161_Case_B.t3s")
+        self.moduleProfilesDXF.ui.tableWidget.setItem(1, 0, item3)
+
+        item4 = QtGui.QTableWidgetItem()
+        item4.setText("HQ100 Case B")
+        self.moduleProfilesDXF.ui.tableWidget.setItem(1, 1, item4)
+        
+        row = self.moduleProfilesDXF.ui.tableWidget.currentRow()
+        item3 = self.moduleProfilesDXF.ui.tableWidget.item(0, 2)
+        initCol = item3.backgroundColor()
+        initCol.setRed(200)
+        initCol.setGreen(200)
+        initCol.setBlue(255)
+        item3 = QtGui.QTableWidgetItem()
+        item3.setBackground(initCol)
+        item3.setFlags(QtCore.Qt.ItemIsEnabled)
+        item3.setText(str(initCol.red()) + ", " + str(initCol.green()) + ", " + str(initCol.blue()))
+        self.moduleProfilesDXF.ui.tableWidget.setItem(0, 2, item3)
+
+        setEnabled(self.moduleProfilesDXF.ui.checkBoxOutputProfiles, self.moduleProfilesDXF.ui.pushButtonOutputProfiles, self.moduleProfilesDXF.ui.lineEditOutputProfiles)
+        self.moduleProfilesDXF.ui.lineEditOutputProfiles.setText(self.directory + "example_15/output/profiles.dxf")
         
     def setDXF2BK(self):
         self.ui.labelModule.setText("~   Module DXF2BK   ~")

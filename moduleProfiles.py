@@ -65,7 +65,7 @@ class WrapProfiles():
         self.pointsNormalized = {}
         self.segmentStation = []
 
-# module Mesh
+# module Profiles
 
         self.callbackOpenProfilesFile = functools.partial(uih.getOpenFileName, "Open Profiles File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditInputProfiles, self.directory, self.widget)
         QtCore.QObject.connect(self.ui.pushButtonInputProfiles, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenProfilesFile)

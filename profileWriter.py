@@ -29,13 +29,16 @@ ezdxf.options.template_dir = pth.abspath('.')
 class ProfileWriter():
     """Writing cross sections to dxf file format"""
 
-    def __init__(self, fname, bottom, reachStation, profileStation):
+    def __init__(self, fname, bottom, reachStation, profileStation, scale, superelevation, settings):
         """Constructor."""
 
         self.fname = fname
         self.bottom = bottom
         self.reachStation = reachStation
         self.profileStation = profileStation
+        self.scale = scale
+        self.superelev = superelevation
+        self.settings = settings
         
         # 1d hydraulic entities
         self.ws1dNames = None
@@ -43,26 +46,52 @@ class ProfileWriter():
         self.levees = None
         
         self.nOfProfiles = len(self.bottom)
-        
+
+
+
         # user defined parameters
-        self.dec = 2
-        self.superelev = 1.0
-        self.scale = 100.0
         
-        scale_mm = self.scale/1000.0
-        self.drawBand = True
-        self.drawFrame = True
-        self.bereinig = 2.0
-        self.off_band_x = 75.0*scale_mm
-        self.off_band_z = 2.5*scale_mm
-        self.h_band = 15*scale_mm
-        self.textheight_bandtitle = 4.0*scale_mm
-        self.textheight_band = 1.5*scale_mm
-        self.markerlength = 1.5*scale_mm
-    
+        scale_mm = self.scale/1000.0        
+
+        self.drawFrame = self.settings["Frame"]
+        self.drawBand = self.settings["Band"]
+        self.ProfileName = self.settings["ProfileName"]
+        self.ReachStationPrefix = self.settings["ReachStation"]
+        self.ScaleFactorPrefix = self.settings["ScaleFactor"]
+        self.ReferenceLevelPrefix = self.settings["ReferenceLevel"]
+        self.BandTitleStationing = self.settings["BandTitleStationing"]
+        self.BandTitleElevation = self.settings["BandTitleElevation"]
+        self.dec = self.settings["DecimalPlaces"]
+        self.off_band_x = self.settings["doubleSpinBoxOffsetX"] * scale_mm
+        self.off_band_z = self.settings["doubleSpinBoxOffsetZ"] * scale_mm
+        self.h_band = self.settings["doubleSpinBoxBandHeight"] * scale_mm
+        self.textheight_bandtitle = self.settings["doubleSpinBoxTextSizeBandTitle"]*scale_mm
+        self.textheight_band = self.settings["doubleSpinBoxTextSizeBand"] * scale_mm
+        self.markerlength = self.settings["doubleSpinBoxMarkerSize"] * scale_mm
+        self.bereinig = self.settings["doubleSpinBoxCleanValues"]
+
         self.offVE = 0.0
         self.off_band = 0.0 * self.h_band
-        self.off_raster = 0.0        
+        self.off_raster = 0.0
+
+#        self.dec = 2
+#        self.superelev = 1.0
+#        self.scale = 100.0
+#        
+#        scale_mm = self.scale/1000.0
+#        self.drawBand = True
+#        self.drawFrame = True
+#        self.bereinig = 2.0
+#        self.off_band_x = 75.0*scale_mm
+#        self.off_band_z = 2.5*scale_mm
+#        self.h_band = 15*scale_mm
+#        self.textheight_bandtitle = 4.0*scale_mm
+#        self.textheight_band = 1.5*scale_mm
+#        self.markerlength = 1.5*scale_mm
+#    
+#        self.offVE = 0.0
+#        self.off_band = 0.0 * self.h_band
+#        self.off_raster = 0.0        
         
         # parameters
         
@@ -101,15 +130,15 @@ class ProfileWriter():
             self.msp.add_line((xmin, off_z+zmin),(xmax,off_z+zmin), dxfattribs={'layer': 'frame'})
                 
             # title
-            text_frame = self.msp.add_text("VE = %.1f m" % round(math.floor(min(z-self.offVE)), 2), dxfattribs={'height': self.textheight_bandtitle})
+            text_frame = self.msp.add_text(self.ReferenceLevelPrefix + "%.1f m" % round(math.floor(min(z-self.offVE)), 2), dxfattribs={'height': self.textheight_bandtitle})
             text_frame.set_pos((xmin-self.off_band_x+self.h_band/2.0, off_z+zmin), align='BOTTOM_LEFT')
-            text_pTitle = self.msp.add_text("Profil-Nr. {0}".format(self.nOfProfiles-pID+1), dxfattribs={'height': self.textheight_bandtitle*1.5})
+            text_pTitle = self.msp.add_text("{0}{1}".format(self.ProfileName, self.nOfProfiles-pID+1), dxfattribs={'height': self.textheight_bandtitle*1.5})
             text_pTitle.set_pos((xmin-self.off_band_x, off_z+zmax+self.textheight_bandtitle*1.5), align='BOTTOM_LEFT')
-            text_pKm = self.msp.add_text("km %.3f" % round(self.reachStation[pID]/1000,3), dxfattribs={'height': self.textheight_bandtitle})
+            text_pKm = self.msp.add_text(self.ReachStationPrefix + "%.3f" % round(self.reachStation[pID]/1000,3), dxfattribs={'height': self.textheight_bandtitle})
             text_pKm.set_pos((xmin-self.off_band_x, off_z+zmax), align='BOTTOM_LEFT')
 
             # scale factor
-            text_M = self.msp.add_text("M = 1:%i/%i"%(int(self.scale),int(self.scale/self.superelev)), dxfattribs={'height': 0.75*self.textheight_bandtitle})
+            text_M = self.msp.add_text(self.ScaleFactorPrefix + "1:%i/%i"%(int(self.scale),int(self.scale/self.superelev)), dxfattribs={'height': 0.75*self.textheight_bandtitle})
             text_M.set_pos((xmin-self.off_band_x, off_z+zmax-1.5*self.textheight_bandtitle*1.5), align='BOTTOM_LEFT')
 
             # axis
@@ -123,13 +152,13 @@ class ProfileWriter():
                 self.msp.add_line((xmin-self.off_band_x, off_z+zmin-self.off_band_z+self.off_band),(xmax,off_z+zmin-self.off_band_z+self.off_band), dxfattribs={'layer': 'frame'})
                 self.msp.add_line((xmin-self.off_band_x, off_z+zmin-self.off_band_z-self.h_band+self.off_band),(xmax,off_z+zmin-self.off_band_z-self.h_band+self.off_band), dxfattribs={'layer': 'frame'})
                 self.msp.add_line((xmin-self.off_band_x, off_z+zmin-self.off_band_z+self.off_band),(xmin-self.off_band_x,off_z+zmin-self.off_band_z-self.h_band+self.off_band), dxfattribs={'layer': 'frame'})
-                title_height = self.msp.add_text("Stationierung [m]", dxfattribs={'height': self.textheight_bandtitle})
+                title_height = self.msp.add_text(self.BandTitleStationing, dxfattribs={'height': self.textheight_bandtitle})
                 title_height.set_pos((xmin-self.off_band_x+self.h_band/2.0, off_z+zmin-self.off_band_z-self.h_band/2.0+self.off_band), align='MIDDLE_LEFT')
 
                 # stationing
                 self.msp.add_line((xmin-self.off_band_x, off_z+zmin-self.off_band_z-2*self.h_band+self.off_band),(xmax,off_z+zmin-self.off_band_z-2*self.h_band+self.off_band), dxfattribs={'layer': 'frame'})
                 self.msp.add_line((xmin-self.off_band_x, off_z+zmin-self.off_band_z-self.h_band+self.off_band),(xmin-self.off_band_x,off_z+zmin-self.off_band_z-2*self.h_band+self.off_band), dxfattribs={'layer': 'frame'})
-                title_stationing = self.msp.add_text("Hoehe [m]", dxfattribs={'height': self.textheight_bandtitle})
+                title_stationing = self.msp.add_text(self.BandTitleElevation, dxfattribs={'height': self.textheight_bandtitle})
                 title_stationing.set_pos((xmin-self.off_band_x+self.h_band/2.0, off_z+zmin-self.off_band_z-3*self.h_band/2.0+self.off_band), align='MIDDLE_LEFT')
 
             profilepoints = []
@@ -176,7 +205,7 @@ class ProfileWriter():
             # draw bottom line
             self.msp.add_polyline2d(profilepoints, dxfattribs={'layer': 'profile'})
 
-    def drawWaterSurface(self, ws):
+    def drawWaterSurface(self, ws, col):
         
         wsCounter = 0
         for name in ws:
@@ -232,8 +261,10 @@ class ProfileWriter():
                             text_height.set_pos((mx[mxcounter], off_z+zmin-self.off_band_z-(2+wsCounter-1./2.)*self.h_band), align='MIDDLE')
                             x0 = x1
                         
-                # draw bottom line
-                self.msp.add_polyline2d(profilepoints, dxfattribs={'layer': 'profile', 'color':1})
+                # draw water surface
+                poly = self.msp.add_polyline2d(profilepoints, dxfattribs={'layer': 'profile'})
+                print col[name]
+                poly.rgb = col[name]
 
     def draw1dResults(self):
         # print 1d water elevation

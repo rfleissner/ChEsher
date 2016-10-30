@@ -20,11 +20,13 @@ __date__ ="$18.05.2016 22:38:30$"
 import math
 import functools
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QFileDialog, QMessageBox, QDialog
+from PyQt4.QtGui import QFileDialog, QMessageBox, QDialog, QColor
 
 # modules and classes
 from uiProfilesDXF import Ui_ProfilesDXF
-from uiProfileSettings import Ui_ProfileSettings
+from profileSettings import WrapProfileSettings
+from colourHandler import Colour
+from matplotlib import colors
 import uiHandler as uih
 import fileHandler as fh
 import profileOrganizer as po
@@ -72,6 +74,24 @@ class WrapProfilesDXF():
 #        self.directory = directory
 #        
 
+        self.settings = {}
+        self.settings["Frame"] = True
+        self.settings["Band"] = True
+        self.settings["ProfileName"] = "Cross section "
+        self.settings["ReachStation"] = "km "
+        self.settings["ScaleFactor"] = "Scale = "
+        self.settings["ReferenceLevel"] = "RL = "
+        self.settings["BandTitleStationing"] = "Station [m]"
+        self.settings["BandTitleElevation"] = "Elevation [m]"
+        self.settings["DecimalPlaces"] = 2
+        self.settings["doubleSpinBoxOffsetX"] = 75.0
+        self.settings["doubleSpinBoxOffsetZ"] = 2.5
+        self.settings["doubleSpinBoxBandHeight"] = 15.0
+        self.settings["doubleSpinBoxTextSizeBandTitle"] = 4.0
+        self.settings["doubleSpinBoxTextSizeBand"] = 1.5
+        self.settings["doubleSpinBoxMarkerSize"] = 1.5
+        self.settings["doubleSpinBoxCleanValues"] = 0.0
+        
 # module ProfilesDXF
 
         self.callbackOpenProfilesFile = functools.partial(uih.getOpenFileName, "Open Profiles File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditInputProfiles, self.directory, self.widget)
@@ -103,11 +123,84 @@ class WrapProfilesDXF():
         
         self.callbackSavePlan = functools.partial(uih.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputPlan, self.directory, self.widget)
         QtCore.QObject.connect(self.ui.pushButtonOutputPlan, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSavePlan)
-
-        QtCore.QObject.connect(self.ui.pushButtonProfileSettings, QtCore.SIGNAL("clicked()"), self.settings)
+        
+        defaults = ["Template A", "Template B", "Template C"]
+        self.ui.comboBoxDefault.addItems(defaults)        
+        QtCore.QObject.connect(self.ui.pushButtonDefault, QtCore.SIGNAL(_fromUtf8("clicked()")), self.setDefault)
+        
+        QtCore.QObject.connect(self.ui.pushButtonProfileSettings, QtCore.SIGNAL("clicked()"), self.setSettings)
         
         QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.create)
-    
+        
+    def applyDefaults(self, dataSets, colHexRGB):
+
+        nLevels = len(dataSets)-1
+
+        self.ui.tableWidget.setRowCount(nLevels)
+        
+        for row in range(nLevels):
+            item1 = QtGui.QTableWidgetItem()
+            item1.setText(str(dataSets[row]))
+            self.ui.tableWidget.setItem(row, 0, item1)
+            
+            item2 = QtGui.QTableWidgetItem()
+            item2.setText(str(dataSets[row]))
+            self.ui.tableWidget.setItem(row, 1, item2)
+
+            col = colors.hex2color(colHexRGB[row])
+            colPy = QColor(int(col[0]*255),int(col[1]*255),int(col[2]*255))
+            item3 = QtGui.QTableWidgetItem()
+            item3.setBackground(colPy)
+            item3.setFlags(QtCore.Qt.ItemIsEnabled)
+            item3.setText(str(colPy.red()) + ", " + str(colPy.green()) + ", " + str(colPy.blue()))
+            self.ui.tableWidget.setItem(row, 2, item3)
+            
+    def setDefault(self):
+        
+        def RGB2HEX(RGB):
+            
+            HEX = []
+            for i in range(len(RGB)):
+                col = Colour(str(RGB[i]).split(","))
+                col.create()
+                HEX.append(col.getHexRGB())
+                
+            return HEX
+        
+        template = self.ui.comboBoxDefault.currentIndex()
+
+        # Template A
+        if template == 0:
+
+            dataSets = ["HQ30 IST", "HQ30 ZUK", "HQ100 IST", "HQ100 ZUK", "HQ300 IST", "HQ300 ZUK"]
+            col_RGB = ["190,232,255","116,179,255","55,141,255","18,107,238","0,77,168","232,190,255"]
+            col_HEX = RGB2HEX(col_RGB)
+            
+            self.applyDefaults(dataSets, col_HEX)
+
+            self.settings = {}
+            self.settings["Frame"] = True
+            self.settings["Band"] = True
+            self.settings["ProfileName"] = "Cross section "
+            self.settings["ReachStation"] = "km "
+            self.settings["ScaleFactor"] = "Scale = "
+            self.settings["ReferenceLevel"] = "RL = "
+            self.settings["BandTitleStationing"] = "Station [m]"
+            self.settings["BandTitleElevation"] = "Elevation [m]"
+            self.settings["DecimalPlaces"] = 2
+            self.settings["doubleSpinBoxOffsetX"] = 75.0
+            self.settings["doubleSpinBoxOffsetZ"] = 2.5
+            self.settings["doubleSpinBoxBandHeight"] = 15.0
+            self.settings["doubleSpinBoxTextSizeBandTitle"] = 4.0
+            self.settings["doubleSpinBoxTextSizeBand"] = 1.5
+            self.settings["doubleSpinBoxMarkerSize"] = 1.5
+            self.settings["doubleSpinBoxCleanValues"] = 0.0
+        
+#            self.ui.lineEditCont2DXFOutputLegendTitle.setText("Water depth")
+#            self.ui.lineEditCont2DXFOutputLegendSubtitle.setText("[m]")
+            
+
+            
     def getCrossSections(self, mesh):
 
         crossSections = dict((key, np.array([])) for key in self.proArranged)
@@ -149,11 +242,17 @@ class WrapProfilesDXF():
             print "cross section", pID, "done"
         return crossSections
     
-    def settings(self):
-
-        self.uidialog = Ui_ProfileSettings()
-        self.uidialog.setupUi()
     
+    def setSettings(self):
+
+        settings = WrapProfileSettings(self.settings)
+        settings.setSettings()
+    
+        if settings.exec_():
+            self.settings = settings.getSettings()
+            print "settings set"
+            print self.settings
+
     def create(self):
     
         info = "Input data:\n"
@@ -170,7 +269,16 @@ class WrapProfilesDXF():
         except:
             QMessageBox.critical(self.widget, "Error", "Not able to load reach file!\nCheck filename or content!")
             return
-
+        try:
+            rows = self.ui.tableWidget.rowCount()
+            for row in range(rows):
+                self.ui.tableWidget.item(row, 0).text()
+                self.ui.tableWidget.item(row, 1).text()
+                str(self.ui.tableWidget.item(row, 2).text()).split(",")[2]
+        except:
+            QMessageBox.critical(self.widget, "Error", "Check filename, surface name and colour!")
+            return            
+                
         self.proArranged, self.reachStation, self.profileStation, direction = po.determineFlowDirection(self.nodReach, self.nodProfiles, self.proProfiles)
         
 #        print self.proArranged
@@ -190,24 +298,33 @@ class WrapProfilesDXF():
         # create water surface cross sections
         rows = self.ui.tableWidget.rowCount()
         wsCrossSections = {}
+        colRGB = {}
         if rows > 0:
             for row in range(rows):
                 filename = self.ui.tableWidget.item(row, 0).text()
                 name = self.ui.tableWidget.item(row, 1).text()
                 watersurface = fh.readT3StoShapely(filename)
                 wsCrossSections[name] = self.getCrossSections(watersurface)
+                col = Colour(str(self.ui.tableWidget.item(row, 2).text()).split(","))
+                col.create()
+                colRGB[name] = col.getRGB()
 
-#        print wsCrossSections
+        print wsCrossSections
+        
+        scale = self.ui.spinBoxScale.value()
+        superelevation = self.ui.doubleSpinBoxSuperelevation.value()
         
         if self.ui.checkBoxOutputProfiles.isChecked():
             cs = ProfileWriter(self.ui.lineEditOutputProfiles.text(),\
                 bottomCrossSections,
                 self.reachStation,
-                self.profileStation)
+                self.profileStation,
+                scale,
+                superelevation,
+                self.settings)
             
-            cs.dec = self.ui.spinBoxDecimal.value()
             cs.drawBottom()
-            cs.drawWaterSurface(wsCrossSections)
+            cs.drawWaterSurface(wsCrossSections, colRGB)
             cs.saveDXF()
             
 #

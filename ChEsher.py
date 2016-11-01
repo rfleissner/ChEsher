@@ -20,7 +20,7 @@ __date__ ="$31.03.2015 18:21:40$"
 import sys
 import platform
 import functools
-import dxfgrabber
+
 import os
 from math import ceil, floor
 import matplotlib
@@ -30,6 +30,8 @@ from matplotlib import colors
 import matplotlib.pyplot as plt
 
 
+from moduleDXF2BK import WrapDXF2BK
+from moduleBK2DXF import WrapBK2DXF
 from moduleHyDesign import WrapHyDesign
 from moduleProfiles import WrapProfiles
 from moduleHEC2DXF import WrapHEC2DXF
@@ -102,31 +104,41 @@ class ChEsher(QtGui.QMainWindow):
         self.mesh = None
 
         self.logcounter = 0
+
+        # setup instance of module DXF2BK
+        self.moduleDXF2BK = WrapDXF2BK(self.directory)
+        self.widgetDXF2BK = self.moduleDXF2BK.widget
+        self.ui.stackedWidget.insertWidget(0, self.widgetDXF2BK)        
+
+        # setup instance of module BK2DXF
+        self.moduleBK2DXF = WrapBK2DXF(self.directory)
+        self.widgetBK2DXF = self.moduleBK2DXF.widget
+        self.ui.stackedWidget.insertWidget(1, self.widgetBK2DXF)   
         
         # setup instance of module HyDesign
         self.moduleHyDesign = WrapHyDesign()
         self.widgetHyDesign = self.moduleHyDesign.widget
-        self.ui.stackedWidget.insertWidget(11,self.widgetHyDesign)
+        self.ui.stackedWidget.insertWidget(11, self.widgetHyDesign)
 
         # setup instance of module Profiles
         self.moduleProfiles = WrapProfiles(self.directory)
         self.widgetProfiles = self.moduleProfiles.widget
-        self.ui.stackedWidget.insertWidget(12,self.widgetProfiles)    
+        self.ui.stackedWidget.insertWidget(12, self.widgetProfiles)    
         
         # setup instance of module HEC2DXF
         self.moduleHEC2DXF = WrapHEC2DXF(self.directory)
         self.widgetHEC2DXF = self.moduleHEC2DXF.widget
-        self.ui.stackedWidget.insertWidget(13,self.widgetHEC2DXF)  
+        self.ui.stackedWidget.insertWidget(13, self.widgetHEC2DXF)  
         
         # setup instance of module XYZ2DXF
         self.moduleXYZ2DXF = WrapXYZ2DXF(self.directory)
         self.widgetXYZ2DXF = self.moduleXYZ2DXF.widget
-        self.ui.stackedWidget.insertWidget(14,self.widgetXYZ2DXF)                
+        self.ui.stackedWidget.insertWidget(14, self.widgetXYZ2DXF)                
 
         # setup instance of module ProfilesDXF
         self.moduleProfilesDXF = WrapProfilesDXF(self.directory)
         self.widgetProfilesDXF = self.moduleProfilesDXF.widget
-        self.ui.stackedWidget.insertWidget(15,self.widgetProfilesDXF)   
+        self.ui.stackedWidget.insertWidget(15, self.widgetProfilesDXF)   
         
         # actions in menu
         self.fileSetDirectory = self.createAction("Set working directory", slot=self.setDirectory)
@@ -161,52 +173,6 @@ class ChEsher(QtGui.QMainWindow):
         self.addActions(self.moduleMenu, (self.setDXFtoBKAction, self.setBK2DXFAction, self.setMeshAction, self.setXMLAction, self.setScalarAction, self.setVectorAction, self.setCSAction, self.set2DMAction, self.setCont2DXFAction, self.setTubeAction, self.setHyDesignAction, self.setProfilesAction, self.setHEC2DXFAction, self.setXYZ2DXFAction, self.setProfilesDXFAction))
         self.addActions(self.helpMenu, (self.helpAction, None, self.helpAboutAction))
 
-
-# module DXF2BK
-        self.callbackOpenDXFFile = functools.partial(self.openDXFFile, "Open DXF-file", "Drawing Interchange File (*.dxf)", self.ui.lineEditDXF2BKInput)
-        QtCore.QObject.connect(self.ui.pushButtonDXF2BKInput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenDXFFile)
-
-        QtCore.QObject.connect(self.ui.pushButtonAdd, QtCore.SIGNAL(_fromUtf8("clicked()")), self.addLayer)
-        QtCore.QObject.connect(self.ui.pushButtonDelete, QtCore.SIGNAL(_fromUtf8("clicked()")), self.deleteLayer)
-
-        QtCore.QObject.connect(self.ui.pushButtonOpen, QtCore.SIGNAL(_fromUtf8("clicked()")), self.getSaveLayerName)
-        QtCore.QObject.connect(self.ui.pushButtonRefresh, QtCore.SIGNAL("clicked()"), self.refreshDXF)
-        QtCore.QObject.connect(self.ui.pushButtonDXF2BKConvert, QtCore.SIGNAL("clicked()"), self.createDXF2BK)
-
-        header = self.ui.tableWidgetDXF2BK.horizontalHeader()
-        header.setStretchLastSection(True)
-
-# module BK2DXF
-
-        self.callbackBK2DXFOpenMeshFile = functools.partial(self.getOpenFileName, "Open T3S-file", "2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s)", self.ui.lineEditBK2DXFInputMesh)
-        QtCore.QObject.connect(self.ui.pushButtonBK2DXFInputMesh, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackBK2DXFOpenMeshFile)
-
-        self.callbackBK2DXFOpenLineSetFile = functools.partial(self.getOpenFileName, "Open Line Set", "Line Sets (*.i2s *.i3s)", self.ui.lineEditBK2DXFInputLineSet)
-        QtCore.QObject.connect(self.ui.pushButtonBK2DXFInputLineSet, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackBK2DXFOpenLineSetFile)
-        
-
-        self.callbackBK2DXFOutMesh = functools.partial(self.getSaveFileName, "Save Mesh As", "Drawing Interchange File (*.dxf)", self.ui.lineEditBK2DXFOutputMesh)
-        QtCore.QObject.connect(self.ui.pushButtonBK2DXFOutputMesh, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackBK2DXFOutMesh)
-
-        self.callbackBK2DXFOutLineSet = functools.partial(self.getSaveFileName, "Save Line Set As", "Drawing Interchange File (*.dxf)", self.ui.lineEditBK2DXFOutputLineSet)
-        QtCore.QObject.connect(self.ui.pushButtonBK2DXFOutputLineSet, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackBK2DXFOutLineSet)
-
-        self.callbackBK2DXFOutCheckMesh = functools.partial(self.setEnabled, self.ui.checkBoxBK2DXFOutputMesh, self.ui.pushButtonBK2DXFOutputMesh, self.ui.lineEditBK2DXFOutputMesh)
-        QtCore.QObject.connect(self.ui.checkBoxBK2DXFOutputMesh, QtCore.SIGNAL("clicked()"), self.callbackBK2DXFOutCheckMesh)
-        
-        self.callbackBK2DXFOutCheckLineSet= functools.partial(self.setEnabled, self.ui.checkBoxBK2DXFOutputLineSet, self.ui.pushButtonBK2DXFOutputLineSet, self.ui.lineEditBK2DXFOutputLineSet)
-        QtCore.QObject.connect(self.ui.checkBoxBK2DXFOutputLineSet, QtCore.SIGNAL("clicked()"), self.callbackBK2DXFOutCheckLineSet)
-        
-        self.typeDXFmesh = 1
-        
-        self.callback3DFace = functools.partial(self.setTypeDXFmesh, 1)
-        QtCore.QObject.connect(self.ui.radioButtonBK2DXF3DFace, QtCore.SIGNAL("clicked()"), self.callback3DFace)
-        
-        self.callbackPolyline = functools.partial(self.setTypeDXFmesh, 2)
-        QtCore.QObject.connect(self.ui.radioButtonBK2DXFPolyline, QtCore.SIGNAL("clicked()"), self.callbackPolyline)
-        
-        QtCore.QObject.connect(self.ui.pushButtonBK2DXFCreate, QtCore.SIGNAL("clicked()"), self.createBK2DXF)
-        
 # module Mesh
 
         self.callbackOpenProfilesFile = functools.partial(self.getOpenFileName, "Open Profiles File", "Line Sets (*.i3s)", self.ui.lineEditProfiles)
@@ -475,11 +441,11 @@ class ChEsher(QtGui.QMainWindow):
         QtCore.QObject.connect(self.ui.pushButtonTubeCreate, QtCore.SIGNAL("clicked()"), self.createTube)
 
 
-#        self.setDXF2BK()
+        self.setDXF2BK()
 #        self.setCont2DXF()
 #        self.setHEC2DXF()
 #        self.setProfiles()
-        self.setProfilesDXF()
+#        self.setProfilesDXF()
         self.initialize()
 
         
@@ -489,9 +455,6 @@ class ChEsher(QtGui.QMainWindow):
         
     def setSymbol(self, i):
         self.scalarSymbol = i
-        
-    def setTypeDXFmesh(self, i):
-        self.typeDXFmesh = i
         
     def createLandXML(self):
         nodes, mesh = fh.readT3S(self.ui.lineEditLandXMLInputMesh.text())
@@ -731,45 +694,6 @@ class ChEsher(QtGui.QMainWindow):
                 info += " - ERROR: Not able to write node string 7!\n"
 
         QMessageBox.information(self, "Module 2DM2BK", info)
-        
-    def createDXF2BK(self):
-        info = ""
-        rows = self.ui.tableWidgetDXF2BK.rowCount()
-        if rows > 0:
-            for row in range(rows):
-                combobox = self.ui.tableWidgetDXF2BK.cellWidget(row, 0)
-
-                filename = self.ui.tableWidgetDXF2BK.item(row, 1).text()
-                layer = combobox.itemText(combobox.currentIndex())
-                type = filename.split(".")[-1]
-
-                nodes = {}
-                strings = {}
-
-                if type == "i2s":
-                    try:
-                        nodes, strings = fh.readDXF(self.dxf, layer)
-                        fh.writeI2S(nodes, strings, filename)
-                        info += " - {0} object(s) from type *.i2s converted to file \n\t{1}\n".format(len(strings), filename)
-                    except Exception, e:
-                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.i2s: ' + str(e))
-                elif type == "i3s":
-                    try:
-                        nodes, strings = fh.readDXF(self.dxf, layer)
-                        fh.writeI3S(nodes, strings, filename)
-                        info += " - {0} object(s) from type *.i3s converted to file \n\t{1}\n".format(len(strings), filename)
-                    except Exception, e:
-                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.i3s: ' + str(e))
-                elif type == "xyz":
-                    try:
-                        nodes, strings = fh.readDXF(self.dxf, layer)
-                        fh.writeXYZ(nodes, filename)
-                        info += " - {0} object(s) from type *.xyz converted to file \n\t{1}\n".format(len(nodes), filename)
-                    except Exception, e:
-                        QMessageBox.critical(self, "Module DXF2BK", 'Type *.xyz: ' + str(e))
-                else:
-                    continue                
-        QMessageBox.information(self, "Module DXF2BK", info)
     
     def getLevels(self):
         levels = []
@@ -1036,27 +960,6 @@ class ChEsher(QtGui.QMainWindow):
 
         QMessageBox.information(self, "Module Cont2DXF", info)
 
-    def getSaveLayerName(self):
-        row = self.ui.tableWidgetDXF2BK.currentRow()
-        filetype = ("2D Line Set (*.i2s);;3D Line Set (*.i3s);;Point Set (*.xyz)")
-        filename = QFileDialog.getSaveFileName(self, "Save Layer As", self.directory, filetype)
-
-        if filename != "":
-            item = QtGui.QTableWidgetItem()
-            item.setText(filename)
-            self.ui.tableWidgetDXF2BK.setItem(row, 1, item)
-        
-    def addLayer(self):
-        dropdownLayer = QtGui.QComboBox(self)
-        
-        rows = self.ui.tableWidgetDXF2BK.rowCount()
-
-        self.ui.tableWidgetDXF2BK.insertRow(rows)
-        self.ui.tableWidgetDXF2BK.setCellWidget(rows, 0, dropdownLayer)
-        item = QtGui.QTableWidgetItem()
-        item.setText("")
-        self.ui.tableWidgetDXF2BK.setItem(rows, 1, item)
-
     def addLevel(self):
         row = self.ui.tableWidgetCont2DXF.currentRow()
         item = QtGui.QTableWidgetItem()
@@ -1065,10 +968,6 @@ class ChEsher(QtGui.QMainWindow):
             row = 0
         self.ui.tableWidgetCont2DXF.insertRow(row)
         self.ui.tableWidgetCont2DXF.setItem(row, 2, item)
-        
-    def deleteLayer(self):
-        row = self.ui.tableWidgetDXF2BK.currentRow()
-        self.ui.tableWidgetDXF2BK.removeRow(row)
 
     def deleteLevel(self):
         row = self.ui.tableWidgetCont2DXF.currentRow()
@@ -1110,15 +1009,15 @@ class ChEsher(QtGui.QMainWindow):
         
         ###   ~   module DXF2BK   ~   ###
         
-        self.ui.tableWidgetDXF2BK.setRowCount(0)
-        self.ui.lineEditDXF2BKInput.setText(self.directory + "example_01/geometry.dxf")
-        self.addLayer()
-        self.addLayer()
-        self.addLayer()
-        self.addLayer()
-        self.refreshDXF()
+        self.moduleDXF2BK.ui.tableWidget.setRowCount(0)
+        self.moduleDXF2BK.ui.lineEditInput.setText(self.directory + "example_01/geometry.dxf")
+        self.moduleDXF2BK.addLayer()
+        self.moduleDXF2BK.addLayer()
+        self.moduleDXF2BK.addLayer()
+        self.moduleDXF2BK.addLayer()
+        self.moduleDXF2BK.refreshDXF()
         
-        rows = self.ui.tableWidgetDXF2BK.rowCount()
+        rows = self.moduleDXF2BK.ui.tableWidget.rowCount()
 
         indices = [1, 2, 3, 4]
         files = [self.directory + "example_01/output/2D_POLYLINE.i2s",
@@ -1127,21 +1026,15 @@ class ChEsher(QtGui.QMainWindow):
                 self.directory + "example_01/output/POINT.xyz"]
 
         for row in range(rows):
-            combobox = self.ui.tableWidgetDXF2BK.cellWidget(row, 0)
+            combobox = self.moduleDXF2BK.ui.tableWidget.cellWidget(row, 0)
             combobox.setCurrentIndex(indices[row])
             item3 = QtGui.QTableWidgetItem()
             item3.setText(files[row])
-            self.ui.tableWidgetDXF2BK.setItem(row, 1, item3)
+            self.moduleDXF2BK.ui.tableWidget.setItem(row, 1, item3)
 
         ###   ~   module BK2DXF   ~   ###
         
-        self.ui.lineEditBK2DXFInputMesh.setText(self.directory + "example_02/WATER DEPTH_S161_Case_A.t3s")
-        self.ui.lineEditBK2DXFInputLineSet.setText(self.directory + "example_02/WATER DEPTH_S161_Case_A(IsoLine).i2s")        
-        setEnabled(self.ui.checkBoxBK2DXFOutputMesh, self.ui.pushButtonBK2DXFOutputMesh, self.ui.lineEditBK2DXFOutputMesh)
-        setEnabled(self.ui.checkBoxBK2DXFOutputLineSet, self.ui.pushButtonBK2DXFOutputLineSet, self.ui.lineEditBK2DXFOutputLineSet)
-        
-        self.ui.lineEditBK2DXFOutputMesh.setText(self.directory + "example_02/output/mesh.dxf")        
-        self.ui.lineEditBK2DXFOutputLineSet.setText(self.directory + "example_02/output/contour.dxf")        
+        self.moduleBK2DXF.initialize()
         
         ###   ~   module Mesh   ~   ###
         
@@ -1397,10 +1290,13 @@ class ChEsher(QtGui.QMainWindow):
         
     def setDirectory(self):
         dir = QFileDialog.getExistingDirectory(self, "Select directory", self.directory)
-        self.moduleProfiles.setDir(dir)
-        self.moduleHEC2DXF.setDir(dir)
-        self.moduleXYZ2DXF.setDir(dir)
+
         if dir != "":
+            self.moduleDXF2BK.setDir(dir)
+            self.moduleProfiles.setDir(dir)
+            self.moduleHEC2DXF.setDir(dir)
+            self.moduleXYZ2DXF.setDir(dir)
+            self.moduleProfilesDXF.setDir(dir)
             self.directory = dir
         else:
             return
@@ -1795,61 +1691,6 @@ class ChEsher(QtGui.QMainWindow):
             return
     
         QMessageBox.information(self, "Module Tube", info)
-
-    def createBK2DXF(self):
-
-        info = ""
-        info += "Input data:\n"
-        
-        # read input meshes
-        nodes = {}
-        mesh = {}
-        if self.ui.lineEditBK2DXFInputMesh.text() != "":
-            try:
-                nodes, mesh = fh.readT3S(self.ui.lineEditBK2DXFInputMesh.text())
-                info += " - Mesh loaded with {0} nodes and {1} elements.\n".format(len(nodes), len(mesh))
-            except:
-                QMessageBox.critical(self, "Error", "Not able to load mesh file!\nCheck filename or content!")
-                return
-
-        # read input line sets
-        linesetNodes = {}
-        lineset = {}
-        dim = 2
-        if self.ui.lineEditBK2DXFInputLineSet.text() != "":
-            try:
-                if self.ui.lineEditBK2DXFInputLineSet.text().split(".")[-1] == "i2s":
-                    linesetNodes, lineset = fh.readI2S(self.ui.lineEditBK2DXFInputLineSet.text())                
-                    dim = 2
-                else:
-                    linesetNodes, lineset = fh.readI3S(self.ui.lineEditBK2DXFInputLineSet.text())
-                    dim = 3
-                info += " - Line set loaded with {0} lines and {1} nodes.\n".format(len(lineset), len(linesetNodes))
-            except:
-                QMessageBox.critical(self, "Error", "Not able to load line set!\nCheck filename or content!")
-                return
-
-        info += "\nOutput data:\n"
-        
-        # write mesh
-        if self.ui.checkBoxBK2DXFOutputMesh.isChecked() and self.ui.lineEditBK2DXFInputMesh.text() != "":
-            try:
-                fh.writeMeshDXF(self.ui.lineEditBK2DXFOutputMesh.text(), nodes, mesh, self.typeDXFmesh)
-                info += " - Mesh written to {0}.\n".format(self.ui.lineEditBK2DXFOutputMesh.text())
-            except:
-                QMessageBox.critical(self, "Error", "Not able to write mesh!")
-                return
-            
-        # write line set
-        if self.ui.checkBoxBK2DXFOutputLineSet.isChecked() and self.ui.lineEditBK2DXFInputLineSet.text() != "":
-            try:
-                fh.writeLineSetDXF(self.ui.lineEditBK2DXFOutputLineSet.text(), linesetNodes, lineset, dim)
-                info += " - Line set written to {0}.\n".format(self.ui.lineEditBK2DXFOutputLineSet.text())
-            except:
-                QMessageBox.critical(self, "Error", "Not able to write line sets!")
-                return
-    
-        QMessageBox.information(self, "Module BK2DXF", info)
         
     def createMesh(self):
         info = "Input data:\n"
@@ -2099,44 +1940,6 @@ class ChEsher(QtGui.QMainWindow):
     def setEnabledLegend(self):
         checked = self.ui.checkBoxCont2DXFOutputLegend.isChecked()
         self.ui.widgetCont2DXFLegend.setEnabled(checked)
-        
-    def refreshDXF(self):
-        
-        filename = self.ui.lineEditDXF2BKInput.text()
-        self.dxf = None
-        self.dxf = dxfgrabber.readfile(str(filename))
-        try:
-            self.dxf = dxfgrabber.readfile(str(filename))
-        except Exception:
-            QMessageBox.critical(self, "File error", "File not found!")
-            self.ui.lineEditDXF.selectAll()
-            self.ui.lineEditDXF.setFocus()
-            return
-
-        self.layers = ()
-        for layer in self.dxf.layers:
-            self.layers = self.layers + (layer.name,)
-        sorted_layers = sorted(self.layers)
-        rows = self.ui.tableWidgetDXF2BK.rowCount()
-        if rows > 0:
-            for row in range(rows):
-                combobox = self.ui.tableWidgetDXF2BK.cellWidget(row, 0)
-                temp = u"{0}".format(combobox.itemText(combobox.currentIndex()))
-                combobox.clear()
-                combobox.setInsertPolicy(6)
-                combobox.addItems(sorted_layers)
-                if temp in sorted_layers:
-                    combobox.setCurrentIndex(sorted_layers.index(temp))
-                else:
-                    combobox.setCurrentIndex(combobox.findText("0"))
-                self.ui.tableWidgetDXF2BK.setCellWidget(rows, 0, combobox)
-                
-    def openDXFFile(self, title, fileFormat, lineEdit):
-        
-        filename = QFileDialog.getOpenFileName(self, title, self.directory, fileFormat)
-        if filename == "": return
-        lineEdit.setText(filename)
-        self.refreshDXF()
         
     def getOpenFileName(self, title, fileFormat, lineEdit):
         filename = QFileDialog.getOpenFileName(self, title, self.directory, fileFormat)

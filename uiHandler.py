@@ -22,11 +22,13 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QFileDialog
 
 def getOpenFileName(title, fileFormat, lineEdit, directory, wid):
+    print "open", title, fileFormat, lineEdit, directory, wid
     filename = QFileDialog.getOpenFileName(wid, title, directory, fileFormat)
     if filename != "":
         lineEdit.setText(filename)
 
 def getSaveFileName(title, fileFormat, lineEdit, directory, wid):
+    print "save", directory
     filename = QFileDialog.getSaveFileName(wid, title, directory, fileFormat)
     if filename != "":
         lineEdit.setText(filename)
@@ -35,3 +37,8 @@ def setEnabled(checkBox, pushButton, lineEdit):
         checked = checkBox.isChecked()
         pushButton.setEnabled(checked)
         lineEdit.setEnabled(checked)
+        
+def setEnabledInitialize(checkBox, pushButton, lineEdit):
+    checkBox.setChecked(True)
+    pushButton.setEnabled(True)
+    lineEdit.setEnabled(True)

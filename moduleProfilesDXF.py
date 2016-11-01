@@ -32,10 +32,9 @@ import fileHandler as fh
 import profileOrganizer as po
 #import profileWriter as pw
 from profileWriter import ProfileWriter
-import macro as mc
 import numpy as np
-import ezdxf
-from shapely.geometry import MultiLineString, LineString, LinearRing, Point
+import copy
+from shapely.geometry import LineString, Point
 
 
 try:
@@ -131,16 +130,20 @@ class WrapProfilesDXF():
         QtCore.QObject.connect(self.ui.pushButtonProfileSettings, QtCore.SIGNAL("clicked()"), self.setSettings)
         
         QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.create)
-        
+
+    def setDir(self, directory):
+        self.directory = copy.copy(directory)
+        print "set", self.directory
+    
     def applyDefaults(self, dataSets, colHexRGB):
 
         nLevels = len(dataSets)-1
 
         self.ui.tableWidget.setRowCount(nLevels)
-        
+        print "apply", self.directory
         for row in range(nLevels):
             item1 = QtGui.QTableWidgetItem()
-            item1.setText(str(dataSets[row]))
+            item1.setText(self.directory + str(dataSets[row]))
             self.ui.tableWidget.setItem(row, 0, item1)
             
             item2 = QtGui.QTableWidgetItem()
@@ -181,6 +184,35 @@ class WrapProfilesDXF():
             self.settings = {}
             self.settings["Frame"] = True
             self.settings["Band"] = True
+            self.settings["ProfileName"] = "Profil Nr. "
+            self.settings["ReachStation"] = "km "
+            self.settings["ScaleFactor"] = "Massstab = "
+            self.settings["ReferenceLevel"] = "VE = "
+            self.settings["BandTitleStationing"] = "Stationierung [m]"
+            self.settings["BandTitleElevation"] = "Gelaendehoehe [m]"
+            self.settings["DecimalPlaces"] = 2
+            self.settings["doubleSpinBoxOffsetX"] = 75.0
+            self.settings["doubleSpinBoxOffsetZ"] = 2.5
+            self.settings["doubleSpinBoxBandHeight"] = 15.0
+            self.settings["doubleSpinBoxTextSizeBandTitle"] = 4.0
+            self.settings["doubleSpinBoxTextSizeBand"] = 1.5
+            self.settings["doubleSpinBoxMarkerSize"] = 1.5
+            self.settings["doubleSpinBoxCleanValues"] = 0.0
+        
+#            self.ui.lineEditCont2DXFOutputLegendTitle.setText("Water depth")
+#            self.ui.lineEditCont2DXFOutputLegendSubtitle.setText("[m]")
+
+        # Template B
+        if template == 1:
+
+            dataSets = ["HQ30", "HQ100"]
+            col_RGB = ["190,232,255","116,179,255"]
+            col_HEX = RGB2HEX(col_RGB)
+            
+            self.applyDefaults(dataSets, col_HEX)
+
+            self.settings["Frame"] = True
+            self.settings["Band"] = True
             self.settings["ProfileName"] = "Cross section "
             self.settings["ReachStation"] = "km "
             self.settings["ScaleFactor"] = "Scale = "
@@ -195,10 +227,6 @@ class WrapProfilesDXF():
             self.settings["doubleSpinBoxTextSizeBand"] = 1.5
             self.settings["doubleSpinBoxMarkerSize"] = 1.5
             self.settings["doubleSpinBoxCleanValues"] = 0.0
-        
-#            self.ui.lineEditCont2DXFOutputLegendTitle.setText("Water depth")
-#            self.ui.lineEditCont2DXFOutputLegendSubtitle.setText("[m]")
-            
 
             
     def getCrossSections(self, mesh):

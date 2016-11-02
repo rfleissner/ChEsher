@@ -74,21 +74,6 @@ class WrapBK2DXF():
         QtCore.QObject.connect(self.ui.radioButtonPolyline, QtCore.SIGNAL("clicked()"), self.callbackPolyline)
         
         QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.create)
-        
-        
-#
-#        self.callbackOpenDXFFile = functools.partial(uih.getOpenFileName, "Open DXF-file", "Drawing Interchange File (*.dxf)", self.ui.lineEditInput, self.directory, self.widget)
-#        QtCore.QObject.connect(self.ui.pushButtonInput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenDXFFile)
-#
-#        QtCore.QObject.connect(self.ui.pushButtonAdd, QtCore.SIGNAL(_fromUtf8("clicked()")), self.addLayer)
-#        QtCore.QObject.connect(self.ui.pushButtonDelete, QtCore.SIGNAL(_fromUtf8("clicked()")), self.deleteLayer)
-#
-#        QtCore.QObject.connect(self.ui.pushButtonOpen, QtCore.SIGNAL(_fromUtf8("clicked()")), self.getSaveLayerName)
-#        QtCore.QObject.connect(self.ui.pushButtonRefresh, QtCore.SIGNAL("clicked()"), self.refreshDXF)
-#        QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.create)
-#
-#        header = self.ui.tableWidget.horizontalHeader()
-#        header.setStretchLastSection(True)
 
     def setTypeDXFmesh(self, i):
         self.typeDXFmesh = i

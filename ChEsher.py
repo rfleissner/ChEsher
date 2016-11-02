@@ -32,6 +32,9 @@ import matplotlib.pyplot as plt
 
 from moduleDXF2BK import WrapDXF2BK
 from moduleBK2DXF import WrapBK2DXF
+from moduleMesh import WrapMesh
+from moduleLandXML import WrapLandXML
+from moduleScalarDXF import WrapScalarDXF
 from moduleHyDesign import WrapHyDesign
 from moduleProfiles import WrapProfiles
 from moduleHEC2DXF import WrapHEC2DXF
@@ -53,9 +56,9 @@ from PyQt4.QtCore import PYQT_VERSION_STR, QT_VERSION_STR, Qt, SIGNAL
 # modules and classes
 
 import fileHandler as fh
-import macro as mc
-import ewsEnSim as ws
-from calcMesh import CalcMesh
+
+
+
 from uiChEsher import Ui_MainWindow
 from resource_rc import *
 
@@ -114,6 +117,21 @@ class ChEsher(QtGui.QMainWindow):
         self.moduleBK2DXF = WrapBK2DXF(self.directory)
         self.widgetBK2DXF = self.moduleBK2DXF.widget
         self.ui.stackedWidget.insertWidget(1, self.widgetBK2DXF)   
+
+        # setup instance of module Mesh
+        self.moduleMesh = WrapMesh(self.directory)
+        self.widgetMesh = self.moduleMesh.widget
+        self.ui.stackedWidget.insertWidget(2, self.widgetMesh)   
+
+        # setup instance of module LandXML
+        self.moduleLandXML = WrapLandXML(self.directory)
+        self.widgetLandXML = self.moduleLandXML.widget
+        self.ui.stackedWidget.insertWidget(3, self.widgetLandXML)   
+        
+        # setup instance of module ScalarDXF
+        self.moduleScalarDXF = WrapScalarDXF(self.directory)
+        self.widgetScalarDXF = self.moduleScalarDXF.widget
+        self.ui.stackedWidget.insertWidget(4, self.widgetScalarDXF)  
         
         # setup instance of module HyDesign
         self.moduleHyDesign = WrapHyDesign()
@@ -172,110 +190,7 @@ class ChEsher(QtGui.QMainWindow):
         self.addActions(self.fileMenu, (self.fileSetDirectory, self.fileSetExamples, None, self.fileQuitAction))
         self.addActions(self.moduleMenu, (self.setDXFtoBKAction, self.setBK2DXFAction, self.setMeshAction, self.setXMLAction, self.setScalarAction, self.setVectorAction, self.setCSAction, self.set2DMAction, self.setCont2DXFAction, self.setTubeAction, self.setHyDesignAction, self.setProfilesAction, self.setHEC2DXFAction, self.setXYZ2DXFAction, self.setProfilesDXFAction))
         self.addActions(self.helpMenu, (self.helpAction, None, self.helpAboutAction))
-
-# module Mesh
-
-        self.callbackOpenProfilesFile = functools.partial(self.getOpenFileName, "Open Profiles File", "Line Sets (*.i3s)", self.ui.lineEditProfiles)
-        QtCore.QObject.connect(self.ui.pushButtonProfiles, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenProfilesFile)
-
-        self.callbackOpenReachFile = functools.partial(self.getOpenFileName, "Open Reach File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditReach)
-        QtCore.QObject.connect(self.ui.pushButtonReach, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenReachFile)
-
-        self.callbackOpenLBLFile = functools.partial(self.getOpenFileName, "Open Left Breakline File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditLBL)
-        QtCore.QObject.connect(self.ui.pushButtonLBL, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenLBLFile)
-
-        self.callbackOpenRBLFile = functools.partial(self.getOpenFileName, "Open Right Breakline File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditRBL)
-        QtCore.QObject.connect(self.ui.pushButtonRBL, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenRBLFile)
-
-        self.callbackOpenLBOFile = functools.partial(self.getOpenFileName, "Open Left Boundary File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditLBO)
-        QtCore.QObject.connect(self.ui.pushButtonLBO, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenLBOFile)
-
-        self.callbackOpenRBOFile = functools.partial(self.getOpenFileName, "Open Right Boundary File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditRBO)
-        QtCore.QObject.connect(self.ui.pushButtonRBO, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenRBOFile)
-
-        self.callbackSaveMeshFile = functools.partial(self.getSaveFileName, "Save Mesh As", "2D T3 Mesh (*.t3s)", self.ui.lineEditMesh)
-        QtCore.QObject.connect(self.ui.pushButtonMesh, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveMeshFile)
-
-        self.callbackSaveIPFile = functools.partial(self.getSaveFileName, "Save Interpolated Profiles As", "Line Sets (*.i3s)", self.ui.lineEditIP)
-        QtCore.QObject.connect(self.ui.pushButtonIP, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveIPFile)
-
-        self.callbackSaveLEFile = functools.partial(self.getSaveFileName, "Save Left Edge As", "Line Sets (*.i3s)", self.ui.lineEditLE)
-        QtCore.QObject.connect(self.ui.pushButtonLE, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveLEFile)
-
-        self.callbackSaveREFile = functools.partial(self.getSaveFileName, "Save Right Edge As", "Line Sets (*.i3s)", self.ui.lineEditRE)
-        QtCore.QObject.connect(self.ui.pushButtonRE, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveREFile)
-
-        self.callbackSaveOLFile = functools.partial(self.getSaveFileName, "Save Outline As", "Line Sets (*.i3s)", self.ui.lineEditOL)
-        QtCore.QObject.connect(self.ui.pushButtonOL, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveOLFile)
-
-        self.callbackSaveWSFile = functools.partial(self.getSaveFileName, "Save Workspace As", "EnSim WorkSpace File (*.ews)", self.ui.lineEditWS)
-        QtCore.QObject.connect(self.ui.pushButtonWS, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveWSFile)
-
-        self.callbackLBL = functools.partial(self.setEnabledBL, self.ui.checkBoxLBL, self.ui.pushButtonLBL, self.ui.lineEditLBL, self.ui.spinBoxNNL)
-        QtCore.QObject.connect(self.ui.checkBoxLBL, QtCore.SIGNAL("clicked()"), self.callbackLBL)
-
-        self.callbackRBL = functools.partial(self.setEnabledBL, self.ui.checkBoxRBL, self.ui.pushButtonRBL, self.ui.lineEditRBL, self.ui.spinBoxNNR)
-        QtCore.QObject.connect(self.ui.checkBoxRBL, QtCore.SIGNAL("clicked()"), self.callbackRBL)
-
-        self.callbackLBO = functools.partial(self.setEnabled, self.ui.checkBoxLBO, self.ui.pushButtonLBO, self.ui.lineEditLBO)
-        QtCore.QObject.connect(self.ui.checkBoxLBO, QtCore.SIGNAL("clicked()"), self.callbackLBO)
-
-        self.callbackRBO = functools.partial(self.setEnabled, self.ui.checkBoxRBO, self.ui.pushButtonRBO, self.ui.lineEditRBO)
-        QtCore.QObject.connect(self.ui.checkBoxRBO, QtCore.SIGNAL("clicked()"), self.callbackRBO)
-
-        self.callbackMesh = functools.partial(self.setEnabled, self.ui.checkBoxMesh, self.ui.pushButtonMesh, self.ui.lineEditMesh)
-        QtCore.QObject.connect(self.ui.checkBoxMesh, QtCore.SIGNAL("clicked()"), self.callbackMesh)
-
-        self.callbackIP = functools.partial(self.setEnabled, self.ui.checkBoxIP, self.ui.pushButtonIP, self.ui.lineEditIP)
-        QtCore.QObject.connect(self.ui.checkBoxIP, QtCore.SIGNAL("clicked()"), self.callbackIP)
-
-        self.callbackLE = functools.partial(self.setEnabled, self.ui.checkBoxLE, self.ui.pushButtonLE, self.ui.lineEditLE)
-        QtCore.QObject.connect(self.ui.checkBoxLE, QtCore.SIGNAL("clicked()"), self.callbackLE)
-
-        self.callbackRE = functools.partial(self.setEnabled, self.ui.checkBoxRE, self.ui.pushButtonRE, self.ui.lineEditRE)
-        QtCore.QObject.connect(self.ui.checkBoxRE, QtCore.SIGNAL("clicked()"), self.callbackRE)
-
-        self.callbackOL = functools.partial(self.setEnabled, self.ui.checkBoxOL, self.ui.pushButtonOL, self.ui.lineEditOL)
-        QtCore.QObject.connect(self.ui.checkBoxOL, QtCore.SIGNAL("clicked()"), self.callbackOL)
-
-        self.callbackWS = functools.partial(self.setEnabled, self.ui.checkBoxWS, self.ui.pushButtonWS, self.ui.lineEditWS)
-        QtCore.QObject.connect(self.ui.checkBoxWS, QtCore.SIGNAL("clicked()"), self.callbackWS)
-
-        QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.createMesh)
                 
-# module XML
-        self.callbackOpenMeshFile = functools.partial(self.getOpenFileName, "Open T3S-file", "2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s)", self.ui.lineEditLandXMLInputMesh)
-        QtCore.QObject.connect(self.ui.pushButtonLandXMLInputMesh, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenMeshFile)
-
-        self.callbackSaveXMLFile = functools.partial(self.getSaveFileName, "Save Mesh As", "LandXML (*.xml)", self.ui.lineEditLandXMLOutput)
-        QtCore.QObject.connect(self.ui.pushButtonLandXMLOutput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveXMLFile)
-
-        QtCore.QObject.connect(self.ui.pushButtonLandXMLCreate, QtCore.SIGNAL("clicked()"), self.createLandXML)
-
-# module ScalarDXF
-
-        self.callbackOpenScalarInputT3SMajor = functools.partial(self.getOpenFileName, "Open 2D T3 Scalar Mesh", "2D T3 Scalar Mesh (ASCIISingleFrame) (*.t3s)", self.ui.lineEditScalarDXFInputT3SMajor)
-        QtCore.QObject.connect(self.ui.pushButtonScalarDXFInputT3SMajor, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenScalarInputT3SMajor)
-
-        self.callbackOpenScalarInputT3SMinor = functools.partial(self.getOpenFileName, "Open 2D T3 Scalar Mesh", "2D T3 Scalar Mesh (ASCIISingleFrame) (*.t3s)", self.ui.lineEditScalarDXFInputT3SMinor)
-        QtCore.QObject.connect(self.ui.pushButtonScalarDXFInputT3SMinor, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenScalarInputT3SMinor)
-
-        self.callbackScalarScalar = functools.partial(self.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditScalarDXFOutput)
-        QtCore.QObject.connect(self.ui.pushButtonScalarDXFOutput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackScalarScalar)
-        
-        self.scalarSymbol = 0
-        
-        self.callbackCircle = functools.partial(self.setSymbol, 0)
-        QtCore.QObject.connect(self.ui.radioButtonScalarDXFCircle, QtCore.SIGNAL("clicked()"), self.callbackCircle)
-        self.callbackCross = functools.partial(self.setSymbol, 1)
-        QtCore.QObject.connect(self.ui.radioButtonScalarDXFCross, QtCore.SIGNAL("clicked()"), self.callbackCross)
-        self.callbackCrosshairs = functools.partial(self.setSymbol, 2)
-        QtCore.QObject.connect(self.ui.radioButtonScalarDXFCrosshairs, QtCore.SIGNAL("clicked()"), self.callbackCrosshairs)
-        self.callbackNone = functools.partial(self.setSymbol, 3)
-        QtCore.QObject.connect(self.ui.radioButtonScalarDXFNone, QtCore.SIGNAL("clicked()"), self.callbackNone)
-
-        QtCore.QObject.connect(self.ui.pushButtonScalarDXFCreate, QtCore.SIGNAL("clicked()"), self.createScalarDXF)
-
 # module VectorDXF
 
         self.callbackOpenVectorInput = functools.partial(self.getOpenFileName, "Open 2D T3 Vector Mesh", "2D T3 Vector Mesh (ASCIISingleFrame) (*.t3v)", self.ui.lineEditVectorDXFInput)
@@ -452,22 +367,7 @@ class ChEsher(QtGui.QMainWindow):
     def setType(self):
         self.calcDischarge()
         self.updateUi()
-        
-    def setSymbol(self, i):
-        self.scalarSymbol = i
-        
-    def createLandXML(self):
-        nodes, mesh = fh.readT3S(self.ui.lineEditLandXMLInputMesh.text())
-
-        try:
-            fh.writeXML(nodes, mesh, self.ui.lineEditLandXMLSurfaceName.text(), self.ui.lineEditLandXMLOutput.text())
-            info = "LandXML surface created with:\n"
-            info += " - {0} nodes\n - {1} elements".format(len(nodes), len(mesh))            
-            QMessageBox.information(self, "LandXML", info)
-        except:
-            QMessageBox.critical(self, "Error", "Not able to write LandXML!")
-            return
-
+  
     def create2DM2BK(self):
     
 #        try:
@@ -1009,28 +909,7 @@ class ChEsher(QtGui.QMainWindow):
         
         ###   ~   module DXF2BK   ~   ###
         
-        self.moduleDXF2BK.ui.tableWidget.setRowCount(0)
-        self.moduleDXF2BK.ui.lineEditInput.setText(self.directory + "example_01/geometry.dxf")
-        self.moduleDXF2BK.addLayer()
-        self.moduleDXF2BK.addLayer()
-        self.moduleDXF2BK.addLayer()
-        self.moduleDXF2BK.addLayer()
-        self.moduleDXF2BK.refreshDXF()
-        
-        rows = self.moduleDXF2BK.ui.tableWidget.rowCount()
-
-        indices = [1, 2, 3, 4]
-        files = [self.directory + "example_01/output/2D_POLYLINE.i2s",
-                self.directory + "example_01/output/3D_POLYLINE.i3s",
-                self.directory + "example_01/output/LINE.i2s",
-                self.directory + "example_01/output/POINT.xyz"]
-
-        for row in range(rows):
-            combobox = self.moduleDXF2BK.ui.tableWidget.cellWidget(row, 0)
-            combobox.setCurrentIndex(indices[row])
-            item3 = QtGui.QTableWidgetItem()
-            item3.setText(files[row])
-            self.moduleDXF2BK.ui.tableWidget.setItem(row, 1, item3)
+        self.moduleDXF2BK.initialize()
 
         ###   ~   module BK2DXF   ~   ###
         
@@ -1038,46 +917,16 @@ class ChEsher(QtGui.QMainWindow):
         
         ###   ~   module Mesh   ~   ###
         
-        self.ui.lineEditProfiles.setText(self.directory + "example_03/PROFILES.i3s")
-        self.ui.lineEditReach.setText(self.directory + "example_03/AXIS.i2s")        
-        
-        setEnabled(self.ui.checkBoxLBO, self.ui.pushButtonLBO, self.ui.lineEditLBO)
-        self.ui.lineEditLBO.setText(self.directory + "example_03/LEFT_BOUNDARY.i3s")        
-
-        setEnabled(self.ui.checkBoxRBO, self.ui.pushButtonRBO, self.ui.lineEditRBO)
-        self.ui.lineEditRBO.setText(self.directory + "example_03/RIGHT_BOUNDARY.i3s")    
-        
-        self.ui.checkBoxEC.setChecked(True)
-        self.ui.doubleSpinBoxEL.setValue(1.0)
-        self.ui.spinBoxNNC.setValue(20)
-        
-        self.ui.lineEditMesh.setText(self.directory + "example_03/output/MESH.t3s")
-        setEnabled(self.ui.checkBoxMesh, self.ui.pushButtonMesh, self.ui.lineEditMesh)
-        
-        self.ui.lineEditWS.setText(self.directory + "example_03/output/VIEW.ews")
-        setEnabled(self.ui.checkBoxWS, self.ui.pushButtonWS, self.ui.lineEditWS)
+        self.moduleMesh.initialize()
   
         ###   ~   module LandXML   ~   ###
   
-        self.ui.lineEditLandXMLInputMesh.setText(self.directory + "example_04/BOTTOM.t3s")
-        self.ui.lineEditLandXMLSurfaceName.setText("BOTTOM")
-        self.ui.lineEditLandXMLOutput.setText(self.directory + "example_04/output/BOTTOM.xml")
+        self.moduleLandXML.initialize()
      
         ###   ~   module ScalarDXF   ~   ###
 
-        self.ui.lineEditScalarDXFInputT3SMajor.setText(self.directory + "example_05/WATER DEPTH_S161_Case_A.t3s")
-        self.ui.lineEditScalarDXFInputT3SMinor.setText(self.directory + "example_05/WATER DEPTH_S161_Case_B.t3s")
-        self.ui.doubleSpinBoxScalarDXFDX.setValue(50.0)
-        self.ui.doubleSpinBoxScalarDXFDY.setValue(50.0)
-        self.ui.doubleSpinBoxScalarDXFSizeFactor.setValue(7.5)
+        self.moduleScalarDXF.initialize()
         
-        self.ui.checkBoxScalarDXFMonochrome.setChecked(True)
-        self.ui.radioButtonScalarDXFCircle.setChecked(False)
-        self.ui.radioButtonScalarDXFCrosshairs.setChecked(True)
-        self.setSymbol(2)
-        
-        self.ui.lineEditScalarDXFOutput.setText(self.directory + "example_05/output/water_depth.dxf")        
-
         ###   ~   module VectorDXF   ~   ###
 
         self.ui.lineEditVectorDXFInput.setText(self.directory + "example_06/VELOCITY UV_S161_Case_A.t3v")
@@ -1380,90 +1229,6 @@ class ChEsher(QtGui.QMainWindow):
               
         return x, y, zMajor, zMinor, triangles
     
-    def createScalarDXF(self):
-        
-        info = ""
-        
-        dx = self.ui.doubleSpinBoxScalarDXFDX.value()
-        dy = self.ui.doubleSpinBoxScalarDXFDY.value()
-        
-        SMin = self.ui.doubleSpinBoxScalarDXFSMin.value()
-        SMax = self.ui.doubleSpinBoxScalarDXFSMax.value()
-        
-        scale = self.ui.doubleSpinBoxScalarDXFSizeFactor.value()
-        
-        eps = self.ui.doubleSpinBoxScalarDXFLessThan.value()
-        
-        # read input meshes
-        
-        try:
-            x, y, zMajor, triangles = fh.readT3STriangulation(self.ui.lineEditScalarDXFInputT3SMajor.text())
-        except:
-            QMessageBox.critical(self, "Error", "Not able to load mesh file!\nCheck filename or content!")
-            return
-        
-        minor = False
-        if self.ui.lineEditScalarDXFInputT3SMinor.text() != "":
-            minor = True
-            try:
-                x, y, zMinor, triangles = fh.readT3STriangulation(self.ui.lineEditScalarDXFInputT3SMinor.text())
-            except:
-                QMessageBox.critical(self, "Error", "Not able to load mesh file!\nCheck filename or content!")
-                return            
-            
-        scalarNodes = {}
-        sCounter = 0
-
-        xMin = min(x)
-        xMax = max(x)
-        yMin = min(y)
-        yMax = max(y)
-
-        triang = tri.Triangulation(x, y, triangles)
-        
-        # Interpolate to regularly-spaced quad grid.
-
-        # origin of scalar
-        x0 = floor(xMin/dx)*dx
-        y0 = floor(yMin/dy)*dy
-
-        # number of nodes in x- and y-direction
-        nx = int(ceil(xMax/dx) - floor(xMin/dx))
-        ny = int(ceil(yMax/dy) - floor(yMin/dy))
-
-        xGrid, yGrid = np.meshgrid(np.linspace(x0, x0+nx*dx, nx+1), np.linspace(y0, y0+ny*dy, ny+1))
-        info += " - Grid created with {0} x {1} points:\n\t- dx = {2}\n\t- dy = {3}\n\t- x(min) = {4}\n\t- y(min) = {5}\n\t- x(max) = {6}\n\t- y(max) = {7}\n".format(nx, ny, dx, dy, x0, y0, x0+nx*dx, y0+ny*dy)
-
-        interpLinMajor = tri.LinearTriInterpolator(triang, zMajor)
-        zGridMaj = interpLinMajor(xGrid, yGrid)
-
-        zGridMin = []
-        if minor is True:
-            interpLinMinor = tri.LinearTriInterpolator(triang, zMinor)
-            zGridMin = interpLinMinor(xGrid, yGrid)
-            
-        for iy in range(len(xGrid)):
-            for ix in range(len(xGrid[0])):
-                if minor is True:
-                    scalarNodes[sCounter] = [xGrid[iy][ix], yGrid[iy][ix], zGridMaj[iy][ix], zGridMin[iy][ix]]
-                    sCounter += 1
-                else:
-                    scalarNodes[sCounter] = [xGrid[iy][ix], yGrid[iy][ix], zGridMaj[iy][ix], None]
-                    sCounter += 1                    
-
-        useMono = self.ui.checkBoxScalarDXFMonochrome.isChecked()
-        fname = self.ui.lineEditScalarDXFOutput.text()
-        info += "\n - Number of interpolated values: {0}".format(len(scalarNodes))
-
-        try:
-            nOfValues = fh.writeScalarDXF(scalarNodes, SMin, SMax, eps, scale, self.scalarSymbol, useMono, fname)
-            info += "\n - {0} values written to {1}".format(nOfValues, fname)
-        except:
-            QMessageBox.critical(self, "Error", "Not able to write DXF file!")
-            return
-
-        QMessageBox.information(self, "Module ScalarDXF", info)  
-        
     def createVectorDXF(self):
         
         info = ""
@@ -1691,238 +1456,6 @@ class ChEsher(QtGui.QMainWindow):
             return
     
         QMessageBox.information(self, "Module Tube", info)
-        
-    def createMesh(self):
-        info = "Input data:\n"
-        try:
-            nodRaw, proRaw = fh.readI3S(self.ui.lineEditProfiles.text())
-            info += " - Profiles:\t\t\t{0}\n".format(len(proRaw))
-        except:
-            QMessageBox.critical(self, "Error", "Not able to load profiles file!\nCheck filename or content!")
-            return
-        try:
-            nodReach = fh.readI2S(self.ui.lineEditReach.text())[0]
-            info += " - Reach nodes:\t\t{0}\n".format(len(nodReach))
-        except:
-            QMessageBox.critical(self, "Error", "Not able to load reach file!\nCheck filename or content!")
-            return
-            
-        if len(proRaw) != len(nodReach):
-            QMessageBox.critical(self, "Error", "Number of profiles must correspond to number of reach nodes!")
-            return
-        
-        nnC = self.ui.spinBoxNNC.value()
-        length = self.ui.doubleSpinBoxEL.value()
-
-        nnL = None
-        nodLBL = None
-        if self.ui.checkBoxLBL.isChecked():
-            nnL = self.ui.spinBoxNNL.value()
-            try:
-                if self.ui.lineEditLBL.text().split(".")[-1] == "i2s":
-                    nodLBL = fh.readI2S(self.ui.lineEditLBL.text())[0]
-                else:
-                    nodLBL = fh.readI3S(self.ui.lineEditLBL.text())[0]
-                info += " - Left breakline nodes:\t{0}\n".format(len(nodLBL))
-            except:
-                QMessageBox.critical(self, "Error", "Not able to load left breakline file!\nCheck filename or content!")
-                return
-        else:
-            nnL = None
-            nodLBL = None
-
-        nnR = None
-        nodRBL = None
-        if self.ui.checkBoxRBL.isChecked():
-            nnR = self.ui.spinBoxNNR.value()
-            try:
-                if self.ui.lineEditRBL.text().split(".")[-1] == "i2s":
-                    nodRBL = fh.readI2S(self.ui.lineEditRBL.text())[0]
-                else:
-                    nodRBL = fh.readI3S(self.ui.lineEditRBL.text())[0]
-                info += " - Right breakline nodes:\t{0}\n".format(len(nodRBL))
-            except:
-                QMessageBox.critical(self, "Error", "Not able to load right breakline file!\nCheck filename or content!")
-                return
-        else:
-            nnR = None
-            nodRBL = None
-
-        nodLBO = None
-        if self.ui.checkBoxLBO.isChecked():
-            try:
-                if self.ui.lineEditLBO.text().split(".")[-1] == "i2s":
-                    nodLBO = fh.readI2S(self.ui.lineEditLBO.text())[0]
-                else:
-                    nodLBO = fh.readI3S(self.ui.lineEditLBO.text())[0]
-                info += " - Left boundary nodes:\t{0}\n".format(len(nodLBO))
-            except:
-                QMessageBox.critical(self, "Error", "Not able to load left boundary file!\nCheck filename or content!")
-                return
-        else:
-            nodLBO = None
-
-        nodRBO = None
-        if self.ui.checkBoxRBO.isChecked():
-            try:
-                if self.ui.lineEditRBO.text().split(".")[-1] == "i2s":
-                    nodRBO = fh.readI2S(self.ui.lineEditRBO.text())[0]
-                else:
-                    nodRBO = fh.readI3S(self.ui.lineEditRBO.text())[0]
-                info += " - Right boundary nodes:\t{0}\n".format(len(nodRBO))
-            except:
-                QMessageBox.critical(self, "Error", "Not able to load right boundary file!\nCheck filename or content!")
-                return
-        else:
-            nodRBO = None
-        
-        self.mesh = CalcMesh(   nodRaw,
-                                proRaw,
-                                nodReach,
-                                nnC,
-                                length,
-                                nodLBL,
-                                nodRBL,
-                                nodLBO,
-                                nodRBO,
-                                nnL,
-                                nnR
-                                )
-
-        try:                        
-            info += self.mesh.determineFlowDirection()
-        except:
-            QMessageBox.critical(self, "Error", "Not able to determine flow direction!\nCheck inputs!")
-            return
-        
-        try:
-            info += self.mesh.normalizeProfiles()
-        except:
-            QMessageBox.critical(self, "Error", "Not able to normalize profiles!\nCheck inputs!")
-            return
-        
-        try:
-            info += self.mesh.interpolateChannel()
-        except:
-            QMessageBox.critical(self, "Error", "Not able to interpolate channel!\nCheck inputs!")
-            return
-        
-        try:
-            info += self.mesh.interpolateElevation()
-        except:
-            QMessageBox.critical(self, "Error", "Not able to interpolate elevation!\nCheck inputs!")
-            return
-        
-        if self.ui.checkBoxEC.isChecked():
-            try:
-                info += self.mesh.interpolateElevationCorrection()
-            except:
-                QMessageBox.critical(self, "Error", "Not able to interpolate elevation correction!\nCheck inputs!")
-                return
-            
-        try:
-            info += self.mesh.createMesh()
-        except:
-            QMessageBox.critical(self, "Error", "Not able to create mesh!\nCheck inputs!")
-            return
-        
-#        try:
-        self.writeOutput()
-#        except:
-#            QMessageBox.critical(self, "Error", "Not able to write output!")
-#            return
-        
-        QMessageBox.information(self, "Module Mesh", info)
-
-    def writeOutput(self):
-        if self.ui.checkBoxMesh.isChecked():
-            fh.writeT3S(self.mesh.nodMesh, self.mesh.mesh, self.ui.lineEditMesh.text())
-        if self.ui.checkBoxIP.isChecked():
-            fh.writeI3S(self.mesh.nodInterp, self.mesh.proInterp, self.ui.lineEditIP.text())
-        if self.ui.checkBoxLE.isChecked():
-            LE = {1:mc.getNodeIDsLeft(self.mesh.proMesh)}
-            fh.writeI3S(self.mesh.nodMesh, LE, self.ui.lineEditLE.text())
-        if self.ui.checkBoxRE.isChecked():
-            RE = {1:mc.getNodeIDsRight(self.mesh.proMesh)}
-            fh.writeI3S(self.mesh.nodMesh, RE, self.ui.lineEditRE.text())
-        if self.ui.checkBoxOL.isChecked():
-            OL = {1:mc.getNodeIDsOutline(self.mesh.proMesh)}
-            fh.writeI3S(self.mesh.nodMesh, OL, self.ui.lineEditOL.text())
-
-        if self.ui.checkBoxWS.isChecked():
-            view = """"""
-            counter = -1
-            content = """"""
-
-            content += ws.lineSet.format(self.getDim(self.ui.lineEditProfiles), self.getPath(self.ui.lineEditProfiles), "0xff0000", "raw profiles")
-            counter += 1
-            view += ":ObjectView {0} 0\n".format(counter)
-
-            content += ws.lineSet.format(self.getDim(self.ui.lineEditReach), self.getPath(self.ui.lineEditReach), "0xffff00", "channel reach")
-            counter += 1
-            view += ":ObjectView {0} 0\n".format(counter)
-
-            if self.ui.checkBoxLBL.isChecked():
-                content += ws.lineSet.format(self.getDim(self.ui.lineEditLBL), self.getPath(self.ui.lineEditLBL), "0x00ff00", "left breakline")
-                counter += 1
-                view += ":ObjectView {0} 0\n".format(counter)
-
-            if self.ui.checkBoxRBL.isChecked():
-                content += ws.lineSet.format(self.getDim(self.ui.lineEditRBL), self.getPath(self.ui.lineEditRBL), "0x00ff00", "right breakline")
-                counter += 1
-                view += ":ObjectView {0} 0\n".format(counter)
-
-            if self.ui.checkBoxLBO.isChecked():
-                content += ws.lineSet.format(self.getDim(self.ui.lineEditLBO), self.getPath(self.ui.lineEditLBO), "0x0000ff", "left boundary")
-                counter += 1
-                view += ":ObjectView {0} 0\n".format(counter)
-
-            if self.ui.checkBoxRBO.isChecked():
-                content += ws.lineSet.format(self.getDim(self.ui.lineEditRBO), self.getPath(self.ui.lineEditRBO), "0x0000ff", "right boundary")
-                counter += 1
-                view += ":ObjectView {0} 0\n".format(counter)
-
-            content += ws.meshScalar.format(self.getPath(self.ui.lineEditMesh), "0xc0c0c0", "mesh")
-            counter += 1
-            view += ":ObjectView {0} 0\n".format(counter)
-
-
-            if self.ui.checkBoxIP.isChecked():
-                content += ws.lineSet.format(self.getDim(self.ui.lineEditIP), self.getPath(self.ui.lineEditIP), "0x8000ff", "interpolated profiles")
-                counter += 1
-                view += ":ObjectView {0} 1\n".format(counter)
-
-            if self.ui.checkBoxLE.isChecked():
-                content += ws.lineSet.format(self.getDim(self.ui.lineEditLE), self.getPath(self.ui.lineEditLE), "0x0080ff", "left edge")
-                counter += 1
-                view += ":ObjectView {0} 1\n".format(counter)
-
-            if self.ui.checkBoxRE.isChecked():
-                content += ws.lineSet.format(self.getDim(self.ui.lineEditRE), self.getPath(self.ui.lineEditRE), "0x0080ff", "right edge")
-                counter += 1
-                view += ":ObjectView {0} 1\n".format(counter)
-
-            if self.ui.checkBoxOL.isChecked():
-                content += ws.lineSet.format(self.getDim(self.ui.lineEditOL), self.getPath(self.ui.lineEditOL), "0x800080", "outline")
-                counter += 1
-                view += ":ObjectView {0} 1\n".format(counter)
-
-            content += ws.meshScalar.format(self.getPath(self.ui.lineEditMesh), "0x808080", "mesh")
-            counter += 1
-            view += ":ObjectView {0} 1\n".format(counter)
-
-            fh.writeEWS(content, view, self.ui.lineEditWS.text())
-
-    def getDim(self, lineEdit):
-        return lineEdit.text().split('.')[-1][1]
-
-    def getPath(self, lineEdit):
-        return lineEdit.text().replace('/', '\\')
-
-    def setEnabledBL(self, checkBox, pushButton, lineEdit, spinBox):
-        self.setEnabled(checkBox, pushButton, lineEdit)
-        checked = checkBox.isChecked()
-        spinBox.setEnabled(checked)
 
     def setEnabledCS(self):
         checked = self.ui.checkBoxCSOutputCS.isChecked()

@@ -178,3 +178,33 @@ class WrapDXF2BK():
             item.setText(filename)
             self.ui.tableWidget.setItem(row, 1, item)
     
+    def initialize(self):
+        
+        import os
+        abs_path = os.path.abspath('.')
+        dir = os.path.join(abs_path, 'examples/').replace('\\', '/')
+         
+        ###   ~   module DXF2BK   ~   ###
+        
+        self.ui.tableWidget.setRowCount(0)
+        self.ui.lineEditInput.setText(dir + "example_01/geometry.dxf")
+        self.addLayer()
+        self.addLayer()
+        self.addLayer()
+        self.addLayer()
+        self.refreshDXF()
+        
+        rows = self.ui.tableWidget.rowCount()
+
+        indices = [1, 2, 3, 4]
+        files = [dir + "example_01/output/2D_POLYLINE.i2s",
+                dir + "example_01/output/3D_POLYLINE.i3s",
+                dir + "example_01/output/LINE.i2s",
+                dir + "example_01/output/POINT.xyz"]
+
+        for row in range(rows):
+            combobox = self.ui.tableWidget.cellWidget(row, 0)
+            combobox.setCurrentIndex(indices[row])
+            item3 = QtGui.QTableWidgetItem()
+            item3.setText(files[row])
+            self.ui.tableWidget.setItem(row, 1, item3)      

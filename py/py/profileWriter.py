@@ -31,7 +31,7 @@ class ProfileWriter():
 
     def __init__(self, fname, bottom, reachStation, profileStation, scale, superelevation, settings):
         """Constructor."""
-
+        
         self.fname = fname
         self.bottom = bottom
         self.reachStation = reachStation

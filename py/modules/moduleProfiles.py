@@ -27,11 +27,8 @@ from uiProfiles import Ui_Profiles
 import uiHandler as uih
 import fileHandler as fh
 import profileOrganizer as po
-import profileWriter as pw
-import macro as mc
+from profileWriter import ProfileWriter
 import numpy as np
-import ezdxf
-#from shapely.geometry import LineString
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -139,12 +136,44 @@ class WrapProfiles():
 #                info += " - ERROR: Not able to write textfile!\n"
 
         if self.ui.checkBoxOutputDXF.isChecked():
-#            self.writeDXF()
-            pw.writeProfile(self.ui.lineEditOutputDXF.text(),\
+
+            scale = 100.0
+            superelevation = 1.0
+            
+            settings = {}
+            settings["Frame"] = True
+            settings["Band"] = True
+            settings["ProfileName"] = "Cross section "
+            settings["ReachStation"] = "km "
+            settings["ScaleFactor"] = "Scale = "
+            settings["ReferenceLevel"] = "RL = "
+            settings["BandTitleStationing"] = "Station [m]"
+            settings["BandTitleElevation"] = "Elevation [m]"
+            settings["DecimalPlaces"] = 2
+            settings["doubleSpinBoxOffsetX"] = 75.0
+            settings["doubleSpinBoxOffsetZ"] = 2.5
+            settings["doubleSpinBoxBandHeight"] = 15.0
+            settings["doubleSpinBoxTextSizeBandTitle"] = 4.0
+            settings["doubleSpinBoxTextSizeBand"] = 1.5
+            settings["doubleSpinBoxMarkerSize"] = 1.5
+            settings["doubleSpinBoxCleanValues"] = 0.0
+            
+            cs = ProfileWriter(self.ui.lineEditOutputDXF.text(),\
                 self.pointsNormalized,
                 self.reachStation,
-                self.profileStation
-            )
+                self.profileStation,
+                scale,
+                superelevation,
+                settings)
+            
+            cs.drawBottom()
+            cs.saveDXF()
+
+#            pw.writeProfile(self.ui.lineEditOutputDXF.text(),\
+#                self.pointsNormalized,
+#                self.reachStation,
+#                self.profileStation
+#            )
             
 #            try:
 #                self.writeDXF()
@@ -250,7 +279,7 @@ class WrapProfiles():
             pointsNormalized[tempPointsProfileID[key]] = np.append(pointsNormalized[tempPointsProfileID[key]], arr)
         
         # arrange normalized points for each profile
-        profile = {}
+        profiles = {}
         for key in pointsNormalized:
             length = len(pointsNormalized[key])
             pointsNormalized[key] = pointsNormalized[key].reshape((length/4,4))
@@ -263,9 +292,9 @@ class WrapProfiles():
             z = pointsNormalized[key].transpose()[2]
             d = pointsNormalized[key].transpose()[3]
             
-            profile[key] = [x,y,z,d]
+            profiles[key] = [x,y,z,d]
 
-        return profile, segmentStation
+        return profiles, segmentStation
     
     def writeTXT(self):
         

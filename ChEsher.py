@@ -17,10 +17,18 @@
 __author__="Reinhard Fleissner"
 __date__ ="$31.03.2015 18:21:40$"
 
+import os
 import sys
 import platform
-import os
 import webbrowser
+
+lib_modules = os.path.abspath(os.path.join('py/modules'))
+lib_ui = os.path.abspath(os.path.join('py/ui'))
+lib_py = os.path.abspath(os.path.join('py/py'))
+
+sys.path.append(lib_modules)
+sys.path.append(lib_ui)
+sys.path.append(lib_py)
 
 from moduleDXF2BK import WrapDXF2BK
 from moduleBK2DXF import WrapBK2DXF
@@ -67,6 +75,7 @@ class ChEsher(QtGui.QMainWindow):
         """
         super(ChEsher, self).__init__(parent)
         self._app = app
+        
         # setup user interface of main window
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -188,7 +197,7 @@ class ChEsher(QtGui.QMainWindow):
 #        self.setHEC2DXF()
 #        self.setProfiles()
 #        self.setProfilesDXF()
-        self.initialize()
+#        self.initialize()
 
     def setType(self):
         self.calcDischarge()
@@ -300,7 +309,6 @@ class ChEsher(QtGui.QMainWindow):
     def setDirectory(self):
         
         dir = QFileDialog.getExistingDirectory(self, "Select directory", self.directory)
-        print dir
         
         if dir != "":
             
@@ -317,8 +325,9 @@ class ChEsher(QtGui.QMainWindow):
             self.moduleProfiles.setDir(dir)
             self.moduleHEC2DXF.setDir(dir)
             self.moduleProfilesDXF.setDir(dir)
-            
+
             self.directory = dir
+
         else:
             return
 

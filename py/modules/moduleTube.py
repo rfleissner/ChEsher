@@ -21,7 +21,7 @@ import functools
 import numpy as np
 
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QMessageBox
+from PyQt4.QtGui import QMessageBox, QFileDialog
 
 # modules and classes
 from uiTube import Ui_Tube
@@ -46,24 +46,22 @@ class WrapTube():
         self.widget = QtGui.QWidget()
         self.ui = Ui_Tube()
         self.ui.setupUi(self.widget)
-        
+
 # module Tube
 
-        self.callbackTubeOpenMeshFile = functools.partial(uih.getOpenFileName, "Open T3S-file", "2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s)", self.ui.lineEditInputMesh, self.directory, self.widget)
+        self.callbackTubeOpenMeshFile = functools.partial(self.getOpenFileName, "Open T3S-file", "2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s)", self.ui.lineEditInputMesh)
         QtCore.QObject.connect(self.ui.pushButtonInputMesh, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackTubeOpenMeshFile)
         
-        self.callbackTubeOpenLineSet = functools.partial(uih.getOpenFileName, "Open I2S-file", "Line Sets (*.i2s)", self.ui.lineEditInputLineSet, self.directory, self.widget)
+        self.callbackTubeOpenLineSet = functools.partial(self.getOpenFileName, "Open I2S-file", "Line Sets (*.i2s)", self.ui.lineEditInputLineSet)
         QtCore.QObject.connect(self.ui.pushButtonInputLineSet, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackTubeOpenLineSet)
         
-        self.callbackTubeOutput = functools.partial(uih.getSaveFileName, "Save textfile As", "Normal text file (*.txt)", self.ui.lineEditOutput, self.directory, self.widget)
+        self.callbackTubeOutput = functools.partial(self.getSaveFileName, "Save textfile As", "Normal text file (*.txt)", self.ui.lineEditOutput)
         QtCore.QObject.connect(self.ui.pushButtonOutput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackTubeOutput)
         
         QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.create)
-
+        
     def setDir(self, dir):
         self.directory = dir
-        self.p = copy.copy(dir)
-        print "set", self.directory
         
     def initialize(self):
         
@@ -78,8 +76,6 @@ class WrapTube():
         self.ui.lineEditOutput.setText(dir + "example_10/tubes.txt")
         
     def create(self):
-        
-        print "ffff", self.directory
         
         info = ""
         info += "Input data:\n"
@@ -162,3 +158,18 @@ class WrapTube():
             return
     
         QMessageBox.information(self.widget, "Module Tube", info)  
+        
+#    def getOpenFileName(self, title, fileFormat, lineEdit, wid):
+#        filename = QFileDialog.getOpenFileName(wid, title, self.directory, fileFormat)
+#        if filename != "":
+#            lineEdit.setText(filename)
+
+    def getOpenFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getOpenFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)
+
+    def getSaveFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getSaveFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)

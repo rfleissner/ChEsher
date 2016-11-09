@@ -17,7 +17,6 @@
 __author__="Reinhard Fleissner"
 __date__ ="$18.05.2016 22:38:30$"
 
-import math
 import functools
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QFileDialog, QMessageBox, QDialog, QColor
@@ -35,7 +34,6 @@ from profileWriter import ProfileWriter
 import numpy as np
 import copy
 from shapely.geometry import LineString, Point
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -133,7 +131,6 @@ class WrapProfilesDXF():
 
     def setDir(self, directory):
         self.directory = copy.copy(directory)
-        print "set", self.directory
     
     def applyDefaults(self, dataSets, colHexRGB):
 
@@ -199,9 +196,6 @@ class WrapProfilesDXF():
             self.settings["doubleSpinBoxMarkerSize"] = 1.5
             self.settings["doubleSpinBoxCleanValues"] = 0.0
         
-#            self.ui.lineEditCont2DXFOutputLegendTitle.setText("Water depth")
-#            self.ui.lineEditCont2DXFOutputLegendSubtitle.setText("[m]")
-
         # Template B
         if template == 1:
 

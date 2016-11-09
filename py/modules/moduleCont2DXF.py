@@ -86,7 +86,6 @@ class WrapCont2DXF():
 
     def setDir(self, directory):
         self.directory = directory
-        print "set", self.directory
         
     def setColour(self):
         row = self.ui.tableWidgetCont2DXF.currentRow()

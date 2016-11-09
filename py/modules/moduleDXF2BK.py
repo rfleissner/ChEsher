@@ -62,7 +62,6 @@ class WrapDXF2BK():
 
     def setDir(self, directory):
         self.directory = directory
-        print "set", self.directory
     
     def addLayer(self):
         dropdownLayer = QtGui.QComboBox(self.widget)

@@ -68,18 +68,9 @@ class WrapCS():
         QtCore.QObject.connect(self.ui.pushButtonOutputCS, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbacCSOutCS)
 
         QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.create)
-        
-#        self.callbackOpenVectorInput = functools.partial(uih.getOpenFileName, "Open 2D T3 Vector Mesh", "2D T3 Vector Mesh (ASCIISingleFrame) (*.t3v)", self.ui.lineEditInput, self.directory, self.widget)
-#        QtCore.QObject.connect(self.ui.pushButtonInput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenVectorInput)
-#        
-#        self.callbackScalarVector = functools.partial(uih.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutput, self.directory, self.widget)
-#        QtCore.QObject.connect(self.ui.pushButtonOutput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackScalarVector)    
-#        
-#        QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.create)
 
     def setDir(self, directory):
         self.directory = directory
-        print "set", self.directory
     
     def initialize(self):
         

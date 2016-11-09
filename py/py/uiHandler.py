@@ -22,7 +22,6 @@ from PyQt4.QtGui import QFileDialog
 
 def getOpenFileName(title, fileFormat, lineEdit, directory, wid):
     filename = QFileDialog.getOpenFileName(wid, title, directory, fileFormat)
-    print "uih", directory
     if filename != "":
         lineEdit.setText(filename)
 
@@ -40,4 +39,3 @@ def setEnabledInitialize(checkBox, pushButton, lineEdit):
     checkBox.setChecked(True)
     pushButton.setEnabled(True)
     lineEdit.setEnabled(True)
-    

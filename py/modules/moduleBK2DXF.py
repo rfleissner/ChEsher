@@ -80,7 +80,6 @@ class WrapBK2DXF():
         
     def setDir(self, directory):
         self.directory = directory
-        print "set", self.directory
 
     def create(self):
 

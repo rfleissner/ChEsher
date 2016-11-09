@@ -119,7 +119,6 @@ class WrapMesh():
 
     def setDir(self, directory):
         self.directory = directory
-        print "set", self.directory
     
     def initialize(self):
 

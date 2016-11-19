@@ -29,7 +29,7 @@ ezdxf.options.template_dir = pth.abspath('.')
 class ProfileWriter():
     """Writing cross sections to dxf file format"""
 
-    def __init__(self, fname, bottom, reachStation, profileStation, scale, superelevation, settings):
+    def __init__(self, fname, bottom, reachStation, profileStation, scale, superelevation, settings, reachName):
         """Constructor."""
         
         self.fname = fname
@@ -39,15 +39,13 @@ class ProfileWriter():
         self.scale = scale
         self.superelev = superelevation
         self.settings = settings
+        self.reachName = reachName
+        self.nOfProfiles = len(self.bottom)
         
         # 1d hydraulic entities
         self.ws1dNames = None
         self.ws1dElevations = None
         self.levees = None
-        
-        self.nOfProfiles = len(self.bottom)
-
-
 
         # user defined parameters
         
@@ -104,6 +102,7 @@ class ProfileWriter():
         self.xmax = {}
         self.zmin = {}
         self.zmax = {}
+        self.bottompoints = {}
         
     def drawBottom(self):
 
@@ -143,9 +142,10 @@ class ProfileWriter():
 
             # axis
             if self.profileStation[pID] >= 0.0001:
-                print self.profileStation[pID]
                 self.msp.add_line((self.profileStation[pID], off_z+zmin),(self.profileStation[pID],off_z+zmax), dxfattribs={'layer': 'axis', 'color':1})
-
+                text_axis = self.msp.add_text(self.reachName, dxfattribs={'height': self.textheight_bandtitle, 'color':1})
+                text_axis.set_pos((self.profileStation[pID], off_z+zmax), align='BOTTOM_CENTER')
+                
             # band
             if self.drawBand:
                 # elevation
@@ -161,7 +161,7 @@ class ProfileWriter():
                 title_stationing = self.msp.add_text(self.BandTitleElevation, dxfattribs={'height': self.textheight_bandtitle})
                 title_stationing.set_pos((xmin-self.off_band_x+self.h_band/2.0, off_z+zmin-self.off_band_z-3*self.h_band/2.0+self.off_band), align='MIDDLE_LEFT')
 
-            profilepoints = []
+            bottompoints = []
             mx = []
             x0 = -1000000.0
             mxcounter = -1
@@ -170,7 +170,7 @@ class ProfileWriter():
                 z1 = off_z+z[nID]*self.superelev
 
                 p1 = (x1, z1)
-                profilepoints.append(p1)
+                bottompoints.append(p1)
 
                 # marker
                 if self.drawBand:
@@ -201,9 +201,9 @@ class ProfileWriter():
                         text_height = self.msp.add_text("%.{0}f".format(self.dec)%z[nID], dxfattribs={'height': self.textheight_band, 'rotation': 90.0})
                         text_height.set_pos((mx[mxcounter], off_z+zmin-self.off_band_z-3*self.h_band/2.0+self.off_band), align='MIDDLE')
                         x0 = x1
-                        
+            self.bottompoints[pID] = bottompoints
             # draw bottom line
-            self.msp.add_polyline2d(profilepoints, dxfattribs={'layer': 'profile'})
+            self.msp.add_polyline2d(bottompoints, dxfattribs={'layer': 'profile'})
 
     def drawWaterSurface(self, ws, col):
         
@@ -266,16 +266,40 @@ class ProfileWriter():
                 print col[name]
                 poly.rgb = col[name]
 
-    def draw1dResults(self):
+    def draw1dResults(self, ws1dNames, ws1dElevations, levees):
+
         # print 1d water elevation
-        if self.ws1dNames is not None:
+        for pID in range(len(ws1dElevations)):
+            pID+=1
+            off_z = pID*self.dz
+            
+            xmin = self.xmin[pID]
+            xmax = self.xmax[pID]
+            zmin = self.zmin[pID]
+            zmax = self.zmax[pID]
+            profilepoints = self.bottompoints[pID]
+            
+            #legend
+            n = len(ws1dElevations[pID])
+            h = (n+1.0+(n-1)*0.5)*0.75*self.textheight_bandtitle
+            dh = 0.75*self.textheight_bandtitle
+            
+            self.msp.add_line((xmin, off_z+zmax),(xmin, off_z+zmax+h), dxfattribs={'layer': 'frame'})
+            self.msp.add_line((xmin+self.off_band_x, off_z+zmax),(xmin+self.off_band_x, off_z+zmax+h), dxfattribs={'layer': 'frame'})
+            self.msp.add_line((xmin, off_z+zmax),(xmin+self.off_band_x, off_z+zmax), dxfattribs={'layer': 'frame'})
+            self.msp.add_line((xmin, off_z+zmax+h),(xmin+self.off_band_x, off_z+zmax+h), dxfattribs={'layer': 'frame'})
+                
+            for wID in range(len(ws1dElevations[pID])):
 
-            for wID in range(len(self.ws1dElevations[pID])):
-
-                wsElevation = self.ws1dElevations[pID][wID]
-                layerName = self.ws1dNames[wID]
-                layerColor = 4
-
+                wsElevation = ws1dElevations[pID][wID]
+                layerName = ws1dNames[wID]
+                layerColor = 2+wID
+                
+                # legend
+                self.msp.add_line((xmin+dh, off_z+zmax+h-(wID+1+wID*0.5)*dh),(xmin+dh+h, off_z+zmax+h-(wID+1+wID*0.5)*dh), dxfattribs={'layer': layerName, 'color':layerColor})
+                text_M = self.msp.add_text(ws1dNames[wID] +" = %.{0}f m".format(self.dec)%wsElevation, dxfattribs={'height': 0.75*self.textheight_bandtitle})
+                text_M.set_pos((xmin+dh+h+dh, off_z+zmax+h-(wID+1+wID*0.5)*dh), align='MIDDLE_LEFT')
+                
                 tup = tuple([(xmin-1.0,off_z+zmax*self.superelev)] + profilepoints + [(xmax+1.0,off_z+zmax*self.superelev)])
                 bottomLine = Polygon(tup)
                 wsLine = LineString([(xmin, off_z+wsElevation*self.superelev), (xmax, off_z+wsElevation*self.superelev)])
@@ -289,18 +313,17 @@ class ProfileWriter():
                         ls = inters[i]
                         self.msp.add_line((ls.coords[:][0][0], off_z+wsElevation*self.superelev), (ls.coords[:][1][0], off_z+wsElevation*self.superelev),  dxfattribs={'layer': layerName, 'color':layerColor})
 
-        # print levees
-        if self.levees is not None:
-            if pID in self.levees:
-                for lID in range(len(self.levees[pID])):
-                    levee_x = self.levees[pID][lID][0]*xmax
-                    levee_z = self.levees[pID][lID][1]
+            # print levees
+            if pID in levees:
+                for lID in range(len(levees[pID])):
+                    levee_x = levees[pID][lID][0]*xmax
+                    levee_z = levees[pID][lID][1]
                     bottomLine = LineString(tup)
                     levee = LineString([(levee_x, off_z+zmin), (levee_x, off_z+zmax)])
                     inters = bottomLine.intersection(levee)
-                    print inters
-                    self.msp.add_line((levee_x, inters.y), (levee_x, off_z+levee_z*self.superelev),  dxfattribs={'layer': 'levee', 'color':1})
 
+                    self.msp.add_line((levee_x, inters.y), (levee_x, off_z+levee_z*self.superelev),  dxfattribs={'layer': 'levee', 'color':1})
+            
     def saveDXF(self):
         self.dwg.saveas(str(self.fname))
 

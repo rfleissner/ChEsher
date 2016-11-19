@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'uiProfileSettings.ui'
+# Form implementation generated from reading ui file 'ui\uiProfileSettings.ui'
 #
-# Created: Sun Oct 02 11:57:54 2016
+# Created: Sat Nov 19 18:33:07 2016
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -27,6 +27,9 @@ class Ui_ProfileSettings(object):
     def setupUi(self, ProfileSettings):
         ProfileSettings.setObjectName(_fromUtf8("ProfileSettings"))
         ProfileSettings.resize(562, 267)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8("../resource/icon.ico")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        ProfileSettings.setWindowIcon(icon)
         self.gridLayout_2 = QtGui.QGridLayout(ProfileSettings)
         self.gridLayout_2.setObjectName(_fromUtf8("gridLayout_2"))
         self.widget = QtGui.QWidget(ProfileSettings)
@@ -186,7 +189,7 @@ class Ui_ProfileSettings(object):
         QtCore.QMetaObject.connectSlotsByName(ProfileSettings)
 
     def retranslateUi(self, ProfileSettings):
-        ProfileSettings.setWindowTitle(_translate("ProfileSettings", "Dialog", None))
+        ProfileSettings.setWindowTitle(_translate("ProfileSettings", "Profile settings", None))
         self.checkBoxFrame.setText(_translate("ProfileSettings", "Draw frame", None))
         self.label_110.setText(_translate("ProfileSettings", "Decimal places:", None))
         self.checkBoxBand.setText(_translate("ProfileSettings", "Draw band", None))

@@ -25,12 +25,12 @@ from PyQt4.QtGui import QFileDialog, QMessageBox, QDialog, QColor
 from uiProfilesDXF import Ui_ProfilesDXF
 from profileSettings import WrapProfileSettings
 from colourHandler import Colour
-from matplotlib import colors
+from profileWriter import ProfileWriter
+import profileOrganizer as po
 import uiHandler as uih
 import fileHandler as fh
-import profileOrganizer as po
-#import profileWriter as pw
-from profileWriter import ProfileWriter
+
+from matplotlib import colors
 import numpy as np
 import copy
 from shapely.geometry import LineString, Point
@@ -137,7 +137,7 @@ class WrapProfilesDXF():
         nLevels = len(dataSets)-1
 
         self.ui.tableWidget.setRowCount(nLevels)
-        print "apply", self.directory
+
         for row in range(nLevels):
             item1 = QtGui.QTableWidgetItem()
             item1.setText(self.directory + str(dataSets[row]))
@@ -166,61 +166,66 @@ class WrapProfilesDXF():
                 HEX.append(col.getHexRGB())
                 
             return HEX
-        
-        template = self.ui.comboBoxDefault.currentIndex()
 
-        # Template A
-        if template == 0:
+        ans = QMessageBox.question(self.widget, "Module XYZ2Profiles", "Do you want do set default settings?", 1, 2)
 
-            dataSets = ["HQ30 IST", "HQ30 ZUK", "HQ100 IST", "HQ100 ZUK", "HQ300 IST", "HQ300 ZUK"]
-            col_RGB = ["190,232,255","116,179,255","55,141,255","18,107,238","0,77,168","232,190,255"]
-            col_HEX = RGB2HEX(col_RGB)
-            
-            self.applyDefaults(dataSets, col_HEX)
+        if ans != 1:
+            return
+        else:
+            template = self.ui.comboBoxDefault.currentIndex()
 
-            self.settings = {}
-            self.settings["Frame"] = True
-            self.settings["Band"] = True
-            self.settings["ProfileName"] = "Profil Nr. "
-            self.settings["ReachStation"] = "km "
-            self.settings["ScaleFactor"] = "Massstab = "
-            self.settings["ReferenceLevel"] = "VE = "
-            self.settings["BandTitleStationing"] = "Stationierung [m]"
-            self.settings["BandTitleElevation"] = "Gelaendehoehe [m]"
-            self.settings["DecimalPlaces"] = 2
-            self.settings["doubleSpinBoxOffsetX"] = 75.0
-            self.settings["doubleSpinBoxOffsetZ"] = 2.5
-            self.settings["doubleSpinBoxBandHeight"] = 15.0
-            self.settings["doubleSpinBoxTextSizeBandTitle"] = 4.0
-            self.settings["doubleSpinBoxTextSizeBand"] = 1.5
-            self.settings["doubleSpinBoxMarkerSize"] = 1.5
-            self.settings["doubleSpinBoxCleanValues"] = 0.0
-        
-        # Template B
-        if template == 1:
+            # Template A
+            if template == 0:
 
-            dataSets = ["HQ30", "HQ100"]
-            col_RGB = ["190,232,255","116,179,255"]
-            col_HEX = RGB2HEX(col_RGB)
-            
-            self.applyDefaults(dataSets, col_HEX)
+                dataSets = ["HQ30 IST", "HQ30 ZUK", "HQ100 IST", "HQ100 ZUK", "HQ300 IST", "HQ300 ZUK"]
+                col_RGB = ["190,232,255","116,179,255","55,141,255","18,107,238","0,77,168","232,190,255"]
+                col_HEX = RGB2HEX(col_RGB)
 
-            self.settings["Frame"] = True
-            self.settings["Band"] = True
-            self.settings["ProfileName"] = "Cross section "
-            self.settings["ReachStation"] = "km "
-            self.settings["ScaleFactor"] = "Scale = "
-            self.settings["ReferenceLevel"] = "RL = "
-            self.settings["BandTitleStationing"] = "Station [m]"
-            self.settings["BandTitleElevation"] = "Elevation [m]"
-            self.settings["DecimalPlaces"] = 2
-            self.settings["doubleSpinBoxOffsetX"] = 75.0
-            self.settings["doubleSpinBoxOffsetZ"] = 2.5
-            self.settings["doubleSpinBoxBandHeight"] = 15.0
-            self.settings["doubleSpinBoxTextSizeBandTitle"] = 4.0
-            self.settings["doubleSpinBoxTextSizeBand"] = 1.5
-            self.settings["doubleSpinBoxMarkerSize"] = 1.5
-            self.settings["doubleSpinBoxCleanValues"] = 0.0
+                self.applyDefaults(dataSets, col_HEX)
+
+                self.settings = {}
+                self.settings["Frame"] = True
+                self.settings["Band"] = True
+                self.settings["ProfileName"] = "Profil Nr. "
+                self.settings["ReachStation"] = "km "
+                self.settings["ScaleFactor"] = "Massstab = "
+                self.settings["ReferenceLevel"] = "VE = "
+                self.settings["BandTitleStationing"] = "Stationierung [m]"
+                self.settings["BandTitleElevation"] = "Gelaendehoehe [m]"
+                self.settings["DecimalPlaces"] = 2
+                self.settings["doubleSpinBoxOffsetX"] = 75.0
+                self.settings["doubleSpinBoxOffsetZ"] = 2.5
+                self.settings["doubleSpinBoxBandHeight"] = 15.0
+                self.settings["doubleSpinBoxTextSizeBandTitle"] = 4.0
+                self.settings["doubleSpinBoxTextSizeBand"] = 1.5
+                self.settings["doubleSpinBoxMarkerSize"] = 1.5
+                self.settings["doubleSpinBoxCleanValues"] = 0.0
+
+            # Template B
+            if template == 1:
+
+                dataSets = ["HQ30", "HQ100"]
+                col_RGB = ["190,232,255","116,179,255"]
+                col_HEX = RGB2HEX(col_RGB)
+
+                self.applyDefaults(dataSets, col_HEX)
+
+                self.settings["Frame"] = True
+                self.settings["Band"] = True
+                self.settings["ProfileName"] = "Cross section "
+                self.settings["ReachStation"] = "km "
+                self.settings["ScaleFactor"] = "Scale = "
+                self.settings["ReferenceLevel"] = "RL = "
+                self.settings["BandTitleStationing"] = "Station [m]"
+                self.settings["BandTitleElevation"] = "Elevation [m]"
+                self.settings["DecimalPlaces"] = 2
+                self.settings["doubleSpinBoxOffsetX"] = 75.0
+                self.settings["doubleSpinBoxOffsetZ"] = 2.5
+                self.settings["doubleSpinBoxBandHeight"] = 15.0
+                self.settings["doubleSpinBoxTextSizeBandTitle"] = 4.0
+                self.settings["doubleSpinBoxTextSizeBand"] = 1.5
+                self.settings["doubleSpinBoxMarkerSize"] = 1.5
+                self.settings["doubleSpinBoxCleanValues"] = 0.0
 
             
     def getCrossSections(self, mesh):
@@ -272,8 +277,6 @@ class WrapProfilesDXF():
     
         if settings.exec_():
             self.settings = settings.getSettings()
-            print "settings set"
-            print self.settings
 
     def create(self):
     
@@ -302,12 +305,6 @@ class WrapProfilesDXF():
             return            
                 
         self.proArranged, self.reachStation, self.profileStation, direction = po.determineFlowDirection(self.nodReach, self.nodProfiles, self.proProfiles)
-        
-#        print self.proArranged
-#        print self.nodProfiles
-#        print self.reachStation
-#        print self.profileStation
-#        print direction
 
         info += "\nFlow direction:\n"
         for pID_Arranged in direction:
@@ -343,7 +340,8 @@ class WrapProfilesDXF():
                 self.profileStation,
                 scale,
                 superelevation,
-                self.settings)
+                self.settings,
+                self.ui.lineEditInputReachName.text())
             
             cs.drawBottom()
             cs.drawWaterSurface(wsCrossSections, colRGB)

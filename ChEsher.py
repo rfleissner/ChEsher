@@ -41,7 +41,7 @@ from module2DM2BK import Wrap2DM2BK
 from moduleCont2DXF import WrapCont2DXF
 from moduleTube import WrapTube
 from moduleHyDesign import WrapHyDesign
-from moduleProfiles import WrapProfiles
+from moduleXYZ2Profiles import WrapXYZ2Profiles
 from moduleHEC2DXF import WrapHEC2DXF
 from moduleXYZ2DXF import WrapXYZ2DXF
 from moduleProfilesDXF import WrapProfilesDXF
@@ -132,16 +132,16 @@ class ChEsher(QtGui.QMainWindow):
         self.moduleTube = WrapTube(self.directory)
         self.widgetTube = self.moduleTube.widget
         self.ui.stackedWidget.insertWidget(9, self.widgetTube)  
-        
-        # setup instance of module HyDesign
-        self.moduleHyDesign = WrapHyDesign()
-        self.widgetHyDesign = self.moduleHyDesign.widget
-        self.ui.stackedWidget.insertWidget(10, self.widgetHyDesign)
 
-        # setup instance of module Profiles
-        self.moduleProfiles = WrapProfiles(self.directory)
-        self.widgetProfiles = self.moduleProfiles.widget
-        self.ui.stackedWidget.insertWidget(11, self.widgetProfiles)    
+        # setup instance of module XYZ2Profiles
+        self.moduleXYZ2Profiles = WrapXYZ2Profiles(self.directory)
+        self.widgetXYZ2Profiles = self.moduleXYZ2Profiles.widget
+        self.ui.stackedWidget.insertWidget(10, self.widgetXYZ2Profiles)    
+
+        # setup instance of module ProfilesDXF
+        self.moduleProfilesDXF = WrapProfilesDXF(self.directory)
+        self.widgetProfilesDXF = self.moduleProfilesDXF.widget
+        self.ui.stackedWidget.insertWidget(11, self.widgetProfilesDXF)   
         
         # setup instance of module HEC2DXF
         self.moduleHEC2DXF = WrapHEC2DXF(self.directory)
@@ -153,10 +153,10 @@ class ChEsher(QtGui.QMainWindow):
         self.widgetXYZ2DXF = self.moduleXYZ2DXF.widget
         self.ui.stackedWidget.insertWidget(13, self.widgetXYZ2DXF)                
 
-        # setup instance of module ProfilesDXF
-        self.moduleProfilesDXF = WrapProfilesDXF(self.directory)
-        self.widgetProfilesDXF = self.moduleProfilesDXF.widget
-        self.ui.stackedWidget.insertWidget(14, self.widgetProfilesDXF)   
+        # setup instance of module HyDesign
+        self.moduleHyDesign = WrapHyDesign()
+        self.widgetHyDesign = self.moduleHyDesign.widget
+        self.ui.stackedWidget.insertWidget(14, self.widgetHyDesign)
         
         # actions in menu
         self.fileSetDirectory = self.createAction("Set working directory", slot=self.setDirectory)
@@ -164,40 +164,65 @@ class ChEsher(QtGui.QMainWindow):
             shortcut="Ctrl+Q")
         self.fileSetExamples = self.createAction("Initialize examples", slot=self.initializeModules)
         self.helpAction = self.createAction("Help", slot=self.help, shortcut="F1")
-        self.setDXFtoBKAction = self.createAction("DXF2BK", slot=self.setDXF2BK, shortcut="F2")
-        self.setBK2DXFAction = self.createAction("BK2DXF", slot=self.setBK2DXF, shortcut="F3")
-        self.setMeshAction = self.createAction("Mesh", slot=self.setMesh, shortcut="F4")
-        self.setXMLAction = self.createAction("LandXML", slot=self.setLandXML, shortcut="F5")
-        self.setScalarAction = self.createAction("ScalarDXF", slot=self.setScalarDXF, shortcut="F6")
-        self.setVectorAction = self.createAction("VectorDXF", slot=self.setVectorDXF, shortcut="F7")
-        self.setCSAction = self.createAction("CS", slot=self.setCS, shortcut="F8")
-        self.set2DMAction = self.createAction("2DM2BK", slot=self.set2DM2BK, shortcut="F9")
-        self.setCont2DXFAction = self.createAction("Cont2DXF", slot=self.setCont2DXF, shortcut="F10")
-        self.setTubeAction = self.createAction("Tube", slot=self.setTube, shortcut="F11")
-        self.setHyDesignAction = self.createAction("HyDesign", slot=self.setHyDesign, shortcut="F12")
-        self.setProfilesAction = self.createAction("Profiles", slot=self.setProfiles)
-        self.setHEC2DXFAction = self.createAction("HEC2DXF", slot=self.setHEC2DXF)
-        self.setXYZ2DXFAction = self.createAction("XYZ2DXF", slot=self.setXYZ2DXF)
+        self.setDXFtoBKAction = self.createAction("DXF2BK", slot=self.setDXF2BK)
+        self.setBK2DXFAction = self.createAction("BK2DXF", slot=self.setBK2DXF)
+        self.setMeshAction = self.createAction("Mesh", slot=self.setMesh)
+        self.setXMLAction = self.createAction("LandXML", slot=self.setLandXML)
+        self.setScalarAction = self.createAction("ScalarDXF", slot=self.setScalarDXF)
+        self.setVectorAction = self.createAction("VectorDXF", slot=self.setVectorDXF)
+        self.setCSAction = self.createAction("CS", slot=self.setCS)
+        self.set2DMAction = self.createAction("2DM2BK", slot=self.set2DM2BK)
+        self.setCont2DXFAction = self.createAction("Cont2DXF", slot=self.setCont2DXF)
+        self.setTubeAction = self.createAction("Tube", slot=self.setTube)
+        self.setProfilesAction = self.createAction("XYZ2Profiles", slot=self.setXYZ2Profiles)
         self.setProfilesDXFAction = self.createAction("ProfilesDXF", slot=self.setProfilesDXF)
+        self.setHEC2DXFAction = self.createAction("HEC2DXF", slot=self.setHEC2DXF)
+        self.setXYZ2DXFAction = self.createAction("XYZ2DXF", slot=self.setXYZ2DXF)        
+        self.setHyDesignAction = self.createAction("HyDesign", slot=self.setHyDesign)
         
         self.helpAboutAction = self.createAction("&About", \
             self.helpAbout)
+        
         # create menu
         self.fileMenu = self.menuBar().addMenu("ChEsher")
         self.moduleMenu = self.menuBar().addMenu("Module")
         self.helpMenu = self.menuBar().addMenu("Help")
+        
         # add actions to menu
-        self.addActions(self.fileMenu, (self.fileSetDirectory, self.fileSetExamples, None, self.fileQuitAction))
-        self.addActions(self.moduleMenu, (self.setDXFtoBKAction, self.setBK2DXFAction, self.setMeshAction, self.setXMLAction, self.setScalarAction, self.setVectorAction, self.setCSAction, self.set2DMAction, self.setCont2DXFAction, self.setTubeAction, self.setHyDesignAction, self.setProfilesAction, self.setHEC2DXFAction, self.setXYZ2DXFAction, self.setProfilesDXFAction))
+        self.addActions(self.fileMenu, ( \
+            self.fileSetDirectory, 
+            self.fileSetExamples, 
+            None, 
+            self.fileQuitAction
+            ))
+            
+        self.addActions(self.moduleMenu, ( \
+            self.setDXFtoBKAction, \
+            self.setBK2DXFAction,
+            self.setMeshAction, 
+            self.setXMLAction, 
+            self.setScalarAction, 
+            self.setVectorAction, 
+            self.setCSAction, 
+            self.set2DMAction,
+            self.setCont2DXFAction,
+            self.setTubeAction,
+            self.setProfilesAction,
+            self.setProfilesDXFAction,
+            self.setHEC2DXFAction,
+            self.setXYZ2DXFAction,
+            self.setHyDesignAction
+            ))
+            
         self.addActions(self.helpMenu, (self.helpAction, None, self.helpAboutAction))
 
 #        self.setDXF2BK()
 #        self.setCont2DXF()
-        self.setTube()
-#        self.setHEC2DXF()
-#        self.setProfiles()
+#        self.setTube()
+        self.setHEC2DXF()
+#        self.setXYZ2Profiles()
 #        self.setProfilesDXF()
-#        self.initialize()
+        self.initialize()
 
     def setType(self):
         self.calcDischarge()
@@ -242,7 +267,7 @@ class ChEsher(QtGui.QMainWindow):
         self.module2DM2BK.initialize()
         self.moduleCont2DXF.initialize()
         self.moduleTube.initialize()
-        self.moduleProfiles.initialize()
+        self.moduleXYZ2Profiles.initialize()
         self.moduleHEC2DXF.initialize()
         self.moduleProfilesDXF.initialize()
         
@@ -285,13 +310,13 @@ class ChEsher(QtGui.QMainWindow):
     def setTube(self):
         self.ui.labelModule.setText("~   Module Tube   ~")
         self.ui.stackedWidget.setCurrentIndex(9)
-        
-    def setHyDesign(self):
-        self.ui.labelModule.setText("~   Module HyDesign   ~")
-        self.ui.stackedWidget.setCurrentIndex(10)
 
-    def setProfiles(self):
-        self.ui.labelModule.setText("~   Module Profiles   ~")
+    def setXYZ2Profiles(self):
+        self.ui.labelModule.setText("~   Module XYZ2Profiles   ~")
+        self.ui.stackedWidget.setCurrentIndex(10)
+        
+    def setProfilesDXF(self):
+        self.ui.labelModule.setText("~   Module ProfilesDXF   ~")
         self.ui.stackedWidget.setCurrentIndex(11)
         
     def setHEC2DXF(self):
@@ -301,11 +326,11 @@ class ChEsher(QtGui.QMainWindow):
     def setXYZ2DXF(self):
         self.ui.labelModule.setText("~   XYZ2DXF   ~")
         self.ui.stackedWidget.setCurrentIndex(13)
-
-    def setProfilesDXF(self):
-        self.ui.labelModule.setText("~   Module ProfilesDXF   ~")
+ 
+    def setHyDesign(self):
+        self.ui.labelModule.setText("~   Module HyDesign   ~")
         self.ui.stackedWidget.setCurrentIndex(14)
-        
+
     def setDirectory(self):
         
         dir = QFileDialog.getExistingDirectory(self, "Select directory", self.directory)

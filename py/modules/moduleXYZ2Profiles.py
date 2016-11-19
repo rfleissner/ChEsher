@@ -23,11 +23,13 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QMessageBox
 
 # modules and classes
-from uiProfiles import Ui_Profiles
+from uiXYZ2Profiles import Ui_XYZ2Profiles
 import uiHandler as uih
 import fileHandler as fh
 import profileOrganizer as po
 from profileWriter import ProfileWriter
+from profileSettings import WrapProfileSettings
+
 import numpy as np
 
 try:
@@ -35,8 +37,8 @@ try:
 except AttributeError:
     _fromUtf8 = lambda s: s
 
-class WrapProfiles():
-    """Wrapper for module Profiles"""
+class WrapXYZ2Profiles():
+    """Wrapper for module XYZ2Profiles"""
 
     def __init__(self, dir):
         """Constructor."""
@@ -45,9 +47,27 @@ class WrapProfiles():
 
         # setup user interface
         self.widget = QtGui.QWidget()
-        self.ui = Ui_Profiles()
+        self.ui = Ui_XYZ2Profiles()
         self.ui.setupUi(self.widget)
 
+        self.settings = {}
+        self.settings["Frame"] = True
+        self.settings["Band"] = True
+        self.settings["ProfileName"] = "Cross section "
+        self.settings["ReachStation"] = "km "
+        self.settings["ScaleFactor"] = "Scale = "
+        self.settings["ReferenceLevel"] = "RL = "
+        self.settings["BandTitleStationing"] = "Station [m]"
+        self.settings["BandTitleElevation"] = "Elevation [m]"
+        self.settings["DecimalPlaces"] = 2
+        self.settings["doubleSpinBoxOffsetX"] = 75.0
+        self.settings["doubleSpinBoxOffsetZ"] = 2.5
+        self.settings["doubleSpinBoxBandHeight"] = 15.0
+        self.settings["doubleSpinBoxTextSizeBandTitle"] = 4.0
+        self.settings["doubleSpinBoxTextSizeBand"] = 1.5
+        self.settings["doubleSpinBoxMarkerSize"] = 1.5
+        self.settings["doubleSpinBoxCleanValues"] = 0.0
+        
         # inputs
         self.points = {}
         self.nodReach = {}
@@ -73,7 +93,6 @@ class WrapProfiles():
         self.callbackOpenPointsFile = functools.partial(uih.getOpenFileName, "Open Points File", "Point Set (*.xyz)", self.ui.lineEditInputPoints, self.directory, self.widget)
         QtCore.QObject.connect(self.ui.pushButtonInputPoints, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenPointsFile)
 
-
         self.callbackTextfile = functools.partial(uih.setEnabled, self.ui.checkBoxOutputTextfile, self.ui.pushButtonOutputTextfile, self.ui.lineEditOutputTextfile)
         QtCore.QObject.connect(self.ui.checkBoxOutputTextfile, QtCore.SIGNAL("clicked()"), self.callbackTextfile)
         
@@ -91,6 +110,12 @@ class WrapProfiles():
         
         self.callbackSaveHECRAS = functools.partial(uih.getSaveFileName, "Save GIS Format data file As", "GIS Format data file (*.geo)", self.ui.lineEditOutputHECRAS, self.directory, self.widget)
         QtCore.QObject.connect(self.ui.pushButtonOutputHECRAS, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveHECRAS)
+
+        defaults = ["Template A", "Template B"]
+        self.ui.comboBoxDefault.addItems(defaults)  
+        QtCore.QObject.connect(self.ui.pushButtonDefault, QtCore.SIGNAL(_fromUtf8("clicked()")), self.setDefault)
+                
+        QtCore.QObject.connect(self.ui.pushButtonProfileSettings, QtCore.SIGNAL("clicked()"), self.setSettings)
 
         QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.create)
         
@@ -114,82 +139,62 @@ class WrapProfiles():
             return
         try:
             self.points = fh.readXYZ(self.ui.lineEditInputPoints.text())
-            info += " - Points:\t\t{0}\n".format(len(self.points))
+            info += " - Points:\t\t\t{0}\n".format(len(self.points))
         except:
             QMessageBox.critical(self.widget, "Error", "Not able to load points file!\nCheck filename or content!")
             return
 
         self.proArranged, self.reachStation, self.profileStation, direction = po.determineFlowDirection(self.nodReach, self.nodProfiles, self.proProfiles)
-
-        info += "\nFlow direction:\n"
+        
+        print self.nodReach
+        print self.nodProfiles
+        print self.proProfiles
+        
+        info += "\nProfile information:\n"
         for pID_Arranged in direction:
-            info += ' - Profile {0}:\t{1}\n'.format(pID_Arranged, direction[pID_Arranged])
+            info += ' - Profile {0}:\tFlow direction: {1}\tStation: {2}\t\n'.format(pID_Arranged, direction[pID_Arranged], round(self.reachStation[pID_Arranged], 2))
 
         self.pointsNormalized, self.segmentStation = self.normalizeProfiles()
-
+        print self.pointsNormalized
+        info += "\nOutput data:\n"
+                    
         if self.ui.checkBoxOutputTextfile.isChecked():
-            self.writeTXT()
-#            try:
-#                self.writeTXT()
-#                info += " - Textfile created with {0} profiles and {1} points.\n".format(len(self.pointsNormalized), np.size(self.pointsNormalized)) 
-#            except:
-#                info += " - ERROR: Not able to write textfile!\n"
+            try:
+                self.writeTXT()
+                info += " - Textfile written to {0}.\n".format(self.ui.lineEditOutputTextfile.text())
+            except:
+                info += " - ERROR: Not able to write textfile!\n"
 
         if self.ui.checkBoxOutputDXF.isChecked():
 
-            scale = 100.0
-            superelevation = 1.0
+            scale = self.ui.spinBoxScale.value()
+            superelevation = self.ui.doubleSpinBoxSuperelevation.value()
             
-            settings = {}
-            settings["Frame"] = True
-            settings["Band"] = True
-            settings["ProfileName"] = "Cross section "
-            settings["ReachStation"] = "km "
-            settings["ScaleFactor"] = "Scale = "
-            settings["ReferenceLevel"] = "RL = "
-            settings["BandTitleStationing"] = "Station [m]"
-            settings["BandTitleElevation"] = "Elevation [m]"
-            settings["DecimalPlaces"] = 2
-            settings["doubleSpinBoxOffsetX"] = 75.0
-            settings["doubleSpinBoxOffsetZ"] = 2.5
-            settings["doubleSpinBoxBandHeight"] = 15.0
-            settings["doubleSpinBoxTextSizeBandTitle"] = 4.0
-            settings["doubleSpinBoxTextSizeBand"] = 1.5
-            settings["doubleSpinBoxMarkerSize"] = 1.5
-            settings["doubleSpinBoxCleanValues"] = 0.0
-            
-            cs = ProfileWriter(self.ui.lineEditOutputDXF.text(),\
-                self.pointsNormalized,
-                self.reachStation,
-                self.profileStation,
-                scale,
-                superelevation,
-                settings)
-            
-            cs.drawBottom()
-            cs.saveDXF()
+            try:
+                cs = ProfileWriter(self.ui.lineEditOutputDXF.text(),\
+                    self.pointsNormalized,
+                    self.reachStation,
+                    self.profileStation,
+                    scale,
+                    superelevation,
+                    self.settings,
+                    self.ui.lineEditInputReachName.text())
 
-#            pw.writeProfile(self.ui.lineEditOutputDXF.text(),\
-#                self.pointsNormalized,
-#                self.reachStation,
-#                self.profileStation
-#            )
-            
-#            try:
-#                self.writeDXF()
-#                info += " - DXF file created.\n"
-#            except:
-#                info += " - ERROR: Not able to write DXF file!\n"
+                cs.drawBottom()
+                cs.saveDXF()
+                info += " - DXF file written to {0}.\n".format(self.ui.lineEditOutputDXF.text())
+            except:
+                info += " - ERROR: Not able to write DXF file!\n"
 
         if self.ui.checkBoxOutputHECRAS.isChecked():
             self.writeGEO()
-#            try:
-#                self.writeGEO()
-#                info += " - GEO file created with {0} profiles and {1} points.\n".format(len(self.pointsNormalized), np.size(self.pointsNormalized)) 
-#            except:
-#                info += " - ERROR: Not able to write geo file!\n"
+            try:
+                self.writeGEO()
+                info += " - GEO file written to {0}.\n".format(self.ui.lineEditOutputHECRAS.text())
+            except:
+                info += " - ERROR: Not able to write geo file!\n"
 
-        print "finish"
+        QMessageBox.information(self.widget, "Module XYZ2Profiles", info)
 
     def normalizeProfiles(self):
 
@@ -301,7 +306,7 @@ class WrapProfiles():
         fname = self.ui.lineEditOutputTextfile.text()
         file = open(fname, 'w')
         
-        dec = self.ui.spinBoxDecimal.value()
+        dec = self.settings["DecimalPlaces"]
         
         for pID in self.pointsNormalized:
             file.write(str(len(self.pointsNormalized[pID][0])) + '\n')
@@ -315,11 +320,9 @@ class WrapProfiles():
         fname = self.ui.lineEditOutputHECRAS.text()
         file = open(fname, 'w')
         
-        dec = self.ui.spinBoxDecimal.value()
+        dec = self.settings["DecimalPlaces"]
         
-        rivername = self.ui.lineEditInputRiverName.text()
-        if self.ui.lineEditInputRiverName.text() == "":
-            rivername = "river"
+        rivername = "river"
             
         reachname = self.ui.lineEditInputReachName.text()
         if self.ui.lineEditInputReachName.text() == "":
@@ -392,3 +395,60 @@ class WrapProfiles():
 
         uih.setEnabledInitialize(self.ui.checkBoxOutputHECRAS, self.ui.pushButtonOutputHECRAS, self.ui.lineEditOutputHECRAS)
         self.ui.lineEditOutputHECRAS.setText(dir + "example_12/output/points.geo")       
+
+    def setSettings(self):
+
+        settings = WrapProfileSettings(self.settings)
+        settings.setSettings()
+    
+        if settings.exec_():
+            self.settings = settings.getSettings()
+
+    def setDefault(self):
+
+        ans = QMessageBox.question(self.widget, "Module XYZ2Profiles", "Do you want do set default settings?", 1, 2)
+
+        if ans != 1:
+            return
+        else:
+            template = self.ui.comboBoxDefault.currentIndex()
+
+            # Template A
+            if template == 0:
+
+                self.settings["Frame"] = True
+                self.settings["Band"] = True
+                self.settings["ProfileName"] = "Profil Nr. "
+                self.settings["ReachStation"] = "km "
+                self.settings["ScaleFactor"] = "Massstab = "
+                self.settings["ReferenceLevel"] = "VE = "
+                self.settings["BandTitleStationing"] = "Stationierung [m]"
+                self.settings["BandTitleElevation"] = "Gelaendehoehe [m]"
+                self.settings["DecimalPlaces"] = 2
+                self.settings["doubleSpinBoxOffsetX"] = 75.0
+                self.settings["doubleSpinBoxOffsetZ"] = 2.5
+                self.settings["doubleSpinBoxBandHeight"] = 15.0
+                self.settings["doubleSpinBoxTextSizeBandTitle"] = 4.0
+                self.settings["doubleSpinBoxTextSizeBand"] = 1.5
+                self.settings["doubleSpinBoxMarkerSize"] = 1.5
+                self.settings["doubleSpinBoxCleanValues"] = 0.0
+
+            # Template B
+            if template == 1:
+
+                self.settings["Frame"] = True
+                self.settings["Band"] = True
+                self.settings["ProfileName"] = "Cross section "
+                self.settings["ReachStation"] = "km "
+                self.settings["ScaleFactor"] = "Scale = "
+                self.settings["ReferenceLevel"] = "RL = "
+                self.settings["BandTitleStationing"] = "Station [m]"
+                self.settings["BandTitleElevation"] = "Elevation [m]"
+                self.settings["DecimalPlaces"] = 2
+                self.settings["doubleSpinBoxOffsetX"] = 75.0
+                self.settings["doubleSpinBoxOffsetZ"] = 2.5
+                self.settings["doubleSpinBoxBandHeight"] = 15.0
+                self.settings["doubleSpinBoxTextSizeBandTitle"] = 4.0
+                self.settings["doubleSpinBoxTextSizeBand"] = 1.5
+                self.settings["doubleSpinBoxMarkerSize"] = 1.5
+                self.settings["doubleSpinBoxCleanValues"] = 0.0

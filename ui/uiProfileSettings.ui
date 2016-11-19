@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Profile settings</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../resource/icon.ico</normaloff>../resource/icon.ico</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">

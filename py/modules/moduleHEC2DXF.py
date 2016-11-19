@@ -19,11 +19,15 @@ __date__ ="$18.05.2016 22:38:30$"
 
 import functools
 from PyQt4 import QtCore, QtGui
+from PyQt4.QtGui import QMessageBox
 
 # modules and classes
 from uiHEC2DXF import Ui_HEC2DXF
 import uiHandler as uih
-import profileWriter as pw
+import profileOrganizer as po
+from profileWriter import ProfileWriter
+from profileSettings import WrapProfileSettings
+
 import numpy as np
 from dxfwrite import DXFEngine as dxf
 
@@ -45,13 +49,37 @@ class WrapHEC2DXF():
         self.ui = Ui_HEC2DXF()
         self.ui.setupUi(self.widget)
 
+        self.settings = {}
+        self.settings["Frame"] = True
+        self.settings["Band"] = True
+        self.settings["ProfileName"] = "Cross section "
+        self.settings["ReachStation"] = "km "
+        self.settings["ScaleFactor"] = "Scale = "
+        self.settings["ReferenceLevel"] = "RL = "
+        self.settings["BandTitleStationing"] = "Station [m]"
+        self.settings["BandTitleElevation"] = "Elevation [m]"
+        self.settings["DecimalPlaces"] = 2
+        self.settings["doubleSpinBoxOffsetX"] = 75.0
+        self.settings["doubleSpinBoxOffsetZ"] = 2.5
+        self.settings["doubleSpinBoxBandHeight"] = 15.0
+        self.settings["doubleSpinBoxTextSizeBandTitle"] = 4.0
+        self.settings["doubleSpinBoxTextSizeBand"] = 1.5
+        self.settings["doubleSpinBoxMarkerSize"] = 1.5
+        self.settings["doubleSpinBoxCleanValues"] = 0.0
+        
         # inputs
         self.callbackOpenSDFFile = functools.partial(uih.getOpenFileName, "Open Spatial Data Format File", "Spatial Data Format File (*.sdf)", self.ui.lineEditInputSDF, self.directory, self.widget)
         QtCore.QObject.connect(self.ui.pushButtonInputSDF, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenSDFFile)
     
         self.callbackSaveDXFfile = functools.partial(uih.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputDXF, self.directory, self.widget)
         QtCore.QObject.connect(self.ui.pushButtonOutputDXF, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveDXFfile)
+
+        defaults = ["Template A", "Template B"]
+        self.ui.comboBoxDefault.addItems(defaults)  
+        QtCore.QObject.connect(self.ui.pushButtonDefault, QtCore.SIGNAL(_fromUtf8("clicked()")), self.setDefault)
                 
+        QtCore.QObject.connect(self.ui.pushButtonProfileSettings, QtCore.SIGNAL("clicked()"), self.setSettings)
+
         QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.create)
         
         self.NUMBER_OF_PROFILES = 0
@@ -60,7 +88,6 @@ class WrapHEC2DXF():
         self.NUMBER_OF_CROSS_SECTIONS = 0
         self.STREAM_ID = ""
         self.REACH_ID = ""
-        self.CENTERLINE = {"x":[], "y":[]}
         self.CROSS_SECTIONS = {\
             "PROFILE_ID":[],\
             "STREAM_ID":[], \
@@ -73,6 +100,12 @@ class WrapHEC2DXF():
             "WATER_ELEVATION":{},\
             "SURFACE_LINE":{"x":[], "y":[], "z":[]}\
             }
+            
+        self.nodReach = {}
+        self.nodProfiles = {}
+        self.proProfiles = {}
+        self.profileNodes = {}
+        
     def setDir(self, directory):
         self.directory = directory
         
@@ -86,6 +119,9 @@ class WrapHEC2DXF():
         reachStation = {}
         profileStation = {}
         bottom = {}
+        
+        profileStation_ = po.determineFlowDirection(self.nodReach, self.nodProfiles, self.proProfiles)[2]
+        
         for pID in range(len(self.CROSS_SECTIONS["SURFACE_LINE"]["x"])):
             
             d = []
@@ -103,8 +139,7 @@ class WrapHEC2DXF():
                 xj = self.CROSS_SECTIONS["SURFACE_LINE"]["x"][pID][nID+1]
                 yi = self.CROSS_SECTIONS["SURFACE_LINE"]["y"][pID][nID]
                 yj = self.CROSS_SECTIONS["SURFACE_LINE"]["y"][pID][nID+1]
-#                print xi
-#                print xj
+
                 profile_line = LineString([(xi, yi), (xj, yj)])
                 totLen += profile_line.length
                 if profile_line.length >= 0.005:
@@ -118,20 +153,33 @@ class WrapHEC2DXF():
             z = np.array(z_)
             
             reachStation[self.CROSS_SECTIONS["PROFILE_ID"][pID]] = self.CROSS_SECTIONS["STATION"][pID]
-            profileStation[self.CROSS_SECTIONS["PROFILE_ID"][pID]] = 0.0            
+            profileStation[self.CROSS_SECTIONS["PROFILE_ID"][pID]] = profileStation_[pID+1]
             bottom[self.CROSS_SECTIONS["PROFILE_ID"][pID]] = [x, y, z, d]
 
-        print self.CROSS_SECTIONS["WATER_ELEVATION"]
-        
-        
-        pw.writeProfile(self.ui.lineEditOutputDXF.text(),\
+        scale = self.ui.spinBoxScale.value()
+        superelevation = self.ui.doubleSpinBoxSuperelevation.value()
+
+        cs = ProfileWriter(self.ui.lineEditOutputDXF.text(),\
             bottom,
             reachStation,
             profileStation,
-            self.PROFILE_NAMES,
-            self.CROSS_SECTIONS["WATER_ELEVATION"],
-            self.CROSS_SECTIONS["LEVEE_POSITIONS"]
-        )
+            scale,
+            superelevation,
+            self.settings,
+            self.REACH_ID)
+
+        cs.drawBottom()
+        cs.draw1dResults(self.PROFILE_NAMES, self.CROSS_SECTIONS["WATER_ELEVATION"], self.CROSS_SECTIONS["LEVEE_POSITIONS"])
+        cs.saveDXF()
+            
+#        pw.writeProfile(self.ui.lineEditOutputDXF.text(),\
+#            bottom,
+#            reachStation,
+#            profileStation,
+#            self.PROFILE_NAMES,
+#            self.CROSS_SECTIONS["WATER_ELEVATION"],
+#            self.CROSS_SECTIONS["LEVEE_POSITIONS"]
+#        )
 
 #        try:
 #            self.points = fh.readXYZ(self.ui.lineEditInputPoints.text())
@@ -157,6 +205,8 @@ class WrapHEC2DXF():
         content = file.readlines()
         file.close()
         CS_counter = 0
+        cID = 0
+        self.nodProfiles = {}        
         for lID in range(len(content)):
             line = content[lID].split()
 
@@ -176,15 +226,15 @@ class WrapHEC2DXF():
                 lID += 1
                 self.REACH_ID = content[lID].split()[-1]
                 lID += 4
+                nID = 1
 
                 while True:
-                    self.CENTERLINE["x"].append(float(content[lID].split(",")[0]))
-                    self.CENTERLINE["y"].append(float(content[lID].split(",")[1]))
+                    self.nodReach[nID] = [float(content[lID].split(",")[0]), float(content[lID].split(",")[1])]
+                    nID += 1
                     lID += 1
                     if content[lID].startswith(' END:'):
                         break
 
-            
             if content[lID].startswith('  CROSS-SECTION:'):
                 CS_counter += 1
                 self.CROSS_SECTIONS["PROFILE_ID"].append(CS_counter)
@@ -206,15 +256,20 @@ class WrapHEC2DXF():
                         lID += 1
                         x = []
                         y = []
+                        cs = []
                         while True:
                             try:
                                 x.append(float(content[lID].split(",")[0]))
                                 y.append(float(content[lID].split(",")[1]))
-                                lID += 1
+                                cID +=1
+                                cs.append(cID)
+                                self.nodProfiles[cID] = [float(content[lID].split(",")[0]), float(content[lID].split(",")[1])]
+                                lID += 1                            
                             except:
                                 self.CROSS_SECTIONS["CUT_LINE"]["x"].append(x)
                                 self.CROSS_SECTIONS["CUT_LINE"]["y"].append(y)
                                 break
+                        self.proProfiles[CS_counter]= cs
                         continue
                     if content[lID].startswith('    REACH LENGTHS:'):
                         self.CROSS_SECTIONS["REACH_LENGTHS"].append([float(content[lID].split(":")[1].split(",")[0]),\
@@ -317,3 +372,60 @@ class WrapHEC2DXF():
           
         self.ui.lineEditInputSDF.setText(dir + "example_13/results.sdf")
         self.ui.lineEditOutputDXF.setText(dir + "example_13/output/results.dxf")
+
+    def setSettings(self):
+
+        settings = WrapProfileSettings(self.settings)
+        settings.setSettings()
+    
+        if settings.exec_():
+            self.settings = settings.getSettings()
+
+    def setDefault(self):
+
+        ans = QMessageBox.question(self.widget, "Module HEC2DXF", "Do you want do set default settings?", 1, 2)
+
+        if ans != 1:
+            return
+        else:
+            template = self.ui.comboBoxDefault.currentIndex()
+
+            # Template A
+            if template == 0:
+
+                self.settings["Frame"] = True
+                self.settings["Band"] = True
+                self.settings["ProfileName"] = "Profil Nr. "
+                self.settings["ReachStation"] = "km "
+                self.settings["ScaleFactor"] = "Massstab = "
+                self.settings["ReferenceLevel"] = "VE = "
+                self.settings["BandTitleStationing"] = "Stationierung [m]"
+                self.settings["BandTitleElevation"] = "Gelaendehoehe [m]"
+                self.settings["DecimalPlaces"] = 2
+                self.settings["doubleSpinBoxOffsetX"] = 75.0
+                self.settings["doubleSpinBoxOffsetZ"] = 2.5
+                self.settings["doubleSpinBoxBandHeight"] = 15.0
+                self.settings["doubleSpinBoxTextSizeBandTitle"] = 4.0
+                self.settings["doubleSpinBoxTextSizeBand"] = 1.5
+                self.settings["doubleSpinBoxMarkerSize"] = 1.5
+                self.settings["doubleSpinBoxCleanValues"] = 0.0
+
+            # Template B
+            if template == 1:
+
+                self.settings["Frame"] = True
+                self.settings["Band"] = True
+                self.settings["ProfileName"] = "Cross section "
+                self.settings["ReachStation"] = "km "
+                self.settings["ScaleFactor"] = "Scale = "
+                self.settings["ReferenceLevel"] = "RL = "
+                self.settings["BandTitleStationing"] = "Station [m]"
+                self.settings["BandTitleElevation"] = "Elevation [m]"
+                self.settings["DecimalPlaces"] = 2
+                self.settings["doubleSpinBoxOffsetX"] = 75.0
+                self.settings["doubleSpinBoxOffsetZ"] = 2.5
+                self.settings["doubleSpinBoxBandHeight"] = 15.0
+                self.settings["doubleSpinBoxTextSizeBandTitle"] = 4.0
+                self.settings["doubleSpinBoxTextSizeBand"] = 1.5
+                self.settings["doubleSpinBoxMarkerSize"] = 1.5
+                self.settings["doubleSpinBoxCleanValues"] = 0.0

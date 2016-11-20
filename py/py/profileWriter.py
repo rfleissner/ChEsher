@@ -20,7 +20,9 @@ __date__ ="$15.07.2016 18:21:40$"
 
 import ezdxf
 import math
+
 from shapely.geometry import LineString, Polygon 
+from scipy import interpolate
 
 import os.path as pth
 ezdxf.options.template_dir = pth.abspath('.')
@@ -208,6 +210,7 @@ class ProfileWriter():
     def drawWaterSurface(self, ws, col):
         
         wsCounter = 0
+
         for name in ws:
             wsCounter += 1
             for pID in ws[name]:
@@ -216,7 +219,12 @@ class ProfileWriter():
                 off_z = pID*self.dz
                 z = p[2]
                 d = p[3]
-                
+
+                z_bottom = self.bottom[pID][2]
+                d_bottom = self.bottom[pID][3]
+            
+                f = interpolate.interp1d(d_bottom, z_bottom)
+
                 xmin = self.xmin[pID]
                 xmax = self.xmax[pID]
                 zmin = self.zmin[pID]
@@ -229,19 +237,33 @@ class ProfileWriter():
                     self.msp.add_line((xmin-self.off_band_x, off_z+zmin-self.off_band_z-self.h_band),(xmin-self.off_band_x,off_z+zmin-self.off_band_z-(2+wsCounter)*self.h_band), dxfattribs={'layer': 'frame'})
                     title_height = self.msp.add_text(name, dxfattribs={'height': self.textheight_bandtitle})
                     title_height.set_pos((xmin-self.off_band_x+self.h_band/2.0, off_z+zmin-self.off_band_z-(2+wsCounter-1./2.)*self.h_band), align='MIDDLE_LEFT')
+                    title_height.rgb = col[name]
+                cou = 1
+                profilepoints = {}
+                profilepoint = []
 
-                profilepoints = []
                 mx = []
                 x0 = -1000000.0
                 mxcounter = -1
                 
                 for nID in range(len(d)):
-                     
+
                     x1 = d[nID]
                     z1 = off_z+z[nID]*self.superelev
 
-                    p1 = (x1, z1)
-                    profilepoints.append(p1)
+                    z_interp = f(x1)
+                    
+                    # print water surface, if the water depth is greater than 0.005
+                    zeroWS = True
+                    if z[nID] - z_interp >= 0.005:
+                        zeroWS = False
+                        p1 = (x1, z1)
+                        profilepoint.append(p1)
+                    else:
+                        if len(profilepoint)>0:
+                            profilepoints[cou] = profilepoint
+                            cou += 1
+                            profilepoint = []
 
                     # marker
                     if self.drawBand:
@@ -249,22 +271,27 @@ class ProfileWriter():
                         if (abs(x1 - x0) >= self.bereinig) or (len(mx) == 0):
                             mx.append(x1)
                             mxcounter+=1
-                            
+
                             if len(mx) > 1:    
                                 if mx[mxcounter]-mx[mxcounter-1] < 1.5*self.textheight_band:
                                     mx[mxcounter] = mx[mxcounter-1] + 1.5*self.textheight_band
-                                    
+
                             # band
-                            self.msp.add_line((mx[mxcounter], off_z+zmin-self.off_band_z-(1+wsCounter)*self.h_band), (mx[mxcounter], off_z+zmin-self.off_band_z-(1+wsCounter)*self.h_band-self.markerlength),  dxfattribs={'layer': 'band'})   
-                            self.msp.add_line((mx[mxcounter], off_z+zmin-self.off_band_z-(2+wsCounter)*self.h_band), (mx[mxcounter], off_z+zmin-self.off_band_z-(2+wsCounter)*self.h_band+self.markerlength),  dxfattribs={'layer': 'band'})
-                            text_height = self.msp.add_text("%.{0}f".format(self.dec)%z[mxcounter], dxfattribs={'height': self.textheight_band, 'rotation': 90.0})
-                            text_height.set_pos((mx[mxcounter], off_z+zmin-self.off_band_z-(2+wsCounter-1./2.)*self.h_band), align='MIDDLE')
-                            x0 = x1
+                            if not zeroWS:
+                                self.msp.add_line((mx[mxcounter], off_z+zmin-self.off_band_z-(1+wsCounter)*self.h_band), (mx[mxcounter], off_z+zmin-self.off_band_z-(1+wsCounter)*self.h_band-self.markerlength),  dxfattribs={'layer': 'band'})   
+                                self.msp.add_line((mx[mxcounter], off_z+zmin-self.off_band_z-(2+wsCounter)*self.h_band), (mx[mxcounter], off_z+zmin-self.off_band_z-(2+wsCounter)*self.h_band+self.markerlength),  dxfattribs={'layer': 'band'})
+                                text_height = self.msp.add_text("%.{0}f".format(self.dec)%z[mxcounter], dxfattribs={'height': self.textheight_band, 'rotation': 90.0})
+                                text_height.set_pos((mx[mxcounter], off_z+zmin-self.off_band_z-(2+wsCounter-1./2.)*self.h_band), align='MIDDLE')
+                                text_height.rgb = col[name]
+                                x0 = x1
                         
                 # draw water surface
-                poly = self.msp.add_polyline2d(profilepoints, dxfattribs={'layer': 'profile'})
-                print col[name]
-                poly.rgb = col[name]
+                if len(profilepoint)>0:
+                    profilepoints[cou] = profilepoint
+                    
+                for key in profilepoints:
+                    poly = self.msp.add_polyline2d(profilepoints[key], dxfattribs={'layer': 'profile'})
+                    poly.rgb = col[name]
 
     def draw1dResults(self, ws1dNames, ws1dElevations, levees):
 
@@ -284,10 +311,10 @@ class ProfileWriter():
             h = (n+1.0+(n-1)*0.5)*0.75*self.textheight_bandtitle
             dh = 0.75*self.textheight_bandtitle
             
-            self.msp.add_line((xmin, off_z+zmax),(xmin, off_z+zmax+h), dxfattribs={'layer': 'frame'})
-            self.msp.add_line((xmin+self.off_band_x, off_z+zmax),(xmin+self.off_band_x, off_z+zmax+h), dxfattribs={'layer': 'frame'})
-            self.msp.add_line((xmin, off_z+zmax),(xmin+self.off_band_x, off_z+zmax), dxfattribs={'layer': 'frame'})
-            self.msp.add_line((xmin, off_z+zmax+h),(xmin+self.off_band_x, off_z+zmax+h), dxfattribs={'layer': 'frame'})
+            self.msp.add_line((xmin+dh, off_z+zmin+dh),(xmin+dh, off_z+zmin+h+dh), dxfattribs={'layer': 'frame'})
+            self.msp.add_line((xmin+self.off_band_x+dh, off_z+zmin+dh),(xmin+self.off_band_x+dh, off_z+zmin+h+dh), dxfattribs={'layer': 'frame'})
+            self.msp.add_line((xmin+dh, off_z+zmin+dh),(xmin+self.off_band_x+dh, off_z+zmin+dh), dxfattribs={'layer': 'frame'})
+            self.msp.add_line((xmin+dh, off_z+zmin+h+dh),(xmin+self.off_band_x+dh, off_z+zmin+h+dh), dxfattribs={'layer': 'frame'})
                 
             for wID in range(len(ws1dElevations[pID])):
 
@@ -296,9 +323,9 @@ class ProfileWriter():
                 layerColor = 2+wID
                 
                 # legend
-                self.msp.add_line((xmin+dh, off_z+zmax+h-(wID+1+wID*0.5)*dh),(xmin+dh+h, off_z+zmax+h-(wID+1+wID*0.5)*dh), dxfattribs={'layer': layerName, 'color':layerColor})
+                self.msp.add_line((xmin+dh+dh, off_z+zmin+h-(wID+1+wID*0.5)*dh+dh),(xmin+dh+h+dh, off_z+zmin+h-(wID+1+wID*0.5)*dh+dh), dxfattribs={'layer': layerName, 'color':layerColor})
                 text_M = self.msp.add_text(ws1dNames[wID] +" = %.{0}f m".format(self.dec)%wsElevation, dxfattribs={'height': 0.75*self.textheight_bandtitle})
-                text_M.set_pos((xmin+dh+h+dh, off_z+zmax+h-(wID+1+wID*0.5)*dh), align='MIDDLE_LEFT')
+                text_M.set_pos((xmin+dh+h+dh+dh, off_z+zmin+h-(wID+1+wID*0.5)*dh+dh), align='MIDDLE_LEFT')
                 
                 tup = tuple([(xmin-1.0,off_z+zmax*self.superelev)] + profilepoints + [(xmax+1.0,off_z+zmax*self.superelev)])
                 bottomLine = Polygon(tup)

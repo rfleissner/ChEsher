@@ -219,9 +219,9 @@ class ChEsher(QtGui.QMainWindow):
 #        self.setDXF2BK()
 #        self.setCont2DXF()
 #        self.setTube()
-        self.setHEC2DXF()
+#        self.setHEC2DXF()
 #        self.setXYZ2Profiles()
-#        self.setProfilesDXF()
+        self.setProfilesDXF()
         self.initialize()
 
     def setType(self):

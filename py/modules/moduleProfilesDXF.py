@@ -19,7 +19,7 @@ __date__ ="$18.05.2016 22:38:30$"
 
 import functools
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QFileDialog, QMessageBox, QDialog, QColor
+from PyQt4.QtGui import QFileDialog, QMessageBox, QColor
 
 # modules and classes
 from uiProfilesDXF import Ui_ProfilesDXF
@@ -227,7 +227,6 @@ class WrapProfilesDXF():
                 self.settings["doubleSpinBoxMarkerSize"] = 1.5
                 self.settings["doubleSpinBoxCleanValues"] = 0.0
 
-            
     def getCrossSections(self, mesh):
 
         crossSections = dict((key, np.array([])) for key in self.proArranged)
@@ -266,9 +265,8 @@ class WrapProfilesDXF():
             d = arr[:,3]
 
             crossSections[pID] = [x,y,z,d]
-            print "cross section", pID, "done"
+
         return crossSections
-    
     
     def setSettings(self):
 
@@ -300,6 +298,7 @@ class WrapProfilesDXF():
                 self.ui.tableWidget.item(row, 0).text()
                 self.ui.tableWidget.item(row, 1).text()
                 str(self.ui.tableWidget.item(row, 2).text()).split(",")[2]
+            info += " - Water surface results:\t{0}\n".format(rows)
         except:
             QMessageBox.critical(self.widget, "Error", "Check filename, surface name and colour!")
             return            
@@ -310,51 +309,59 @@ class WrapProfilesDXF():
         for pID_Arranged in direction:
             info += ' - Profile {0}:\t{1}\n'.format(pID_Arranged, direction[pID_Arranged])
 
+
         # create bottom cross sections
-        bottom = fh.readT3StoShapely(self.ui.lineEditInputBottom.text())
-        bottomCrossSections = self.getCrossSections(bottom)
+        try:
+            bottom = fh.readT3StoShapely(self.ui.lineEditInputBottom.text())
+            bottomCrossSections = self.getCrossSections(bottom)
+        except:
+            QMessageBox.critical(self.widget, "Error", "Not able to interpolate bottom profile!")
+            return
+        
         
         # create water surface cross sections
-        rows = self.ui.tableWidget.rowCount()
-        wsCrossSections = {}
-        colRGB = {}
-        if rows > 0:
-            for row in range(rows):
-                filename = self.ui.tableWidget.item(row, 0).text()
-                name = self.ui.tableWidget.item(row, 1).text()
-                watersurface = fh.readT3StoShapely(filename)
-                wsCrossSections[name] = self.getCrossSections(watersurface)
-                col = Colour(str(self.ui.tableWidget.item(row, 2).text()).split(","))
-                col.create()
-                colRGB[name] = col.getRGB()
-
-        print wsCrossSections
+        try:        
+            rows = self.ui.tableWidget.rowCount()
+            wsCrossSections = {}
+            colRGB = {}
+            if rows > 0:
+                for row in range(rows):
+                    filename = self.ui.tableWidget.item(row, 0).text()
+                    name = self.ui.tableWidget.item(row, 1).text()
+                    watersurface = fh.readT3StoShapely(filename)
+                    wsCrossSections[name] = self.getCrossSections(watersurface)
+                    col = Colour(str(self.ui.tableWidget.item(row, 2).text()).split(","))
+                    col.create()
+                    colRGB[name] = col.getRGB()
+        except:
+            QMessageBox.critical(self.widget, "Error", "Not able to interpolate water surface profiles!")
+            return
         
         scale = self.ui.spinBoxScale.value()
         superelevation = self.ui.doubleSpinBoxSuperelevation.value()
         
-        if self.ui.checkBoxOutputProfiles.isChecked():
-            cs = ProfileWriter(self.ui.lineEditOutputProfiles.text(),\
-                bottomCrossSections,
-                self.reachStation,
-                self.profileStation,
-                scale,
-                superelevation,
-                self.settings,
-                self.ui.lineEditInputReachName.text())
-            
-            cs.drawBottom()
-            cs.drawWaterSurface(wsCrossSections, colRGB)
-            cs.saveDXF()
-            
-#
-#            pw.writeProfile(self.ui.lineEditOutputProfiles.text(),\
-#                bottomCrossSections,
-#                self.reachStation,
-#                self.profileStation
-#            )                
+        info += "\nOutput data:\n"
+        
+        if self.ui.checkBoxOutputProfiles.isChecked():             
+            try:        
+                cs = ProfileWriter(self.ui.lineEditOutputProfiles.text(),\
+                    bottomCrossSections,
+                    self.reachStation,
+                    self.profileStation,
+                    scale,
+                    superelevation,
+                    self.settings,
+                    self.ui.lineEditInputReachName.text())
 
-        print "finish"
+                cs.drawBottom()
+                cs.drawWaterSurface(wsCrossSections, colRGB)
+                cs.saveDXF()
+
+                info += " - DXF file written to {0}.\n".format(self.ui.lineEditOutputProfiles.text())
+            except:
+                info += " - ERROR: Not able to write profiles!\n"
+
+        QMessageBox.information(self.widget, "Module ProfilesDXF", info)     
 
     def add(self):
         row = self.ui.tableWidget.currentRow()
@@ -412,7 +419,7 @@ class WrapProfilesDXF():
         self.add()
         
         item1 = QtGui.QTableWidgetItem()
-        item1.setText(self.directory + "example_15/FREE SURFACE_S161_Case_A.t3s")
+        item1.setText(self.directory + "C:/ChEsher/examples/example_15/FREE SURFACE_S161_Case_A.t3s")
         self.ui.tableWidget.setItem(0, 0, item1)
         
         item2 = QtGui.QTableWidgetItem()
@@ -420,23 +427,32 @@ class WrapProfilesDXF():
         self.ui.tableWidget.setItem(0, 1, item2)
 
         item3 = QtGui.QTableWidgetItem()
-        item3.setText(self.directory + "example_15/FREE SURFACE_S161_Case_B.t3s")
+        item3.setText(self.directory + "C:/ChEsher/examples/example_15/FREE SURFACE_S161_Case_B.t3s")
         self.ui.tableWidget.setItem(1, 0, item3)
 
         item4 = QtGui.QTableWidgetItem()
         item4.setText("HQ100 Case B")
         self.ui.tableWidget.setItem(1, 1, item4)
 
-        item3 = self.ui.tableWidget.item(0, 2)
-        initCol = item3.backgroundColor()
-        initCol.setRed(200)
-        initCol.setGreen(200)
-        initCol.setBlue(255)
-        item3 = QtGui.QTableWidgetItem()
-        item3.setBackground(initCol)
-        item3.setFlags(QtCore.Qt.ItemIsEnabled)
-        item3.setText(str(initCol.red()) + ", " + str(initCol.green()) + ", " + str(initCol.blue()))
-        self.ui.tableWidget.setItem(0, 2, item3)
+        initCol = item2.backgroundColor()
+        initCol.setRed(255)
+        initCol.setGreen(0)
+        initCol.setBlue(127)
+        item5 = QtGui.QTableWidgetItem()
+        item5.setBackground(initCol)
+        item5.setFlags(QtCore.Qt.ItemIsEnabled)
+        item5.setText(str(initCol.red()) + ", " + str(initCol.green()) + ", " + str(initCol.blue()))
+        self.ui.tableWidget.setItem(0, 2, item5)
 
+        initCol = item4.backgroundColor()
+        initCol.setRed(29)
+        initCol.setGreen(29)
+        initCol.setBlue(255)
+        item6 = QtGui.QTableWidgetItem()
+        item6.setBackground(initCol)
+        item6.setFlags(QtCore.Qt.ItemIsEnabled)
+        item6.setText(str(initCol.red()) + ", " + str(initCol.green()) + ", " + str(initCol.blue()))
+        self.ui.tableWidget.setItem(1, 2, item6)
+        
         uih.setEnabledInitialize(self.ui.checkBoxOutputProfiles, self.ui.pushButtonOutputProfiles, self.ui.lineEditOutputProfiles)
-        self.ui.lineEditOutputProfiles.setText(self.directory + "example_15/output/profiles.dxf")
+        self.ui.lineEditOutputProfiles.setText(self.directory + "C:/ChEsher/examples/example_15/output/profiles.dxf")

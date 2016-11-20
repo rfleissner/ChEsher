@@ -29,7 +29,6 @@ from profileWriter import ProfileWriter
 from profileSettings import WrapProfileSettings
 
 import numpy as np
-from dxfwrite import DXFEngine as dxf
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -111,8 +110,15 @@ class WrapHEC2DXF():
         
     def create(self):
         info = "Input data:\n"
-
-        self.readSDF(self.ui.lineEditInputSDF.text())
+        
+        try:
+            self.readSDF(self.ui.lineEditInputSDF.text())
+            info += " - Reach:\t\t\t\t{0}\n".format(self.REACH_ID)
+            info += " - Number of cross sections:\t\t{0}\n".format(self.NUMBER_OF_CROSS_SECTIONS)
+            info += " - Number of water surface profiles:\t{0}\n".format(self.NUMBER_OF_PROFILES)
+        except:
+            QMessageBox.critical(self.widget, "Error", "Not able to load GIS data file!\nCheck filename or content!")
+            return
         
         from shapely.geometry import LineString
         
@@ -121,7 +127,7 @@ class WrapHEC2DXF():
         bottom = {}
         
         profileStation_ = po.determineFlowDirection(self.nodReach, self.nodProfiles, self.proProfiles)[2]
-        
+
         for pID in range(len(self.CROSS_SECTIONS["SURFACE_LINE"]["x"])):
             
             d = []
@@ -158,55 +164,63 @@ class WrapHEC2DXF():
 
         scale = self.ui.spinBoxScale.value()
         superelevation = self.ui.doubleSpinBoxSuperelevation.value()
-
-        cs = ProfileWriter(self.ui.lineEditOutputDXF.text(),\
-            bottom,
-            reachStation,
-            profileStation,
-            scale,
-            superelevation,
-            self.settings,
-            self.REACH_ID)
-
-        cs.drawBottom()
-        cs.draw1dResults(self.PROFILE_NAMES, self.CROSS_SECTIONS["WATER_ELEVATION"], self.CROSS_SECTIONS["LEVEE_POSITIONS"])
-        cs.saveDXF()
-            
-#        pw.writeProfile(self.ui.lineEditOutputDXF.text(),\
-#            bottom,
-#            reachStation,
-#            profileStation,
-#            self.PROFILE_NAMES,
-#            self.CROSS_SECTIONS["WATER_ELEVATION"],
-#            self.CROSS_SECTIONS["LEVEE_POSITIONS"]
-#        )
-
-#        try:
-#            self.points = fh.readXYZ(self.ui.lineEditInputPoints.text())
-#            info += " - Points:\t\t{0}\n".format(len(self.points))
-#        except:
-#            QMessageBox.critical(self.widget, "Error", "Not able to load points file!\nCheck filename or content!")
-#            return
-
-
-
-
-#        self.writeDXF()
-#            try:
-#                self.writeDXF()
-#                info += " - DXF file created.\n"
-#            except:
-#                info += " - ERROR: Not able to write DXF file!\n"
-        print "finish"
         
-    def readSDF(self, filename):
+        info += "\nOutput data:\n"
+             
+        try:
+            cs = ProfileWriter(self.ui.lineEditOutputDXF.text(),\
+                bottom,
+                reachStation,
+                profileStation,
+                scale,
+                superelevation,
+                self.settings,
+                self.REACH_ID)   
 
+            cs.drawBottom()
+            cs.draw1dResults(self.PROFILE_NAMES, self.CROSS_SECTIONS["WATER_ELEVATION"], self.CROSS_SECTIONS["LEVEE_POSITIONS"])
+            cs.saveDXF()    
+            
+            info += " - DXF file written to {0}.\n".format(self.ui.lineEditOutputDXF.text())
+    
+        except:
+            info += " - ERROR: Not able to write profiles!\n"
+
+        QMessageBox.information(self.widget, "Module HEC2DXF", info)        
+            
+    def readSDF(self, filename):
+        
+        self.NUMBER_OF_PROFILES = 0
+        self.PROFILE_NAMES = []
+        self.NUMBER_OF_REACHES = 0
+        self.NUMBER_OF_CROSS_SECTIONS = 0
+        self.STREAM_ID = ""
+        self.REACH_ID = ""
+        self.CROSS_SECTIONS = {\
+            "PROFILE_ID":[],\
+            "STREAM_ID":[], \
+            "REACH_ID":[],\
+            "STATION":[],\
+            "NODE_NAME":[],\
+            "CUT_LINE":{"x":[], "y":[]},\
+            "REACH_LENGTHS":[],\
+            "LEVEE_POSITIONS":{},\
+            "WATER_ELEVATION":{},\
+            "SURFACE_LINE":{"x":[], "y":[], "z":[]}\
+            }
+            
+        self.nodReach = {}
+        self.nodProfiles = {}
+        self.proProfiles = {}
+        self.profileNodes = {}
+        
         file = open(filename, 'r')
         content = file.readlines()
         file.close()
         CS_counter = 0
         cID = 0
-        self.nodProfiles = {}        
+        self.nodProfiles = {}
+        
         for lID in range(len(content)):
             line = content[lID].split()
 
@@ -314,7 +328,6 @@ class WrapHEC2DXF():
                     if content[lID].startswith('  END:'):
                         break
 #        self.print_content()
-        return    
 
     def print_content(self):
         print 'NUMBER OF PROFILES:', self.NUMBER_OF_PROFILES
@@ -322,47 +335,11 @@ class WrapHEC2DXF():
         print 'NUMBER OF REACHES:', self.NUMBER_OF_REACHES
         print 'NUMBER OF CROSS SECTIONS:', self.NUMBER_OF_CROSS_SECTIONS
         print 'CENTERLINE:'
-        for i in range(len(self.CENTERLINE["x"])):
-            print self.CENTERLINE["x"][i], self.CENTERLINE["y"][i]
+        for nID in self.nodReach:
+            print self.nodReach[nID]
         print 'CROSS SECTIONS:'
         for key in self.CROSS_SECTIONS:
             print key, self.CROSS_SECTIONS[key]
-
-    def writeDXF(self):
-        
-        fname = self.ui.lineEditOutputDXF.text()
-        file = open(fname, 'w')
-        
-        rad = 0.25
-        scale = 1.0
-        col = 7
-        dec = self.ui.spinBoxDecimal.value()
-        dwg = dxf.drawing(fname)
-           
-        # create block
-        scalarsymbol = dxf.block(name='symbol')
-        scalarsymbol.add( dxf.circle(radius=rad, color=0) )
-
-        # define some attributes
-        scalarsymbol.add( dxf.attdef(insert=(1.25, -1.25), tag='VAL1', height=1.25, color=0) )
-
-        # add block definition to the drawing
-        dwg.blocks.add(scalarsymbol)
-
-        for nID in self.points:
-            x = self.points[nID][0]
-            y = self.points[nID][1]
-            val1 = self.points[nID][2]
-            values = {'VAL1': "%.{0}f".format(dec) % val1}
-            
-            dwg.add(dxf.insert2(blockdef=scalarsymbol, insert=(x, y),
-                                attribs=values,
-                                xscale=scale,
-                                yscale=scale,
-                                layer='0',
-                                color = col))
-
-        dwg.save()
     
     def initialize(self):
         

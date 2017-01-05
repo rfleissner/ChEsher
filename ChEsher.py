@@ -222,7 +222,7 @@ class ChEsher(QtGui.QMainWindow):
 #        self.setHEC2DXF()
 #        self.setXYZ2Profiles()
         self.setProfilesDXF()
-        self.initialize()
+#        self.initialize()
 
     def setType(self):
         self.calcDischarge()
@@ -347,7 +347,7 @@ class ChEsher(QtGui.QMainWindow):
             self.module2DM2BK.setDir(dir)
             self.moduleCont2DXF.setDir(dir)
             self.moduleTube.setDir(dir)
-            self.moduleProfiles.setDir(dir)
+            self.moduleProfilesDXF.setDir(dir)
             self.moduleHEC2DXF.setDir(dir)
             self.moduleProfilesDXF.setDir(dir)
 

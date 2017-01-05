@@ -17,7 +17,7 @@
 __author__="Reinhard Fleissner"
 __date__ ="$18.05.2016 22:38:30$"
 
-import functools
+import functools, sys
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QFileDialog, QMessageBox, QColor
 
@@ -166,19 +166,19 @@ class WrapProfilesDXF():
                 HEX.append(col.getHexRGB())
                 
             return HEX
-
+        
         ans = QMessageBox.question(self.widget, "Module XYZ2Profiles", "Do you want do set default settings?", 1, 2)
-
+        print ans
         if ans != 1:
             return
         else:
             template = self.ui.comboBoxDefault.currentIndex()
-
+        
             # Template A
             if template == 0:
 
-                dataSets = ["HQ30 IST", "HQ30 ZUK", "HQ100 IST", "HQ100 ZUK", "HQ300 IST", "HQ300 ZUK"]
-                col_RGB = ["190,232,255","116,179,255","55,141,255","18,107,238","0,77,168","232,190,255"]
+                dataSets = ["HQ30 IST", "HQ30 ZUK", "HQ100 IST", "HQ100 ZUK", "HQ300 ZUK", "HQ5000 ZUK"]
+                col_RGB = ["255,127,223","204,0,204","0,191,255","0,51,204","255,200,0","0,240,180"]
                 col_HEX = RGB2HEX(col_RGB)
 
                 self.applyDefaults(dataSets, col_HEX)
@@ -360,6 +360,9 @@ class WrapProfilesDXF():
                 info += " - DXF file written to {0}.\n".format(self.ui.lineEditOutputProfiles.text())
             except:
                 info += " - ERROR: Not able to write profiles!\n"
+                info += "\n"
+                info += str(sys.exc_info())
+                info += "\n"
 
         QMessageBox.information(self.widget, "Module ProfilesDXF", info)     
 
@@ -402,42 +405,42 @@ class WrapProfilesDXF():
             self.ui.tableWidget.setItem(row, 0, item)
         
     def initialize(self):
-        
-        import os
-        abs_path = os.path.abspath('.')
-        dir = os.path.join(abs_path, 'examples/').replace('\\', '/')
+
+        dir = "C:/opentelemac/simulation/sulz/Profile/"
   
         ###   ~   module ProfilesDXF   ~   ###
-        
-        self.ui.lineEditInputProfiles.setText(dir + "example_15/profiles.i2s")
-        self.ui.lineEditInputReach.setText(dir + "example_15/reach.i2s")
-        self.ui.lineEditInputBottom.setText(dir + "example_15/BOTTOM_Case_A.t3s")
-        self.ui.lineEditInputReachName.setText("Donau")
 
+        self.ui.lineEditInputProfiles.setText(dir + "profiles.i2s")
+        self.ui.lineEditInputReach.setText(dir + "reach.i2s")
+        self.ui.lineEditInputBottom.setText(dir + "BOTTOM(Subset).t3s")
+        self.ui.lineEditInputReachName.setText("Glawoggenbach")
+        self.ui.spinBoxScale.setValue(200)
+        self.ui.doubleSpinBoxSuperelevation.setValue(2.0)
+        
         self.ui.tableWidget.setRowCount(0)
         self.add()
         self.add()
         
         item1 = QtGui.QTableWidgetItem()
-        item1.setText(self.directory + "C:/ChEsher/examples/example_15/FREE SURFACE_S161_Case_A.t3s")
+        item1.setText(dir + "S_HQ30_IST(Subset).t3s")
         self.ui.tableWidget.setItem(0, 0, item1)
         
         item2 = QtGui.QTableWidgetItem()
-        item2.setText("HQ100 Case A")
+        item2.setText("HQ30 IST [m]")
         self.ui.tableWidget.setItem(0, 1, item2)
 
         item3 = QtGui.QTableWidgetItem()
-        item3.setText(self.directory + "C:/ChEsher/examples/example_15/FREE SURFACE_S161_Case_B.t3s")
+        item3.setText(dir + "S_HQ100_IST(Subset).t3s")
         self.ui.tableWidget.setItem(1, 0, item3)
 
         item4 = QtGui.QTableWidgetItem()
-        item4.setText("HQ100 Case B")
+        item4.setText("HQ100 IST [m]")
         self.ui.tableWidget.setItem(1, 1, item4)
 
         initCol = item2.backgroundColor()
         initCol.setRed(255)
-        initCol.setGreen(0)
-        initCol.setBlue(127)
+        initCol.setGreen(127)
+        initCol.setBlue(223)
         item5 = QtGui.QTableWidgetItem()
         item5.setBackground(initCol)
         item5.setFlags(QtCore.Qt.ItemIsEnabled)
@@ -445,8 +448,8 @@ class WrapProfilesDXF():
         self.ui.tableWidget.setItem(0, 2, item5)
 
         initCol = item4.backgroundColor()
-        initCol.setRed(29)
-        initCol.setGreen(29)
+        initCol.setRed(0)
+        initCol.setGreen(191)
         initCol.setBlue(255)
         item6 = QtGui.QTableWidgetItem()
         item6.setBackground(initCol)
@@ -455,4 +458,59 @@ class WrapProfilesDXF():
         self.ui.tableWidget.setItem(1, 2, item6)
         
         uih.setEnabledInitialize(self.ui.checkBoxOutputProfiles, self.ui.pushButtonOutputProfiles, self.ui.lineEditOutputProfiles)
-        self.ui.lineEditOutputProfiles.setText(self.directory + "C:/ChEsher/examples/example_15/output/profiles.dxf")
+        self.ui.lineEditOutputProfiles.setText(dir + "profiles.dxf")
+        
+        
+#        import os
+#        abs_path = os.path.abspath('.')
+#        dir = os.path.join(abs_path, 'examples/').replace('\\', '/')
+#  
+#        ###   ~   module ProfilesDXF   ~   ###
+#
+#        self.ui.lineEditInputProfiles.setText(dir + "example_15/profiles.i2s")
+#        self.ui.lineEditInputReach.setText(dir + "example_15/reach.i2s")
+#        self.ui.lineEditInputBottom.setText(dir + "example_15/BOTTOM_Case_A.t3s")
+#        self.ui.lineEditInputReachName.setText("Donau")
+#
+#        self.ui.tableWidget.setRowCount(0)
+#        self.add()
+#        self.add()
+#        
+#        item1 = QtGui.QTableWidgetItem()
+#        item1.setText(self.directory + "C:/ChEsher/examples/example_15/FREE SURFACE_S161_Case_A.t3s")
+#        self.ui.tableWidget.setItem(0, 0, item1)
+#        
+#        item2 = QtGui.QTableWidgetItem()
+#        item2.setText("HQ100 Case A")
+#        self.ui.tableWidget.setItem(0, 1, item2)
+#
+#        item3 = QtGui.QTableWidgetItem()
+#        item3.setText(self.directory + "C:/ChEsher/examples/example_15/FREE SURFACE_S161_Case_B.t3s")
+#        self.ui.tableWidget.setItem(1, 0, item3)
+#
+#        item4 = QtGui.QTableWidgetItem()
+#        item4.setText("HQ100 Case B")
+#        self.ui.tableWidget.setItem(1, 1, item4)
+#
+#        initCol = item2.backgroundColor()
+#        initCol.setRed(255)
+#        initCol.setGreen(0)
+#        initCol.setBlue(127)
+#        item5 = QtGui.QTableWidgetItem()
+#        item5.setBackground(initCol)
+#        item5.setFlags(QtCore.Qt.ItemIsEnabled)
+#        item5.setText(str(initCol.red()) + ", " + str(initCol.green()) + ", " + str(initCol.blue()))
+#        self.ui.tableWidget.setItem(0, 2, item5)
+#
+#        initCol = item4.backgroundColor()
+#        initCol.setRed(29)
+#        initCol.setGreen(29)
+#        initCol.setBlue(255)
+#        item6 = QtGui.QTableWidgetItem()
+#        item6.setBackground(initCol)
+#        item6.setFlags(QtCore.Qt.ItemIsEnabled)
+#        item6.setText(str(initCol.red()) + ", " + str(initCol.green()) + ", " + str(initCol.blue()))
+#        self.ui.tableWidget.setItem(1, 2, item6)
+#        
+#        uih.setEnabledInitialize(self.ui.checkBoxOutputProfiles, self.ui.pushButtonOutputProfiles, self.ui.lineEditOutputProfiles)
+#        self.ui.lineEditOutputProfiles.setText(self.directory + "C:/ChEsher/examples/example_15/output/profiles.dxf")

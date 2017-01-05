@@ -111,6 +111,7 @@ class ProfileWriter():
         for pID in self.bottom:
 
             off_z = pID*self.dz
+            
             z = self.bottom[pID][2]
             d = self.bottom[pID][3]
 
@@ -129,9 +130,10 @@ class ProfileWriter():
                 self.msp.add_line((xmax,off_z+zmin),(xmax,off_z+zmax), dxfattribs={'layer': 'frame'})
                 self.msp.add_line((xmin, off_z+zmin),(xmin,off_z+zmax), dxfattribs={'layer': 'frame'})
             self.msp.add_line((xmin, off_z+zmin),(xmax,off_z+zmin), dxfattribs={'layer': 'frame'})
-                
+            print zmin, self.superelev, zmin/self.superelev
             # title
-            text_frame = self.msp.add_text(self.ReferenceLevelPrefix + "%.1f m" % round(math.floor(min(z-self.offVE)), 2), dxfattribs={'height': self.textheight_bandtitle})
+#            text_frame = self.msp.add_text(self.ReferenceLevelPrefix + "%.1f m" % round(math.floor(min(z-self.offVE)), 2), dxfattribs={'height': self.textheight_bandtitle})
+            text_frame = self.msp.add_text(self.ReferenceLevelPrefix + "%.1f m" % float(zmin/self.superelev), dxfattribs={'height': self.textheight_bandtitle})
             text_frame.set_pos((xmin-self.off_band_x+self.h_band/2.0, off_z+zmin), align='BOTTOM_LEFT')
             text_pTitle = self.msp.add_text("{0}{1}".format(self.ProfileName, self.nOfProfiles-pID+1), dxfattribs={'height': self.textheight_bandtitle*1.5})
             text_pTitle.set_pos((xmin-self.off_band_x, off_z+zmax+self.textheight_bandtitle*1.5), align='BOTTOM_LEFT')
@@ -253,9 +255,9 @@ class ProfileWriter():
 
                     z_interp = f(x1)
                     
-                    # print water surface, if the water depth is greater than 0.005
+                    # print water surface, if the water depth is greater than 0.01
                     zeroWS = True
-                    if z[nID] - z_interp >= 0.005:
+                    if z[nID] - z_interp >= 0.01:
                         zeroWS = False
                         p1 = (x1, z1)
                         profilepoint.append(p1)
@@ -280,7 +282,7 @@ class ProfileWriter():
                             if not zeroWS:
                                 self.msp.add_line((mx[mxcounter], off_z+zmin-self.off_band_z-(1+wsCounter)*self.h_band), (mx[mxcounter], off_z+zmin-self.off_band_z-(1+wsCounter)*self.h_band-self.markerlength),  dxfattribs={'layer': 'band'})   
                                 self.msp.add_line((mx[mxcounter], off_z+zmin-self.off_band_z-(2+wsCounter)*self.h_band), (mx[mxcounter], off_z+zmin-self.off_band_z-(2+wsCounter)*self.h_band+self.markerlength),  dxfattribs={'layer': 'band'})
-                                text_height = self.msp.add_text("%.{0}f".format(self.dec)%z[mxcounter], dxfattribs={'height': self.textheight_band, 'rotation': 90.0})
+                                text_height = self.msp.add_text("%.{0}f".format(self.dec)%z[nID], dxfattribs={'height': self.textheight_band, 'rotation': 90.0})
                                 text_height.set_pos((mx[mxcounter], off_z+zmin-self.off_band_z-(2+wsCounter-1./2.)*self.h_band), align='MIDDLE')
                                 text_height.rgb = col[name]
                                 x0 = x1

@@ -20,11 +20,10 @@ __date__ ="$18.05.2016 22:38:30$"
 import dxfgrabber
 import functools
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QFileDialog, QMessageBox
+from PyQt4.QtGui import QFileDialog, QMessageBox, QFileDialog
 
 # modules and classes
 from uiDXF2BK import Ui_DXF2BK
-import uiHandler as uih
 import fileHandler as fh
 
 try:
@@ -35,10 +34,8 @@ except AttributeError:
 class WrapDXF2BK():
     """Wrapper for module DXF2BK"""
 
-    def __init__(self, dir):
+    def __init__(self):
         """Constructor."""
-
-        self.directory = dir
 
         # setup user interface
         self.widget = QtGui.QWidget()
@@ -47,7 +44,7 @@ class WrapDXF2BK():
 
 # module DXF2BK
 
-        self.callbackOpenDXFFile = functools.partial(uih.getOpenFileName, "Open DXF-file", "Drawing Interchange File (*.dxf)", self.ui.lineEditInput, self.directory, self.widget)
+        self.callbackOpenDXFFile = functools.partial(self.getOpenFileName, "Open DXF-file", "Drawing Interchange File (*.dxf)", self.ui.lineEditInput)
         QtCore.QObject.connect(self.ui.pushButtonInput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenDXFFile)
 
         QtCore.QObject.connect(self.ui.pushButtonAdd, QtCore.SIGNAL(_fromUtf8("clicked()")), self.addLayer)
@@ -85,7 +82,7 @@ class WrapDXF2BK():
         self.dxf = dxfgrabber.readfile(str(filename))
         try:
             self.dxf = dxfgrabber.readfile(str(filename))
-        except Exception:
+        except:
             QMessageBox.critical(self, "File error", "File not found!")
             self.ui.lineEditDXF.selectAll()
             self.ui.lineEditDXF.setFocus()
@@ -137,7 +134,7 @@ class WrapDXF2BK():
                         fh.writeI3S(nodes, strings, filename)
                         info += " - {0} object(s) from type *.i3s converted to file \n\t{1}\n".format(len(strings), filename)
                     except Exception, e:
-                        QMessageBox.critical(self.widget, "Module DXF2BK", 'Type *.i3s: ' + str(e))
+                        QMessageBox.critical(self.widget, "Module DXF2BK", 'Type *.i3s: ' + "\n\n" + str(e))
                 elif type == "xyz":
                     try:
                         nodes, strings = fh.readDXF(self.dxf, layer)
@@ -207,3 +204,13 @@ class WrapDXF2BK():
             item3 = QtGui.QTableWidgetItem()
             item3.setText(files[row])
             self.ui.tableWidget.setItem(row, 1, item3)      
+
+    def getOpenFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getOpenFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)
+
+    def getSaveFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getSaveFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)

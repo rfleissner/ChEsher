@@ -17,10 +17,11 @@
 __author__="Reinhard Fleissner"
 __date__ ="$18.05.2016 22:38:30$"
 
+import sys
 import functools
 
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QMessageBox
+from PyQt4.QtGui import QMessageBox, QFileDialog
 
 # modules and classes
 from ui2DM2BK import Ui_TwoDM2BK
@@ -35,10 +36,8 @@ except AttributeError:
 class Wrap2DM2BK():
     """Wrapper for module 2DM2BK"""
 
-    def __init__(self, dir):
+    def __init__(self):
         """Constructor."""
-
-        self.directory = dir
 
         # setup user interface
         self.widget = QtGui.QWidget()
@@ -47,10 +46,10 @@ class Wrap2DM2BK():
         
 # module 2DM2BK
 
-        self.callbackOpen2dmInput = functools.partial(uih.getOpenFileName, "Open 2D Mesh File", "SMS 2d Mesh File (*.2dm)", self.ui.lineEditInput, self.directory, self.widget)
+        self.callbackOpen2dmInput = functools.partial(self.getOpenFileName, "Open 2D Mesh File", "SMS 2d Mesh File (*.2dm)", self.ui.lineEditInput)
         QtCore.QObject.connect(self.ui.pushButtonInput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpen2dmInput)
 
-        self.callbackOpen2dmInputData = functools.partial(uih.getOpenFileName, "Open Dataset File", "ASCII Dataset Files (*.dat)", self.ui.lineEditInputData, self.directory, self.widget)
+        self.callbackOpen2dmInputData = functools.partial(self.getOpenFileName, "Open Dataset File", "ASCII Dataset Files (*.dat)", self.ui.lineEditInputData)
         QtCore.QObject.connect(self.ui.pushButtonInputData, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpen2dmInputData)
 
         self.callback2dmImpermeable = functools.partial(uih.setEnabled, self.ui.checkBoxImpermeable, self.ui.spinBoxImpermeable, self.ui.spinBoxImpermeable)
@@ -93,40 +92,40 @@ class Wrap2DM2BK():
         self.callback2dmNS7 = functools.partial(uih.setEnabled, self.ui.checkBoxNS7, self.ui.pushButtonNS7, self.ui.lineEditNS7)
         QtCore.QObject.connect(self.ui.checkBoxNS7, QtCore.SIGNAL("clicked()"), self.callback2dmNS7)
 
-        self.callbackSave2dmBottom = functools.partial(uih.getSaveFileName, "Save Bottom As", "2D T3 Mesh (*.t3s)", self.ui.lineEditBottom, self.directory, self.widget)
+        self.callbackSave2dmBottom = functools.partial(self.getSaveFileName, "Save Bottom As", "2D T3 Mesh (*.t3s)", self.ui.lineEditBottom)
         QtCore.QObject.connect(self.ui.pushButtonBottom, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSave2dmBottom)
 
-        self.callbackSave2dmBottomFriction = functools.partial(uih.getSaveFileName, "Save Bottom Friction As", "2D T3 Mesh (*.t3s)", self.ui.lineEditBottomFriction, self.directory, self.widget)
+        self.callbackSave2dmBottomFriction = functools.partial(self.getSaveFileName, "Save Bottom Friction As", "2D T3 Mesh (*.t3s)", self.ui.lineEditBottomFriction)
         QtCore.QObject.connect(self.ui.pushButtonBottomFriction, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSave2dmBottomFriction)
 
-        self.callbackSave2dmWaterSurface = functools.partial(uih.getSaveFileName, "Save Water Surface As", "2D T3 Mesh (*.t3s)", self.ui.lineEditWaterSurface, self.directory, self.widget)
+        self.callbackSave2dmWaterSurface = functools.partial(self.getSaveFileName, "Save Water Surface As", "2D T3 Mesh (*.t3s)", self.ui.lineEditWaterSurface)
         QtCore.QObject.connect(self.ui.pushButtonWaterSurface, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSave2dmWaterSurface)
 
-        self.callbackSave2dmWaterDepth = functools.partial(uih.getSaveFileName, "Save Water Depth As", "2D T3 Mesh (*.t3s)", self.ui.lineEditWaterDepth, self.directory, self.widget)
+        self.callbackSave2dmWaterDepth = functools.partial(self.getSaveFileName, "Save Water Depth As", "2D T3 Mesh (*.t3s)", self.ui.lineEditWaterDepth)
         QtCore.QObject.connect(self.ui.pushButtonWaterDepth, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSave2dmWaterDepth)
         
-        self.callbackSave2dmCulvertHeight = functools.partial(uih.getSaveFileName, "Save Culvert Height As", "Point Set (*.xyz)", self.ui.lineEditCulvertHeight, self.directory, self.widget)
+        self.callbackSave2dmCulvertHeight = functools.partial(self.getSaveFileName, "Save Culvert Height As", "Point Set (*.xyz)", self.ui.lineEditCulvertHeight)
         QtCore.QObject.connect(self.ui.pushButtonCulvertHeight, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSave2dmCulvertHeight)
 
-        self.callbackSave2dmNS1 = functools.partial(uih.getSaveFileName, "Save Node String As", "Line Sets (*.i2s)", self.ui.lineEditNS1, self.directory, self.widget)
+        self.callbackSave2dmNS1 = functools.partial(self.getSaveFileName, "Save Node String As", "Line Sets (*.i2s)", self.ui.lineEditNS1)
         QtCore.QObject.connect(self.ui.pushButtonNS1, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSave2dmNS1)
 
-        self.callbackSave2dmNS2 = functools.partial(uih.getSaveFileName, "Save Node String As", "Line Sets (*.i2s)", self.ui.lineEditNS2, self.directory, self.widget)
+        self.callbackSave2dmNS2 = functools.partial(self.getSaveFileName, "Save Node String As", "Line Sets (*.i2s)", self.ui.lineEditNS2)
         QtCore.QObject.connect(self.ui.pushButtonNS2, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSave2dmNS2)
 
-        self.callbackSave2dmNS3 = functools.partial(uih.getSaveFileName, "Save Node String As", "Line Sets (*.i2s)", self.ui.lineEditNS3, self.directory, self.widget)
+        self.callbackSave2dmNS3 = functools.partial(self.getSaveFileName, "Save Node String As", "Line Sets (*.i2s)", self.ui.lineEditNS3)
         QtCore.QObject.connect(self.ui.pushButtonNS3, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSave2dmNS3)
 
-        self.callbackSave2dmNS4 = functools.partial(uih.getSaveFileName, "Save Node String As", "Line Sets (*.i2s)", self.ui.lineEditNS4, self.directory, self.widget)
+        self.callbackSave2dmNS4 = functools.partial(self.getSaveFileName, "Save Node String As", "Line Sets (*.i2s)", self.ui.lineEditNS4)
         QtCore.QObject.connect(self.ui.pushButtonNS4, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSave2dmNS4)
 
-        self.callbackSave2dmNS5 = functools.partial(uih.getSaveFileName, "Save Node String As", "Line Sets (*.i2s)", self.ui.lineEditNS5, self.directory, self.widget)
+        self.callbackSave2dmNS5 = functools.partial(self.getSaveFileName, "Save Node String As", "Line Sets (*.i2s)", self.ui.lineEditNS5)
         QtCore.QObject.connect(self.ui.pushButtonNS5, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSave2dmNS5)
 
-        self.callbackSave2dmNS6 = functools.partial(uih.getSaveFileName, "Save Node String As", "Line Sets (*.i2s)", self.ui.lineEditNS6, self.directory, self.widget)
+        self.callbackSave2dmNS6 = functools.partial(self.getSaveFileName, "Save Node String As", "Line Sets (*.i2s)", self.ui.lineEditNS6)
         QtCore.QObject.connect(self.ui.pushButtonNS6, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSave2dmNS6)
 
-        self.callbackSave2dmNS7 = functools.partial(uih.getSaveFileName, "Save Node String As", "Line Sets (*.i2s)", self.ui.lineEditNS7, self.directory, self.widget)
+        self.callbackSave2dmNS7 = functools.partial(self.getSaveFileName, "Save Node String As", "Line Sets (*.i2s)", self.ui.lineEditNS7)
         QtCore.QObject.connect(self.ui.pushButtonNS7, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSave2dmNS7)
 
         QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.create)
@@ -173,22 +172,22 @@ class Wrap2DM2BK():
         
     def create(self):
 
-#        try:
-        SMS_elements, \
-            SMS_nodes,\
-            SMS_strings,\
-            SMS_materials,\
-            SMS_bc_nodes,\
-            SMS_bc_strings_1,\
-            SMS_bc_strings_2,\
-            SMS_bc_strings_3,\
-            SMS_bc_strings_4,\
-            SMS_bc_strings_5,\
-            SMS_bc_strings_6,\
-            SMS_bc_strings_7 = fh.read2DM(self.ui.lineEditInput.text())
-#        except:
-#            QMessageBox.critical(self.widget, "Error", "Not able to load file!\nCheck filename or content!")
-#            return
+        try:
+            SMS_elements, \
+                SMS_nodes,\
+                SMS_strings,\
+                SMS_materials,\
+                SMS_bc_nodes,\
+                SMS_bc_strings_1,\
+                SMS_bc_strings_2,\
+                SMS_bc_strings_3,\
+                SMS_bc_strings_4,\
+                SMS_bc_strings_5,\
+                SMS_bc_strings_6,\
+                SMS_bc_strings_7 = fh.read2DM(self.ui.lineEditInput.text())
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to load file!\nCheck filename or content!" + "\n\n" + str(e))
+            return
 
         # BK_materials = {BK_node_id: strickler's value}
         BK_materials = {}
@@ -288,7 +287,10 @@ class Wrap2DM2BK():
                 fh.writeT3S(BK_nodes, BK_elements, self.ui.lineEditBottom.text())
                 info += " - Bottom mesh created with {0} nodes and {1} elements.\n".format(len(BK_nodes), len(BK_elements)) 
             except:
-                info += " - ERROR: Not able to write bottom mesh!\n"
+                info += " - ERROR: Not able to write bottom mesh! \n\n + str(e)"
+                info += "\n"
+                info += str(sys.exc_info())
+                info += "\n"
 
         if self.ui.lineEditInputData.text() != "":
             SMS_wsf = fh.readDAT(self.ui.lineEditInputData.text())
@@ -307,12 +309,18 @@ class Wrap2DM2BK():
                 info += " - Water surface mesh created with {0} nodes and {1} elements.\n".format(len(BK_nodes_wsf), len(BK_elements)) 
             except:
                 info += " - ERROR: Not able to write water surface mesh!\n"
+                info += "\n"
+                info += str(sys.exc_info())
+                info += "\n"
   
             try:
                 fh.writeT3S(BK_nodes_dpth, BK_elements, self.ui.lineEditWaterDepth.text())
                 info += " - Water depth mesh created with {0} nodes and {1} elements.\n".format(len(BK_nodes_dpth), len(BK_elements)) 
             except:
                 info += " - ERROR: Not able to write water depth mesh!\n"
+                info += "\n"
+                info += str(sys.exc_info())
+                info += "\n"
                   
         if self.ui.checkBoxBottomFriction.isChecked():
             BK_nodes_mat = {}
@@ -326,6 +334,9 @@ class Wrap2DM2BK():
                 info += " - Bottom friction mesh created with {0} nodes and {1} elements.\n".format(len(BK_nodes_mat), len(BK_elements)) 
             except:
                 info += " - ERROR: Not able to write bottom friction mesh!\n"
+                info += "\n"
+                info += str(sys.exc_info())
+                info += "\n"
 
         if self.ui.checkBoxCulvertHeight.isChecked():
             # convert SMS boundary condition nodes to BK points
@@ -339,6 +350,9 @@ class Wrap2DM2BK():
                 info += " - Culverts created with {0} nodes.\n".format(len(BK_bcNodes))
             except:
                 info += " - ERROR: Not able to write culvert nodes!\n"
+                info += "\n"
+                info += str(sys.exc_info())
+                info += "\n"
                                                                                         
         if self.ui.checkBoxNS1.isChecked():
             profiles = getStrings(SMS_strings, SMS_bc_strings_1)
@@ -347,15 +361,21 @@ class Wrap2DM2BK():
                 info += " - Node string 1 created with {0} strings.\n".format(len(profiles)) 
             except:
                 info += " - ERROR: Not able to write node string 1!\n"
-
+                info += "\n"
+                info += str(sys.exc_info())
+                info += "\n"
+                
         if self.ui.checkBoxNS2.isChecked():
             profiles = getStrings(SMS_strings, SMS_bc_strings_2)
             try:
                 fh.writeI2S(BK_nodes, profiles, self.ui.lineEditNS2.text())
                 info += " - Node string 2 created with {0} strings.\n".format(len(profiles)) 
             except:
-                info += " - ERROR: Not able to write node string 2!\n"                               
-
+                info += " - ERROR: Not able to write node string 2!\n"      
+                info += "\n"
+                info += str(sys.exc_info())
+                info += "\n"
+                
         if self.ui.checkBoxNS3.isChecked():
             profiles = getStrings(SMS_strings, SMS_bc_strings_3)
             try:
@@ -363,6 +383,9 @@ class Wrap2DM2BK():
                 info += " - Node string 3 created with {0} strings.\n".format(len(profiles)) 
             except:
                 info += " - ERROR: Not able to write node string 3!\n"
+                info += "\n"
+                info += str(sys.exc_info())
+                info += "\n"
                 
         if self.ui.checkBoxNS4.isChecked():
             profiles = getStrings(SMS_strings, SMS_bc_strings_4)
@@ -371,7 +394,10 @@ class Wrap2DM2BK():
                 info += " - Node string 4 created with {0} strings.\n".format(len(profiles)) 
             except:
                 info += " - ERROR: Not able to write node string 4!\n"
-
+                info += "\n"
+                info += str(sys.exc_info())
+                info += "\n"
+                
         if self.ui.checkBoxNS5.isChecked():
             profiles = getStrings(SMS_strings, SMS_bc_strings_5)
             try:
@@ -379,6 +405,9 @@ class Wrap2DM2BK():
                 info += " - Node string 5 created with {0} strings.\n".format(len(profiles)) 
             except:
                 info += " - ERROR: Not able to write node string 5!\n"
+                info += "\n"
+                info += str(sys.exc_info())
+                info += "\n"
                 
         if self.ui.checkBoxNS6.isChecked():
             profiles = getStrings(SMS_strings, SMS_bc_strings_6)
@@ -387,7 +416,10 @@ class Wrap2DM2BK():
                 info += " - Node string 6 created with {0} strings.\n".format(len(profiles)) 
             except:
                 info += " - ERROR: Not able to write node string 6!\n"
-                         
+                info += "\n"
+                info += str(sys.exc_info())
+                info += "\n"
+                
         if self.ui.checkBoxNS7.isChecked():
             profiles = getStrings(SMS_strings, SMS_bc_strings_7)
             try:
@@ -395,6 +427,18 @@ class Wrap2DM2BK():
                 info += " - Node string 7 created with {0} strings.\n".format(len(profiles)) 
             except:
                 info += " - ERROR: Not able to write node string 7!\n"
-
+                info += "\n"
+                info += str(sys.exc_info())
+                info += "\n"
+                
         QMessageBox.information(self.widget, "Module 2DM2BK", info)
-    
+
+    def getOpenFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getOpenFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)
+
+    def getSaveFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getSaveFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)

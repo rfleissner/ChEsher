@@ -18,9 +18,10 @@ __author__="Reinhard Fleissner"
 __date__ ="$18.05.2016 22:38:30$"
 
 import functools
+import sys
 
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QMessageBox, QColor
+from PyQt4.QtGui import QMessageBox, QColor, QFileDialog
 
 # modules and classes
 from uiCont2DXF import Ui_Cont2DXF
@@ -43,10 +44,8 @@ except AttributeError:
 class WrapCont2DXF():
     """Wrapper for module Cont2DXF"""
 
-    def __init__(self, dir):
+    def __init__(self):
         """Constructor."""
-
-        self.directory = dir
 
         # setup user interface
         self.widget = QtGui.QWidget()
@@ -55,7 +54,7 @@ class WrapCont2DXF():
         
 # module Cont2DXF
 
-        self.callbackCont2DXFOpenMeshFile = functools.partial(uih.getOpenFileName, "Open T3S-file", "2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s)", self.ui.lineEditInput, self.directory, self.widget)
+        self.callbackCont2DXFOpenMeshFile = functools.partial(self.getOpenFileName, "Open T3S-file", "2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s)", self.ui.lineEditInput)
         QtCore.QObject.connect(self.ui.pushButtonInput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackCont2DXFOpenMeshFile)
 
         QtCore.QObject.connect(self.ui.pushButtonAdd, QtCore.SIGNAL(_fromUtf8("clicked()")), self.addLevel)
@@ -76,8 +75,11 @@ class WrapCont2DXF():
         
         QtCore.QObject.connect(self.ui.checkBoxOutputLegend, QtCore.SIGNAL("clicked()"), self.setEnabledLegend)
         
-        self.callbackCont2DXFOut = functools.partial(uih.getSaveFileName, "Save Control Sections As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputSolid, self.directory, self.widget)
-        QtCore.QObject.connect(self.ui.pushButtonOutputSolid, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackCont2DXFOut)
+        self.callbackCont2DXFOutSolid = functools.partial(self.getSaveFileName, "Save Contours As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputSolid)
+        QtCore.QObject.connect(self.ui.pushButtonOutputSolid, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackCont2DXFOutSolid)
+
+        self.callbackCont2DXFOutLine = functools.partial(self.getSaveFileName, "Save Contours As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputLine)
+        QtCore.QObject.connect(self.ui.pushButtonOutputLine, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackCont2DXFOutLine)
 
         QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.create)
 
@@ -357,8 +359,8 @@ class WrapCont2DXF():
         # get levels and colours
         try:
             levels, levels_ok, coloursHEX_RGB, coloursRGB, coloursHEX_BGR, coloursBGR, col_ok = self.getLevels()
-        except:
-            QMessageBox.critical(self.widget, "Error", "Check level inputs!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Check level inputs!" + "\n\n" + str(e))
             return
         
         if not levels_ok:
@@ -372,8 +374,8 @@ class WrapCont2DXF():
         try:
             x, y, z, triangles = fh.readT3STriangulation(self.ui.lineEditInput.text())
             triang = tri.Triangulation(x, y, triangles)
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to load mesh file!\nCheck filename or content!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to load mesh file!\nCheck filename or content!" + "\n\n" + str(e))
             return
 
         contours = []
@@ -506,6 +508,9 @@ class WrapCont2DXF():
                 info += " - DXF written to {0}.\n\n".format(self.ui.lineEditOutputSolid.text())
             except:
                 info += " - ERROR: Not able to write contour to dxf!\n"
+                info += "\n"
+                info += str(sys.exc_info())
+                info += "\n"
             
         if self.ui.checkBoxOutputLine.isChecked():
             try:
@@ -529,6 +534,18 @@ class WrapCont2DXF():
                 info += " - DXF written to {0}.\n".format(self.ui.lineEditOutputLine.text())
             except:
                 info += " - ERROR: Not able to write isolines to dxf!\n"            
-
+                info += "\n"
+                info += str(sys.exc_info())
+                info += "\n"
+                
         QMessageBox.information(self.widget, "Module Cont2DXF", info)
     
+    def getOpenFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getOpenFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)
+
+    def getSaveFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getSaveFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)

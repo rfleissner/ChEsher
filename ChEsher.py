@@ -84,72 +84,72 @@ class ChEsher(QtGui.QMainWindow):
         self.directory = ""
 
         # setup instance of module DXF2BK
-        self.moduleDXF2BK = WrapDXF2BK(self.directory)
+        self.moduleDXF2BK = WrapDXF2BK()
         self.widgetDXF2BK = self.moduleDXF2BK.widget
         self.ui.stackedWidget.insertWidget(0, self.widgetDXF2BK)        
 
         # setup instance of module BK2DXF
-        self.moduleBK2DXF = WrapBK2DXF(self.directory)
+        self.moduleBK2DXF = WrapBK2DXF()
         self.widgetBK2DXF = self.moduleBK2DXF.widget
         self.ui.stackedWidget.insertWidget(1, self.widgetBK2DXF)   
 
         # setup instance of module Mesh
-        self.moduleMesh = WrapMesh(self.directory)
+        self.moduleMesh = WrapMesh()
         self.widgetMesh = self.moduleMesh.widget
         self.ui.stackedWidget.insertWidget(2, self.widgetMesh)   
 
         # setup instance of module LandXML
-        self.moduleLandXML = WrapLandXML(self.directory)
+        self.moduleLandXML = WrapLandXML()
         self.widgetLandXML = self.moduleLandXML.widget
         self.ui.stackedWidget.insertWidget(3, self.widgetLandXML)   
         
         # setup instance of module ScalarDXF
-        self.moduleScalarDXF = WrapScalarDXF(self.directory)
+        self.moduleScalarDXF = WrapScalarDXF()
         self.widgetScalarDXF = self.moduleScalarDXF.widget
         self.ui.stackedWidget.insertWidget(4, self.widgetScalarDXF)  
 
         # setup instance of module VectorDXF
-        self.moduleVectorDXF = WrapVectorDXF(self.directory)
+        self.moduleVectorDXF = WrapVectorDXF()
         self.widgetVectorDXF = self.moduleVectorDXF.widget
         self.ui.stackedWidget.insertWidget(5, self.widgetVectorDXF)  
 
         # setup instance of module CS
-        self.moduleCS = WrapCS(self.directory)
+        self.moduleCS = WrapCS()
         self.widgetCS = self.moduleCS.widget
         self.ui.stackedWidget.insertWidget(6, self.widgetCS)  
 
         # setup instance of module 2DM2BK
-        self.module2DM2BK = Wrap2DM2BK(self.directory)
+        self.module2DM2BK = Wrap2DM2BK()
         self.widget2DM2BK = self.module2DM2BK.widget
         self.ui.stackedWidget.insertWidget(7, self.widget2DM2BK)  
 
         # setup instance of module Cont2DXF
-        self.moduleCont2DXF = WrapCont2DXF(self.directory)
+        self.moduleCont2DXF = WrapCont2DXF()
         self.widgetCont2DXF = self.moduleCont2DXF.widget
         self.ui.stackedWidget.insertWidget(8, self.widgetCont2DXF)  
         
         # setup instance of module Tube
-        self.moduleTube = WrapTube(self.directory)
+        self.moduleTube = WrapTube()
         self.widgetTube = self.moduleTube.widget
         self.ui.stackedWidget.insertWidget(9, self.widgetTube)  
 
         # setup instance of module XYZ2Profiles
-        self.moduleXYZ2Profiles = WrapXYZ2Profiles(self.directory)
+        self.moduleXYZ2Profiles = WrapXYZ2Profiles()
         self.widgetXYZ2Profiles = self.moduleXYZ2Profiles.widget
         self.ui.stackedWidget.insertWidget(10, self.widgetXYZ2Profiles)    
 
         # setup instance of module ProfilesDXF
-        self.moduleProfilesDXF = WrapProfilesDXF(self.directory)
+        self.moduleProfilesDXF = WrapProfilesDXF()
         self.widgetProfilesDXF = self.moduleProfilesDXF.widget
         self.ui.stackedWidget.insertWidget(11, self.widgetProfilesDXF)   
         
         # setup instance of module HEC2DXF
-        self.moduleHEC2DXF = WrapHEC2DXF(self.directory)
+        self.moduleHEC2DXF = WrapHEC2DXF()
         self.widgetHEC2DXF = self.moduleHEC2DXF.widget
         self.ui.stackedWidget.insertWidget(12, self.widgetHEC2DXF)  
         
         # setup instance of module XYZ2DXF
-        self.moduleXYZ2DXF = WrapXYZ2DXF(self.directory)
+        self.moduleXYZ2DXF = WrapXYZ2DXF()
         self.widgetXYZ2DXF = self.moduleXYZ2DXF.widget
         self.ui.stackedWidget.insertWidget(13, self.widgetXYZ2DXF)                
 
@@ -221,7 +221,7 @@ class ChEsher(QtGui.QMainWindow):
 #        self.setTube()
 #        self.setHEC2DXF()
 #        self.setXYZ2Profiles()
-        self.setProfilesDXF()
+#        self.setProfilesDXF()
 #        self.initialize()
 
     def setType(self):
@@ -349,8 +349,9 @@ class ChEsher(QtGui.QMainWindow):
             self.moduleTube.setDir(dir)
             self.moduleProfilesDXF.setDir(dir)
             self.moduleHEC2DXF.setDir(dir)
-            self.moduleProfilesDXF.setDir(dir)
-
+            self.moduleXYZ2DXF.setDir(dir)
+            self.moduleXYZ2Profiles.setDir(dir)
+            
             self.directory = dir
 
         else:

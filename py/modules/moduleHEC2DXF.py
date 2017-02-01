@@ -17,13 +17,13 @@
 __author__="Reinhard Fleissner"
 __date__ ="$18.05.2016 22:38:30$"
 
+import sys
 import functools
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QMessageBox
+from PyQt4.QtGui import QMessageBox, QFileDialog
 
 # modules and classes
 from uiHEC2DXF import Ui_HEC2DXF
-import uiHandler as uih
 import profileOrganizer as po
 from profileWriter import ProfileWriter
 from profileSettings import WrapProfileSettings
@@ -38,10 +38,8 @@ except AttributeError:
 class WrapHEC2DXF():
     """Wrapper for module HEC2DXF"""
 
-    def __init__(self, dir):
+    def __init__(self):
         """Constructor."""
-
-        self.directory = dir
 
         # setup user interface
         self.widget = QtGui.QWidget()
@@ -67,10 +65,10 @@ class WrapHEC2DXF():
         self.settings["doubleSpinBoxCleanValues"] = 0.0
         
         # inputs
-        self.callbackOpenSDFFile = functools.partial(uih.getOpenFileName, "Open Spatial Data Format File", "Spatial Data Format File (*.sdf)", self.ui.lineEditInputSDF, self.directory, self.widget)
+        self.callbackOpenSDFFile = functools.partial(self.getOpenFileName, "Open Spatial Data Format File", "Spatial Data Format File (*.sdf)", self.ui.lineEditInputSDF)
         QtCore.QObject.connect(self.ui.pushButtonInputSDF, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenSDFFile)
     
-        self.callbackSaveDXFfile = functools.partial(uih.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputDXF, self.directory, self.widget)
+        self.callbackSaveDXFfile = functools.partial(self.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputDXF)
         QtCore.QObject.connect(self.ui.pushButtonOutputDXF, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveDXFfile)
 
         defaults = ["Template A", "Template B"]
@@ -116,8 +114,8 @@ class WrapHEC2DXF():
             info += " - Reach:\t\t\t\t{0}\n".format(self.REACH_ID)
             info += " - Number of cross sections:\t\t{0}\n".format(self.NUMBER_OF_CROSS_SECTIONS)
             info += " - Number of water surface profiles:\t{0}\n".format(self.NUMBER_OF_PROFILES)
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to load GIS data file!\nCheck filename or content!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to load GIS data file!\nCheck filename or content!" + "\n\n" + str(e))
             return
         
         from shapely.geometry import LineString
@@ -185,6 +183,9 @@ class WrapHEC2DXF():
     
         except:
             info += " - ERROR: Not able to write profiles!\n"
+            info += "\n"
+            info += str(sys.exc_info())
+            info += "\n"
 
         QMessageBox.information(self.widget, "Module HEC2DXF", info)        
             
@@ -406,3 +407,13 @@ class WrapHEC2DXF():
                 self.settings["doubleSpinBoxTextSizeBand"] = 1.5
                 self.settings["doubleSpinBoxMarkerSize"] = 1.5
                 self.settings["doubleSpinBoxCleanValues"] = 0.0
+            
+    def getOpenFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getOpenFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)
+
+    def getSaveFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getSaveFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)

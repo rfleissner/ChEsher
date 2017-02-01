@@ -25,9 +25,7 @@ from PyQt4.QtGui import QMessageBox, QFileDialog
 
 # modules and classes
 from uiTube import Ui_Tube
-import uiHandler as uih
 import fileHandler as fh
-import copy
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -37,10 +35,8 @@ except AttributeError:
 class WrapTube():
     """Wrapper for module Tube"""
 
-    def __init__(self, dir):
+    def __init__(self):
         """Constructor."""
-
-        self.directory = dir
         
         # setup user interface
         self.widget = QtGui.QWidget()
@@ -86,15 +82,15 @@ class WrapTube():
         try:
             x, y, z, triangles = fh.readT3STriangulation(self.ui.lineEditInputMesh.text())
             info += " - Mesh loaded with {0} nodes and {1} elements.\n".format(len(x), len(triangles))
-        except:
-            QMessageBox.critical(self, "Error", "Not able to load mesh file!\nCheck filename or content!")
+        except Exception, e:
+            QMessageBox.critical(self, "Error", "Not able to load mesh file!\nCheck filename or content!" + "\n\n" + str(e))
             return        
 
         try:
             tube_coords, tubes = fh.readI2S(self.ui.lineEditInputLineSet.text())
             info += " - Line Set loaded with {0} lines.\n".format(len(tubes))
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to load *.i2s file!\nCheck filename or content!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to load *.i2s file!\nCheck filename or content!" + "\n\n" + str(e))
             return
 
         # reshape coordinates
@@ -153,8 +149,8 @@ class WrapTube():
         try:
             fh.writeTextFile(self.ui.lineEditOutput.text(), textfile)
             info += " - Tubes data file written to {0}.\n".format(self.ui.lineEditOutput.text())
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to write tubes data file!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to write tubes data file!" + "\n\n" + str(e))
             return
     
         QMessageBox.information(self.widget, "Module Tube", info)  

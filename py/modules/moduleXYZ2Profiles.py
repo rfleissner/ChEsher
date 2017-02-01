@@ -17,10 +17,11 @@
 __author__="Reinhard Fleissner"
 __date__ ="$18.05.2016 22:38:30$"
 
+import sys
 import math
 import functools
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QMessageBox
+from PyQt4.QtGui import QMessageBox, QFileDialog
 
 # modules and classes
 from uiXYZ2Profiles import Ui_XYZ2Profiles
@@ -40,10 +41,8 @@ except AttributeError:
 class WrapXYZ2Profiles():
     """Wrapper for module XYZ2Profiles"""
 
-    def __init__(self, dir):
+    def __init__(self):
         """Constructor."""
-
-        self.directory = dir
 
         # setup user interface
         self.widget = QtGui.QWidget()
@@ -84,13 +83,13 @@ class WrapXYZ2Profiles():
 
 # module Profiles
 
-        self.callbackOpenProfilesFile = functools.partial(uih.getOpenFileName, "Open Profiles File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditInputProfiles, self.directory, self.widget)
+        self.callbackOpenProfilesFile = functools.partial(self.getOpenFileName, "Open Profiles File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditInputProfiles)
         QtCore.QObject.connect(self.ui.pushButtonInputProfiles, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenProfilesFile)
         
-        self.callbackOpenReachFile = functools.partial(uih.getOpenFileName, "Open Reach File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditInputReach, self.directory, self.widget)
+        self.callbackOpenReachFile = functools.partial(self.getOpenFileName, "Open Reach File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditInputReach)
         QtCore.QObject.connect(self.ui.pushButtonInputReach, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenReachFile)
         
-        self.callbackOpenPointsFile = functools.partial(uih.getOpenFileName, "Open Points File", "Point Set (*.xyz)", self.ui.lineEditInputPoints, self.directory, self.widget)
+        self.callbackOpenPointsFile = functools.partial(self.getOpenFileName, "Open Points File", "Point Set (*.xyz)", self.ui.lineEditInputPoints)
         QtCore.QObject.connect(self.ui.pushButtonInputPoints, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenPointsFile)
 
         self.callbackTextfile = functools.partial(uih.setEnabled, self.ui.checkBoxOutputTextfile, self.ui.pushButtonOutputTextfile, self.ui.lineEditOutputTextfile)
@@ -102,13 +101,13 @@ class WrapXYZ2Profiles():
         self.callbackHECRAS = functools.partial(uih.setEnabled, self.ui.checkBoxOutputHECRAS, self.ui.pushButtonOutputHECRAS, self.ui.lineEditOutputHECRAS)
         QtCore.QObject.connect(self.ui.checkBoxOutputHECRAS, QtCore.SIGNAL("clicked()"), self.callbackHECRAS)
     
-        self.callbackSaveTextfile = functools.partial(uih.getSaveFileName, "Save textfile As", "Normal text file (*.txt)", self.ui.lineEditOutputTextfile, self.directory, self.widget)
+        self.callbackSaveTextfile = functools.partial(self.getSaveFileName, "Save textfile As", "Normal text file (*.txt)", self.ui.lineEditOutputTextfile)
         QtCore.QObject.connect(self.ui.pushButtonOutputTextfile, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveTextfile)
         
-        self.callbackSaveDXFfile = functools.partial(uih.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputDXF, self.directory, self.widget)
+        self.callbackSaveDXFfile = functools.partial(self.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputDXF)
         QtCore.QObject.connect(self.ui.pushButtonOutputDXF, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveDXFfile)
         
-        self.callbackSaveHECRAS = functools.partial(uih.getSaveFileName, "Save GIS Format data file As", "GIS Format data file (*.geo)", self.ui.lineEditOutputHECRAS, self.directory, self.widget)
+        self.callbackSaveHECRAS = functools.partial(self.getSaveFileName, "Save GIS Format data file As", "GIS Format data file (*.geo)", self.ui.lineEditOutputHECRAS)
         QtCore.QObject.connect(self.ui.pushButtonOutputHECRAS, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveHECRAS)
 
         defaults = ["Template A", "Template B"]
@@ -128,20 +127,20 @@ class WrapXYZ2Profiles():
         try:
             self.nodProfiles, self.proProfiles = fh.readI2S(self.ui.lineEditInputProfiles.text())
             info += " - Profiles:\t\t\t{0}\n".format(len(self.proProfiles))
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to load profiles file!\nCheck filename or content!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to load profiles file!\nCheck filename or content!" + "\n\n" + str(e))
             return
         try:
             self.nodReach = fh.readI2S(self.ui.lineEditInputReach.text())[0]
             info += " - Reach nodes:\t\t{0}\n".format(len(self.nodReach))
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to load reach file!\nCheck filename or content!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to load reach file!\nCheck filename or content!" + "\n\n" + str(e))
             return
         try:
             self.points = fh.readXYZ(self.ui.lineEditInputPoints.text())
             info += " - Points:\t\t\t{0}\n".format(len(self.points))
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to load points file!\nCheck filename or content!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to load points file!\nCheck filename or content!" + "\n\n" + str(e))
             return
 
         self.proArranged, self.reachStation, self.profileStation, direction = po.determineFlowDirection(self.nodReach, self.nodProfiles, self.proProfiles)
@@ -160,7 +159,10 @@ class WrapXYZ2Profiles():
                 info += " - Textfile written to {0}.\n".format(self.ui.lineEditOutputTextfile.text())
             except:
                 info += " - ERROR: Not able to write textfile!\n"
-
+                info += "\n"
+                info += str(sys.exc_info())
+                info += "\n"
+                
         if self.ui.checkBoxOutputDXF.isChecked():
 
             scale = self.ui.spinBoxScale.value()
@@ -181,7 +183,10 @@ class WrapXYZ2Profiles():
                 info += " - DXF file written to {0}.\n".format(self.ui.lineEditOutputDXF.text())
             except:
                 info += " - ERROR: Not able to write DXF file!\n"
-
+                info += "\n"
+                info += str(sys.exc_info())
+                info += "\n"
+                
         if self.ui.checkBoxOutputHECRAS.isChecked():
             self.writeGEO()
             try:
@@ -189,7 +194,10 @@ class WrapXYZ2Profiles():
                 info += " - GEO file written to {0}.\n".format(self.ui.lineEditOutputHECRAS.text())
             except:
                 info += " - ERROR: Not able to write geo file!\n"
-
+                info += "\n"
+                info += str(sys.exc_info())
+                info += "\n"
+                
         QMessageBox.information(self.widget, "Module XYZ2Profiles", info)
 
     def normalizeProfiles(self):
@@ -448,3 +456,13 @@ class WrapXYZ2Profiles():
                 self.settings["doubleSpinBoxTextSizeBand"] = 1.5
                 self.settings["doubleSpinBoxMarkerSize"] = 1.5
                 self.settings["doubleSpinBoxCleanValues"] = 0.0
+
+    def getOpenFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getOpenFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)
+
+    def getSaveFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getSaveFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)

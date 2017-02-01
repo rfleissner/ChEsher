@@ -17,7 +17,6 @@
 __author__="Reinhard Fleissner"
 __date__ ="$18.05.2016 22:38:30$"
 
-import dxfgrabber
 import functools
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QFileDialog, QMessageBox
@@ -35,10 +34,8 @@ except AttributeError:
 class WrapBK2DXF():
     """Wrapper for module BK2DXF"""
 
-    def __init__(self, dir):
+    def __init__(self):
         """Constructor."""
-
-        self.directory = dir
 
         # setup user interface
         self.widget = QtGui.QWidget()
@@ -47,22 +44,22 @@ class WrapBK2DXF():
 
         # module BK2DXF
         
-        self.callbackOpenMeshFile = functools.partial(uih.getOpenFileName, "Open T3S-file", "2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s)", self.ui.lineEditInputMesh, self.directory, self.widget)
+        self.callbackOpenMeshFile = functools.partial(self.getOpenFileName, "Open T3S-file", "2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s)", self.ui.lineEditInputMesh)
         QtCore.QObject.connect(self.ui.pushButtonInputMesh, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenMeshFile)
 
-        self.callbackOpenLineSetFile = functools.partial(uih.getOpenFileName, "Open Line Set", "Line Sets (*.i2s *.i3s)", self.ui.lineEditInputLineSet, self.directory, self.widget)
+        self.callbackOpenLineSetFile = functools.partial(self.getOpenFileName, "Open Line Set", "Line Sets (*.i2s *.i3s)", self.ui.lineEditInputLineSet)
         QtCore.QObject.connect(self.ui.pushButtonInputLineSet, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenLineSetFile)
         
-        self.callbackOutMesh = functools.partial(uih.getSaveFileName, "Save Mesh As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputMesh, self.directory, self.widget)
+        self.callbackOutMesh = functools.partial(self.getSaveFileName, "Save Mesh As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputMesh)
         QtCore.QObject.connect(self.ui.pushButtonOutputMesh, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOutMesh)
 
-        self.callbackOutLineSet = functools.partial(uih.getSaveFileName, "Save Line Set As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputLineSet, self.directory, self.widget)
+        self.callbackOutLineSet = functools.partial(self.getSaveFileName, "Save Line Set As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputLineSet)
         QtCore.QObject.connect(self.ui.pushButtonOutputLineSet, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOutLineSet)
 
-        self.callbackOutCheckMesh = functools.partial(uih.setEnabled, self.ui.checkBoxOutputMesh, self.ui.pushButtonOutputMesh, self.ui.lineEditOutputMesh, self.directory, self.widget)
+        self.callbackOutCheckMesh = functools.partial(uih.setEnabled, self.ui.checkBoxOutputMesh, self.ui.pushButtonOutputMesh, self.ui.lineEditOutputMesh)
         QtCore.QObject.connect(self.ui.checkBoxOutputMesh, QtCore.SIGNAL("clicked()"), self.callbackOutCheckMesh)
         
-        self.callbackOutCheckLineSet= functools.partial(uih.setEnabled, self.ui.checkBoxOutputLineSet, self.ui.pushButtonOutputLineSet, self.ui.lineEditOutputLineSet, self.directory, self.widget)
+        self.callbackOutCheckLineSet= functools.partial(uih.setEnabled, self.ui.checkBoxOutputLineSet, self.ui.pushButtonOutputLineSet, self.ui.lineEditOutputLineSet)
         QtCore.QObject.connect(self.ui.checkBoxOutputLineSet, QtCore.SIGNAL("clicked()"), self.callbackOutCheckLineSet)
         
         self.typeDXFmesh = 1
@@ -93,8 +90,8 @@ class WrapBK2DXF():
             try:
                 nodes, mesh = fh.readT3S(self.ui.lineEditInputMesh.text())
                 info += " - Mesh loaded with {0} nodes and {1} elements.\n".format(len(nodes), len(mesh))
-            except:
-                QMessageBox.critical(self.widget, "Error", "Not able to load mesh file!\nCheck filename or content!")
+            except Exception, e:
+                QMessageBox.critical(self.widget, "Error", "Not able to load mesh file!\nCheck filename or content!" + "\n\n" + str(e))
                 return
 
         # read input line sets
@@ -110,8 +107,8 @@ class WrapBK2DXF():
                     linesetNodes, lineset = fh.readI3S(self.ui.lineEditInputLineSet.text())
                     dim = 3
                 info += " - Line set loaded with {0} lines and {1} nodes.\n".format(len(lineset), len(linesetNodes))
-            except:
-                QMessageBox.critical(self.widget, "Error", "Not able to load line set!\nCheck filename or content!")
+            except Exception, e:
+                QMessageBox.critical(self.widget, "Error", "Not able to load line set!\nCheck filename or content!" + "\n\n" + str(e))
                 return
 
         info += "\nOutput data:\n"
@@ -121,8 +118,8 @@ class WrapBK2DXF():
             try:
                 fh.writeMeshDXF(self.ui.lineEditOutputMesh.text(), nodes, mesh, self.typeDXFmesh)
                 info += " - Mesh written to {0}.\n".format(self.ui.lineEditOutputMesh.text())
-            except:
-                QMessageBox.critical(self.widget, "Error", "Not able to write mesh!")
+            except Exception, e:
+                QMessageBox.critical(self.widget, "Error", "Not able to write mesh!" + "\n\n" + str(e))
                 return
             
         # write line set
@@ -130,8 +127,8 @@ class WrapBK2DXF():
             try:
                 fh.writeLineSetDXF(self.ui.lineEditOutputLineSet.text(), linesetNodes, lineset, dim)
                 info += " - Line set written to {0}.\n".format(self.ui.lineEditOutputLineSet.text())
-            except:
-                QMessageBox.critical(self.widget, "Error", "Not able to write line sets!")
+            except Exception, e:
+                QMessageBox.critical(self.widget, "Error", "Not able to write line sets!" + "\n\n" + str(e))
                 return
     
         QMessageBox.information(self.widget, "Module BK2DXF", info)
@@ -150,3 +147,13 @@ class WrapBK2DXF():
         
         self.ui.lineEditOutputMesh.setText(dir + "example_02/output/mesh.dxf")        
         self.ui.lineEditOutputLineSet.setText(dir + "example_02/output/contour.dxf")        
+
+    def getOpenFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getOpenFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)
+
+    def getSaveFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getSaveFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)

@@ -20,7 +20,7 @@ __date__ ="$18.05.2016 22:38:30$"
 import functools
 
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QMessageBox
+from PyQt4.QtGui import QMessageBox, QFileDialog
 
 # modules and classes
 from uiCS import Ui_CS
@@ -35,10 +35,8 @@ except AttributeError:
 class WrapCS():
     """Wrapper for module CS"""
 
-    def __init__(self, dir):
+    def __init__(self):
         """Constructor."""
-
-        self.directory = dir
 
         # setup user interface
         self.widget = QtGui.QWidget()
@@ -47,24 +45,24 @@ class WrapCS():
         
 # module CS
 
-        self.callbackCSOpenMeshFile = functools.partial(uih.getOpenFileName, "Open T3S-file", "2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s)", self.ui.lineEditInputMesh, self.directory, self.widget)
+        self.callbackCSOpenMeshFile = functools.partial(self.getOpenFileName, "Open T3S-file", "2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s)", self.ui.lineEditInputMesh)
         QtCore.QObject.connect(self.ui.pushButtonInputMesh, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackCSOpenMeshFile)
 
-        self.callbackCSOpenDefinition = functools.partial(uih.getOpenFileName, "Open Control Sections Definition File", "Normal text file (*.txt)", self.ui.lineEditInputDefinition, self.directory, self.widget)
+        self.callbackCSOpenDefinition = functools.partial(self.getOpenFileName, "Open Control Sections Definition File", "Normal text file (*.txt)", self.ui.lineEditInputDefinition)
         QtCore.QObject.connect(self.ui.pushButtonInputDefinition, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackCSOpenDefinition)
 
-        self.callbackCSOpenResults = functools.partial(uih.getOpenFileName, "Open Control Sections Results File", "Normal text file (*.txt)", self.ui.lineEditInputResults, self.directory, self.widget)
+        self.callbackCSOpenResults = functools.partial(self.getOpenFileName, "Open Control Sections Results File", "Normal text file (*.txt)", self.ui.lineEditInputResults)
         QtCore.QObject.connect(self.ui.pushButtonInputResults, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackCSOpenResults)
 
         self.callbacCSOutCheckFormatted = functools.partial(uih.setEnabled, self.ui.checkBoxOutputFormatted, self.ui.pushButtonOutputFormatted, self.ui.lineEditOutputFormatted)
         QtCore.QObject.connect(self.ui.checkBoxOutputFormatted, QtCore.SIGNAL("clicked()"), self.callbacCSOutCheckFormatted)
         
-        self.callbacCSOutFormatted = functools.partial(uih.getSaveFileName, "Save Data File As", "Normal text file (*.txt)", self.ui.lineEditOutputFormatted, self.directory, self.widget)
+        self.callbacCSOutFormatted = functools.partial(self.getSaveFileName, "Save Data File As", "Normal text file (*.txt)", self.ui.lineEditOutputFormatted)
         QtCore.QObject.connect(self.ui.pushButtonOutputFormatted, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbacCSOutFormatted)
 
         QtCore.QObject.connect(self.ui.checkBoxOutputCS, QtCore.SIGNAL("clicked()"), self.setEnabledCS)
         
-        self.callbacCSOutCS = functools.partial(uih.getSaveFileName, "Save Control Sections As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputCS, self.directory, self.widget)
+        self.callbacCSOutCS = functools.partial(self.getSaveFileName, "Save Control Sections As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputCS)
         QtCore.QObject.connect(self.ui.pushButtonOutputCS, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbacCSOutCS)
 
         QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.create)
@@ -111,8 +109,8 @@ class WrapCS():
         try:
             nodes, mesh = fh.readT3S(self.ui.lineEditInputMesh.text())
             info += " - Mesh loaded with {0} nodes and {1} elements.\n".format(len(nodes), len(mesh))
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to load mesh file!\nCheck filename or content!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to load mesh file!\nCheck filename or content!" + "\n\n" + str(e))
             return
     
         # read control sections definition file
@@ -122,8 +120,8 @@ class WrapCS():
         try:
             nCS, nameCS, nodeIDsCS, coordsCS, type = fh.readCSDefinition(self.ui.lineEditInputDefinition.text())
             info += " - Control section definition loaded with {0} control sections.\n".format(nCS)
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to load control sections definition file!\nCheck filename or content!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to load control sections definition file!\nCheck filename or content!" + "\n\n" + str(e))
             return
 
         # read control sections results file
@@ -132,8 +130,8 @@ class WrapCS():
         try:
             time, resultsCS = fh.readCSResults(self.ui.lineEditInputResults.text(), nCS)
             info += " - Control section results loaded with {0} time steps.\n".format(len(time))
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to load control sections results file!\nCheck filename or content!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to load control sections results file!\nCheck filename or content!" + "\n\n" + str(e))
             return        
         
         decTime = self.ui.spinBoxTime.value()
@@ -145,8 +143,8 @@ class WrapCS():
             try:
                 fh.writeCSFormatted(self.ui.lineEditOutputFormatted.text(), nameCS, time, resultsCS, decTime, decFlow)
                 info += " - Formatted control section data file written to {0}.\n".format(self.ui.lineEditOutputFormatted.text())
-            except:
-                QMessageBox.critical(self.widget, "Error", "Not able to write formatted data file!")
+            except Exception, e:
+                QMessageBox.critical(self.widget, "Error", "Not able to write formatted data file!" + "\n\n" + str(e))
                 return
 
         if self.ui.checkBoxOutputCS.isChecked():
@@ -171,8 +169,18 @@ class WrapCS():
                 info += " - Control sections written to {0}.\n".format(self.ui.lineEditOutputCS.text())
                 for key in valuesCS:
                     info += "\t{0} to {1} ({2})\n".format(round(valuesCS[key][0], decFlow), round(valuesCS[key][1], decFlow), nameCS[key])
-            except:
-                QMessageBox.critical(self.widget, "Error", "Not able to write control section file!")
+            except Exception, e:
+                QMessageBox.critical(self.widget, "Error", "Not able to write control section file!" + "\n\n" + str(e))
                 return               
     
         QMessageBox.information(self.widget, "Module CS", info)
+
+    def getOpenFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getOpenFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)
+
+    def getSaveFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getSaveFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)

@@ -26,11 +26,10 @@ matplotlib.use("Agg")
 import matplotlib.tri as tri
 
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QMessageBox
+from PyQt4.QtGui import QMessageBox, QFileDialog
 
 # modules and classes
 from uiScalarDXF import Ui_ScalarDXF
-import uiHandler as uih
 import fileHandler as fh
 
 try:
@@ -41,10 +40,8 @@ except AttributeError:
 class WrapScalarDXF():
     """Wrapper for module ScalarDXF"""
 
-    def __init__(self, dir):
+    def __init__(self):
         """Constructor."""
-
-        self.directory = dir
 
         # setup user interface
         self.widget = QtGui.QWidget()
@@ -53,13 +50,13 @@ class WrapScalarDXF():
         
 # module ScalarDXF
 
-        self.callbackOpenScalarInputT3SMajor = functools.partial(uih.getOpenFileName, "Open 2D T3 Scalar Mesh", "2D T3 Scalar Mesh (ASCIISingleFrame) (*.t3s)", self.ui.lineEditInputT3SMajor, self.directory, self.widget)
+        self.callbackOpenScalarInputT3SMajor = functools.partial(self.getOpenFileName, "Open 2D T3 Scalar Mesh", "2D T3 Scalar Mesh (ASCIISingleFrame) (*.t3s)", self.ui.lineEditInputT3SMajor)
         QtCore.QObject.connect(self.ui.pushButtonInputT3SMajor, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenScalarInputT3SMajor)
 
-        self.callbackOpenScalarInputT3SMinor = functools.partial(uih.getOpenFileName, "Open 2D T3 Scalar Mesh", "2D T3 Scalar Mesh (ASCIISingleFrame) (*.t3s)", self.ui.lineEditInputT3SMinor, self.directory, self.widget)
+        self.callbackOpenScalarInputT3SMinor = functools.partial(self.getOpenFileName, "Open 2D T3 Scalar Mesh", "2D T3 Scalar Mesh (ASCIISingleFrame) (*.t3s)", self.ui.lineEditInputT3SMinor)
         QtCore.QObject.connect(self.ui.pushButtonInputT3SMinor, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenScalarInputT3SMinor)
 
-        self.callbackScalarScalar = functools.partial(uih.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutput, self.directory, self.widget)
+        self.callbackScalarScalar = functools.partial(self.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutput)
         QtCore.QObject.connect(self.ui.pushButtonOutput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackScalarScalar)
         
         self.scalarSymbol = 0
@@ -118,8 +115,8 @@ class WrapScalarDXF():
         
         try:
             x, y, zMajor, triangles = fh.readT3STriangulation(self.ui.lineEditInputT3SMajor.text())
-        except:
-            QMessageBox.critical(self, "Error", "Not able to load mesh file!\nCheck filename or content!")
+        except Exception, e:
+            QMessageBox.critical(self, "Error", "Not able to load mesh file!\nCheck filename or content!" + "\n\n" + str(e))
             return
         
         minor = False
@@ -127,8 +124,8 @@ class WrapScalarDXF():
             minor = True
             try:
                 x, y, zMinor, triangles = fh.readT3STriangulation(self.ui.lineEditInputT3SMinor.text())
-            except:
-                QMessageBox.critical(self.widget, "Error", "Not able to load mesh file!\nCheck filename or content!")
+            except Exception, e:
+                QMessageBox.critical(self.widget, "Error", "Not able to load mesh file!\nCheck filename or content!" + "\n\n" + str(e))
                 return            
             
         scalarNodes = {}
@@ -178,11 +175,21 @@ class WrapScalarDXF():
         try:
             nOfValues = fh.writeScalarDXF(scalarNodes, SMin, SMax, eps, scale, self.scalarSymbol, useMono, fname)
             info += "\n - {0} values written to {1}".format(nOfValues, fname)
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to write DXF file!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to write DXF file!" + "\n\n" + str(e))
             return
 
         QMessageBox.information(self.widget, "Module ScalarDXF", info)  
 
     def setSymbol(self, i):
         self.scalarSymbol = i
+
+    def getOpenFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getOpenFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)
+
+    def getSaveFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getSaveFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)

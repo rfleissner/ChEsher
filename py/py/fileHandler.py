@@ -23,6 +23,7 @@ from copy import deepcopy as dc
 import ezdxf
 from dxfwrite import DXFEngine as dxf
 import math
+from rtree import index
 from shapely.geometry import Point, Polygon, MultiPolygon, LinearRing, LineString, MultiLineString
 
 import os.path as pth
@@ -836,6 +837,8 @@ def readT3S(filename):
     return nodesT3S, mesh
 
 def readT3StoShapely(filename):
+    idx = index.Index()
+        
     points = {}
     polygons = []
     
@@ -878,17 +881,19 @@ def readT3StoShapely(filename):
                     for i in range(3):
                         pointList.append(points[int(values[i])])
                         
-                    elementcounter += 1
-                    
                     poly = Polygon([p.x, p.y, p.z] for p in pointList)
                     polygons.append(poly)
+                    
+                    idx.insert(elementcounter, poly.bounds)
+                    
+                    elementcounter += 1
                     
             if keyword == ':EndHeader':
                 endheader = True
 
     mpolygon = MultiPolygon(polygons)
 
-    return mpolygon
+    return mpolygon, idx
 
 def writeCS1(fname, levels, colours):
     file = open(fname, 'w')

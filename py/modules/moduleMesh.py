@@ -19,7 +19,7 @@ __date__ ="$18.05.2016 22:38:30$"
 
 import functools
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QMessageBox
+from PyQt4.QtGui import QMessageBox, QFileDialog
 
 # modules and classes
 from uiMesh import Ui_Mesh
@@ -37,10 +37,8 @@ except AttributeError:
 class WrapMesh():
     """Wrapper for module Mesh"""
 
-    def __init__(self, dir):
+    def __init__(self):
         """Constructor."""
-
-        self.directory = dir
 
         # setup user interface
         self.widget = QtGui.QWidget()
@@ -49,40 +47,40 @@ class WrapMesh():
 
 # module Mesh
 
-        self.callbackOpenProfilesFile = functools.partial(uih.getOpenFileName, "Open Profiles File", "Line Sets (*.i3s)", self.ui.lineEditProfiles, self.directory, self.widget)
+        self.callbackOpenProfilesFile = functools.partial(self.getOpenFileName, "Open Profiles File", "Line Sets (*.i3s)", self.ui.lineEditProfiles)
         QtCore.QObject.connect(self.ui.pushButtonProfiles, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenProfilesFile)
 
-        self.callbackOpenReachFile = functools.partial(uih.getOpenFileName, "Open Reach File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditReach, self.directory, self.widget)
+        self.callbackOpenReachFile = functools.partial(self.getOpenFileName, "Open Reach File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditReach)
         QtCore.QObject.connect(self.ui.pushButtonReach, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenReachFile)
 
-        self.callbackOpenLBLFile = functools.partial(uih.getOpenFileName, "Open Left Breakline File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditLBL, self.directory, self.widget)
+        self.callbackOpenLBLFile = functools.partial(self.getOpenFileName, "Open Left Breakline File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditLBL)
         QtCore.QObject.connect(self.ui.pushButtonLBL, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenLBLFile)
 
-        self.callbackOpenRBLFile = functools.partial(uih.getOpenFileName, "Open Right Breakline File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditRBL, self.directory, self.widget)
+        self.callbackOpenRBLFile = functools.partial(self.getOpenFileName, "Open Right Breakline File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditRBL)
         QtCore.QObject.connect(self.ui.pushButtonRBL, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenRBLFile)
 
-        self.callbackOpenLBOFile = functools.partial(uih.getOpenFileName, "Open Left Boundary File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditLBO, self.directory, self.widget)
+        self.callbackOpenLBOFile = functools.partial(self.getOpenFileName, "Open Left Boundary File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditLBO)
         QtCore.QObject.connect(self.ui.pushButtonLBO, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenLBOFile)
 
-        self.callbackOpenRBOFile = functools.partial(uih.getOpenFileName, "Open Right Boundary File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditRBO, self.directory, self.widget)
+        self.callbackOpenRBOFile = functools.partial(self.getOpenFileName, "Open Right Boundary File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditRBO)
         QtCore.QObject.connect(self.ui.pushButtonRBO, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenRBOFile)
 
-        self.callbackSaveMeshFile = functools.partial(uih.getSaveFileName, "Save Mesh As", "2D T3 Mesh (*.t3s)", self.ui.lineEditMesh, self.directory, self.widget)
+        self.callbackSaveMeshFile = functools.partial(self.getSaveFileName, "Save Mesh As", "2D T3 Mesh (*.t3s)", self.ui.lineEditMesh)
         QtCore.QObject.connect(self.ui.pushButtonMesh, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveMeshFile)
 
-        self.callbackSaveIPFile = functools.partial(uih.getSaveFileName, "Save Interpolated Profiles As", "Line Sets (*.i3s)", self.ui.lineEditIP, self.directory, self.widget)
+        self.callbackSaveIPFile = functools.partial(self.getSaveFileName, "Save Interpolated Profiles As", "Line Sets (*.i3s)", self.ui.lineEditIP)
         QtCore.QObject.connect(self.ui.pushButtonIP, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveIPFile)
 
-        self.callbackSaveLEFile = functools.partial(uih.getSaveFileName, "Save Left Edge As", "Line Sets (*.i3s)", self.ui.lineEditLE, self.directory, self.widget)
+        self.callbackSaveLEFile = functools.partial(self.getSaveFileName, "Save Left Edge As", "Line Sets (*.i3s)", self.ui.lineEditLE)
         QtCore.QObject.connect(self.ui.pushButtonLE, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveLEFile)
 
-        self.callbackSaveREFile = functools.partial(uih.getSaveFileName, "Save Right Edge As", "Line Sets (*.i3s)", self.ui.lineEditRE, self.directory, self.widget)
+        self.callbackSaveREFile = functools.partial(self.getSaveFileName, "Save Right Edge As", "Line Sets (*.i3s)", self.ui.lineEditRE)
         QtCore.QObject.connect(self.ui.pushButtonRE, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveREFile)
 
-        self.callbackSaveOLFile = functools.partial(uih.getSaveFileName, "Save Outline As", "Line Sets (*.i3s)", self.ui.lineEditOL, self.directory, self.widget)
+        self.callbackSaveOLFile = functools.partial(self.getSaveFileName, "Save Outline As", "Line Sets (*.i3s)", self.ui.lineEditOL)
         QtCore.QObject.connect(self.ui.pushButtonOL, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveOLFile)
 
-        self.callbackSaveWSFile = functools.partial(uih.getSaveFileName, "Save Workspace As", "EnSim WorkSpace File (*.ews)", self.ui.lineEditWS, self.directory, self.widget)
+        self.callbackSaveWSFile = functools.partial(self.getSaveFileName, "Save Workspace As", "EnSim WorkSpace File (*.ews)", self.ui.lineEditWS)
         QtCore.QObject.connect(self.ui.pushButtonWS, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveWSFile)
 
         self.callbackLBL = functools.partial(self.setEnabledBL, self.ui.checkBoxLBL, self.ui.pushButtonLBL, self.ui.lineEditLBL, self.ui.spinBoxNNL)
@@ -152,14 +150,14 @@ class WrapMesh():
         try:
             nodRaw, proRaw = fh.readI3S(self.ui.lineEditProfiles.text())
             info += " - Profiles:\t\t\t{0}\n".format(len(proRaw))
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to load profiles file!\nCheck filename or content!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to load profiles file!\nCheck filename or content!" + "\n\n" + str(e))
             return
         try:
             nodReach = fh.readI2S(self.ui.lineEditReach.text())[0]
             info += " - Reach nodes:\t\t{0}\n".format(len(nodReach))
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to load reach file!\nCheck filename or content!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to load reach file!\nCheck filename or content!" + "\n\n" + str(e))
             return
             
         if len(proRaw) != len(nodReach):
@@ -179,8 +177,8 @@ class WrapMesh():
                 else:
                     nodLBL = fh.readI3S(self.ui.lineEditLBL.text())[0]
                 info += " - Left breakline nodes:\t{0}\n".format(len(nodLBL))
-            except:
-                QMessageBox.critical(self.widget, "Error", "Not able to load left breakline file!\nCheck filename or content!")
+            except Exception, e:
+                QMessageBox.critical(self.widget, "Error", "Not able to load left breakline file!\nCheck filename or content!" + "\n\n" + str(e))
                 return
         else:
             nnL = None
@@ -196,8 +194,8 @@ class WrapMesh():
                 else:
                     nodRBL = fh.readI3S(self.ui.lineEditRBL.text())[0]
                 info += " - Right breakline nodes:\t{0}\n".format(len(nodRBL))
-            except:
-                QMessageBox.critical(self.widget, "Error", "Not able to load right breakline file!\nCheck filename or content!")
+            except Exception, e:
+                QMessageBox.critical(self.widget, "Error", "Not able to load right breakline file!\nCheck filename or content!" + "\n\n" + str(e))
                 return
         else:
             nnR = None
@@ -211,8 +209,8 @@ class WrapMesh():
                 else:
                     nodLBO = fh.readI3S(self.ui.lineEditLBO.text())[0]
                 info += " - Left boundary nodes:\t{0}\n".format(len(nodLBO))
-            except:
-                QMessageBox.critical(self.widget, "Error", "Not able to load left boundary file!\nCheck filename or content!")
+            except Exception, e:
+                QMessageBox.critical(self.widget, "Error", "Not able to load left boundary file!\nCheck filename or content!" + "\n\n" + str(e))
                 return
         else:
             nodLBO = None
@@ -225,8 +223,8 @@ class WrapMesh():
                 else:
                     nodRBO = fh.readI3S(self.ui.lineEditRBO.text())[0]
                 info += " - Right boundary nodes:\t{0}\n".format(len(nodRBO))
-            except:
-                QMessageBox.critical(self.widget, "Error", "Not able to load right boundary file!\nCheck filename or content!")
+            except Exception, e:
+                QMessageBox.critical(self.widget, "Error", "Not able to load right boundary file!\nCheck filename or content!" + "\n\n" + str(e))
                 return
         else:
             nodRBO = None
@@ -246,45 +244,45 @@ class WrapMesh():
 
         try:                        
             info += self.mesh.determineFlowDirection()
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to determine flow direction!\nCheck inputs!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to determine flow direction!\nCheck inputs!" + "\n\n" + str(e))
             return
         
         try:
             info += self.mesh.normalizeProfiles()
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to normalize profiles!\nCheck inputs!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to normalize profiles!\nCheck inputs!" + "\n\n" + str(e))
             return
         
         try:
             info += self.mesh.interpolateChannel()
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to interpolate channel!\nCheck inputs!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to interpolate channel!\nCheck inputs!" + "\n\n" + str(e))
             return
         
         try:
             info += self.mesh.interpolateElevation()
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to interpolate elevation!\nCheck inputs!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to interpolate elevation!\nCheck inputs!" + "\n\n" + str(e))
             return
         
         if self.ui.checkBoxEC.isChecked():
             try:
                 info += self.mesh.interpolateElevationCorrection()
-            except:
-                QMessageBox.critical(self.widget, "Error", "Not able to interpolate elevation correction!\nCheck inputs!")
+            except Exception, e:
+                QMessageBox.critical(self.widget, "Error", "Not able to interpolate elevation correction!\nCheck inputs!" + "\n\n" + str(e))
                 return
             
         try:
             info += self.mesh.createMesh()
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to create mesh!\nCheck inputs!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to create mesh!\nCheck inputs!" + "\n\n" + str(e))
             return
         
         try:
             self.writeOutput()
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to write output!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to write output!" + "\n\n" + str(e))
             return
         
         QMessageBox.information(self.widget, "Module Mesh", info)
@@ -378,3 +376,13 @@ class WrapMesh():
 
     def getPath(self, lineEdit):
         return lineEdit.text().replace('/', '\\')
+    
+    def getOpenFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getOpenFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)
+
+    def getSaveFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getSaveFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)

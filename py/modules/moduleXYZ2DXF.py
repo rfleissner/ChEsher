@@ -17,12 +17,13 @@
 __author__="Reinhard Fleissner"
 __date__ ="$18.05.2016 22:38:30$"
 
+import sys
 import functools
 from PyQt4 import QtCore, QtGui
+from PyQt4.QtGui import QFileDialog
 
 # modules and classes
 from uiXYZ2DXF import Ui_XYZ2DXF
-import uiHandler as uih
 import fileHandler as fh
 from dxfwrite import DXFEngine as dxf
 
@@ -34,10 +35,8 @@ except AttributeError:
 class WrapXYZ2DXF():
     """Wrapper for module XYZ2DXF"""
 
-    def __init__(self, dir):
+    def __init__(self):
         """Constructor."""
-
-        self.directory = dir
 
         # setup user interface
         self.widget = QtGui.QWidget()
@@ -49,10 +48,10 @@ class WrapXYZ2DXF():
 
 # module Mesh
 
-        self.callbackOpenPointsFile = functools.partial(uih.getOpenFileName, "Open Points File", "Point Set (*.xyz)", self.ui.lineEditInputXYZ, self.directory, self.widget)
+        self.callbackOpenPointsFile = functools.partial(self.getOpenFileName, "Open Points File", "Point Set (*.xyz)", self.ui.lineEditInputXYZ)
         QtCore.QObject.connect(self.ui.pushButtonInputXYZ, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenPointsFile)
     
-        self.callbackSaveDXFfile = functools.partial(uih.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputDXF, self.directory, self.widget)
+        self.callbackSaveDXFfile = functools.partial(self.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputDXF)
         QtCore.QObject.connect(self.ui.pushButtonOutputDXF, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveDXFfile)
                 
         QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.create)
@@ -64,22 +63,21 @@ class WrapXYZ2DXF():
         info = "Input data:\n"
 
         self.points = fh.readXYZ(self.ui.lineEditInputXYZ.text())
-#        try:
-#            self.points = fh.readXYZ(self.ui.lineEditInputPoints.text())
-#            info += " - Points:\t\t{0}\n".format(len(self.points))
-#        except:
-#            QMessageBox.critical(self.widget, "Error", "Not able to load points file!\nCheck filename or content!")
-#            return
+        try:
+            self.points = fh.readXYZ(self.ui.lineEditInputXYZ.text())
+            info += " - Points:\t\t{0}\n".format(len(self.points))
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to load points file!\nCheck filename or content!" + "\n\n" + str(e))
+            return
 
-        print self.points
-
-
-        self.writeDXF()
-#            try:
-#                self.writeDXF()
-#                info += " - DXF file created.\n"
-#            except:
-#                info += " - ERROR: Not able to write DXF file!\n"
+        try:
+            self.writeDXF()
+            info += " - DXF file created.\n"
+        except:
+            info += " - ERROR: Not able to write DXF file!\n"
+            info += "\n"
+            info += str(sys.exc_info())
+            info += "\n"
         
     def writeDXF(self):
         
@@ -116,3 +114,13 @@ class WrapXYZ2DXF():
                                 color = col))
 
         dwg.save()
+
+    def getOpenFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getOpenFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)
+
+    def getSaveFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getSaveFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)

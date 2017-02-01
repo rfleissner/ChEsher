@@ -26,11 +26,10 @@ matplotlib.use("Agg")
 import matplotlib.tri as tri
 
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QMessageBox
+from PyQt4.QtGui import QMessageBox, QFileDialog
 
 # modules and classes
 from uiVectorDXF import Ui_VectorDXF
-import uiHandler as uih
 import fileHandler as fh
 
 try:
@@ -41,10 +40,8 @@ except AttributeError:
 class WrapVectorDXF():
     """Wrapper for module VectorDXF"""
 
-    def __init__(self, dir):
+    def __init__(self):
         """Constructor."""
-
-        self.directory = dir
 
         # setup user interface
         self.widget = QtGui.QWidget()
@@ -53,10 +50,10 @@ class WrapVectorDXF():
         
 # module VectorDXF
 
-        self.callbackOpenVectorInput = functools.partial(uih.getOpenFileName, "Open 2D T3 Vector Mesh", "2D T3 Vector Mesh (ASCIISingleFrame) (*.t3v)", self.ui.lineEditInput, self.directory, self.widget)
+        self.callbackOpenVectorInput = functools.partial(self.getOpenFileName, "Open 2D T3 Vector Mesh", "2D T3 Vector Mesh (ASCIISingleFrame) (*.t3v)", self.ui.lineEditInput)
         QtCore.QObject.connect(self.ui.pushButtonInput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenVectorInput)
         
-        self.callbackScalarVector = functools.partial(uih.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutput, self.directory, self.widget)
+        self.callbackScalarVector = functools.partial(self.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutput)
         QtCore.QObject.connect(self.ui.pushButtonOutput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackScalarVector)    
         
         QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.create)
@@ -97,8 +94,8 @@ class WrapVectorDXF():
         # read input meshes
         try:
             x, y, u, v, triangles = fh.readT3VTriangulation(self.ui.lineEditInput.text())
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to load mesh file!\nCheck filename or content!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to load mesh file!\nCheck filename or content!" + "\n\n" + str(e))
             return
         
         vectorNodes = {}
@@ -140,10 +137,19 @@ class WrapVectorDXF():
             info += "\n - Number of interpolated values: {0}".format(len(vectorNodes))
             nOfVectors= fh.writeVectorDXF(vectorNodes, VMin, VMax, eps, scale, fname)
             info += "\n - {0} values written to {1}".format(nOfVectors, fname)
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to write DXF file!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to write DXF file!" + "\n\n" + str(e))
             return   
         
         QMessageBox.information(self.widget, "Module VectorDXF", info)
-        
+
+    def getOpenFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getOpenFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)
+
+    def getSaveFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getSaveFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)
         

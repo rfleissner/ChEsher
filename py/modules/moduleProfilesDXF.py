@@ -17,7 +17,8 @@
 __author__="Reinhard Fleissner"
 __date__ ="$18.05.2016 22:38:30$"
 
-import functools, sys
+import functools
+import sys
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QFileDialog, QMessageBox, QColor
 
@@ -33,7 +34,7 @@ import fileHandler as fh
 from matplotlib import colors
 import numpy as np
 import copy
-from shapely.geometry import LineString, Point
+from shapely.geometry import LineString, Point, MultiPolygon
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -43,10 +44,8 @@ except AttributeError:
 class WrapProfilesDXF():
     """Wrapper for module ProfilesDXF"""
 
-    def __init__(self, dir):
+    def __init__(self):
         """Constructor."""
-
-        self.directory = dir
 
         # setup user interface
         self.widget = QtGui.QWidget()
@@ -91,13 +90,13 @@ class WrapProfilesDXF():
         
 # module ProfilesDXF
 
-        self.callbackOpenProfilesFile = functools.partial(uih.getOpenFileName, "Open Profiles File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditInputProfiles, self.directory, self.widget)
+        self.callbackOpenProfilesFile = functools.partial(self.getOpenFileName, "Open Profiles File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditInputProfiles)
         QtCore.QObject.connect(self.ui.pushButtonInputProfiles, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenProfilesFile)
         
-        self.callbackOpenReachFile = functools.partial(uih.getOpenFileName, "Open Reach File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditInputReach, self.directory, self.widget)
+        self.callbackOpenReachFile = functools.partial(self.getOpenFileName, "Open Reach File", "Line Sets (*.i2s *.i3s)", self.ui.lineEditInputReach)
         QtCore.QObject.connect(self.ui.pushButtonInputReach, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenReachFile)
 
-        self.callbackOpenBottomFile = functools.partial(uih.getOpenFileName, "Open T3S-file", "2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s)", self.ui.lineEditInputBottom, self.directory, self.widget)
+        self.callbackOpenBottomFile = functools.partial(self.getOpenFileName, "Open T3S-file", "2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s)", self.ui.lineEditInputBottom)
         QtCore.QObject.connect(self.ui.pushButtonInputBottom, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenBottomFile)
 
         QtCore.QObject.connect(self.ui.pushButtonAdd, QtCore.SIGNAL(_fromUtf8("clicked()")), self.add)
@@ -115,10 +114,10 @@ class WrapProfilesDXF():
         self.callbackPlan = functools.partial(uih.setEnabled, self.ui.checkBoxOutputPlan, self.ui.pushButtonOutputPlan, self.ui.lineEditOutputPlan)
         QtCore.QObject.connect(self.ui.checkBoxOutputPlan, QtCore.SIGNAL("clicked()"), self.callbackPlan)
         
-        self.callbackSaveProfiles = functools.partial(uih.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputProfiles, self.directory, self.widget)
+        self.callbackSaveProfiles = functools.partial(self.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputProfiles)
         QtCore.QObject.connect(self.ui.pushButtonOutputProfiles, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSaveProfiles)
         
-        self.callbackSavePlan = functools.partial(uih.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputPlan, self.directory, self.widget)
+        self.callbackSavePlan = functools.partial(self.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutputPlan)
         QtCore.QObject.connect(self.ui.pushButtonOutputPlan, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackSavePlan)
         
         defaults = ["Template A", "Template B", "Template C"]
@@ -227,12 +226,13 @@ class WrapProfilesDXF():
                 self.settings["doubleSpinBoxMarkerSize"] = 1.5
                 self.settings["doubleSpinBoxCleanValues"] = 0.0
 
-    def getCrossSections(self, mesh):
+    def getCrossSections(self, mesh, idx):
+        # intersection between triangular mesh and linestrings using Rtree
 
-        crossSections = dict((key, np.array([])) for key in self.proArranged)
+        crossSections = dict((key, np.array([])) for key in proArranged)
 
         for pID in self.proArranged:
-            
+
             nodes = []
             for nID in range(len(self.proArranged[pID])):
                 node = self.nodProfiles[self.proArranged[pID][nID]]
@@ -240,7 +240,11 @@ class WrapProfilesDXF():
 
             crossSection = LineString(nodes)
 
-            intersection = mesh.intersection(crossSection)
+            # Merge triangles to multipolygon
+            triangles = MultiPolygon([mesh[int(pos)] for pos in list(idx.intersection(crossSection.bounds))])
+
+            # Now do actual intersection
+            intersection = triangles.intersection(crossSection)
 
             values = []
             for p in range(len(intersection)):
@@ -283,14 +287,14 @@ class WrapProfilesDXF():
         try:
             self.nodProfiles, self.proProfiles = fh.readI2S(self.ui.lineEditInputProfiles.text())
             info += " - Profiles:\t\t\t{0}\n".format(len(self.proProfiles))
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to load profiles file!\nCheck filename or content!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to load profiles file!\nCheck filename or content!" + "\n\n" + str(e))
             return
         try:
             self.nodReach = fh.readI2S(self.ui.lineEditInputReach.text())[0]
             info += " - Reach nodes:\t\t{0}\n".format(len(self.nodReach))
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to load reach file!\nCheck filename or content!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to load reach file!\nCheck filename or content!" + "\n\n" + str(e))
             return
         try:
             rows = self.ui.tableWidget.rowCount()
@@ -299,8 +303,8 @@ class WrapProfilesDXF():
                 self.ui.tableWidget.item(row, 1).text()
                 str(self.ui.tableWidget.item(row, 2).text()).split(",")[2]
             info += " - Water surface results:\t{0}\n".format(rows)
-        except:
-            QMessageBox.critical(self.widget, "Error", "Check filename, surface name and colour!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Check filename, surface name and colour!" + "\n\n" + str(e))
             return            
                 
         self.proArranged, self.reachStation, self.profileStation, direction = po.determineFlowDirection(self.nodReach, self.nodProfiles, self.proProfiles)
@@ -312,10 +316,10 @@ class WrapProfilesDXF():
 
         # create bottom cross sections
         try:
-            bottom = fh.readT3StoShapely(self.ui.lineEditInputBottom.text())
-            bottomCrossSections = self.getCrossSections(bottom)
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to interpolate bottom profile!")
+            bottom, index = fh.readT3StoShapely(self.ui.lineEditInputBottom.text())
+            bottomCrossSections = self.getCrossSections(bottom, index)
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to interpolate bottom profile!" + "\n\n" + str(e))
             return
         
         
@@ -328,13 +332,13 @@ class WrapProfilesDXF():
                 for row in range(rows):
                     filename = self.ui.tableWidget.item(row, 0).text()
                     name = self.ui.tableWidget.item(row, 1).text()
-                    watersurface = fh.readT3StoShapely(filename)
-                    wsCrossSections[name] = self.getCrossSections(watersurface)
+                    watersurface, index = fh.readT3StoShapely(filename)
+                    wsCrossSections[name] = self.getCrossSections(watersurface, index)
                     col = Colour(str(self.ui.tableWidget.item(row, 2).text()).split(","))
                     col.create()
                     colRGB[name] = col.getRGB()
-        except:
-            QMessageBox.critical(self.widget, "Error", "Not able to interpolate water surface profiles!")
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to interpolate water surface profiles!" + "\n\n" + str(e))
             return
         
         scale = self.ui.spinBoxScale.value()
@@ -359,7 +363,7 @@ class WrapProfilesDXF():
 
                 info += " - DXF file written to {0}.\n".format(self.ui.lineEditOutputProfiles.text())
             except:
-                info += " - ERROR: Not able to write profiles!\n"
+                info += " - ERROR: Not able to write profiles!"
                 info += "\n"
                 info += str(sys.exc_info())
                 info += "\n"
@@ -406,96 +410,41 @@ class WrapProfilesDXF():
         
     def initialize(self):
 
-        dir = "C:/opentelemac/simulation/sulz/Profile/"
-  
-        ###   ~   module ProfilesDXF   ~   ###
-
-        self.ui.lineEditInputProfiles.setText(dir + "profiles.i2s")
-        self.ui.lineEditInputReach.setText(dir + "reach.i2s")
-        self.ui.lineEditInputBottom.setText(dir + "BOTTOM(Subset).t3s")
-        self.ui.lineEditInputReachName.setText("Glawoggenbach")
-        self.ui.spinBoxScale.setValue(200)
-        self.ui.doubleSpinBoxSuperelevation.setValue(2.0)
-        
-        self.ui.tableWidget.setRowCount(0)
-        self.add()
-        self.add()
-        
-        item1 = QtGui.QTableWidgetItem()
-        item1.setText(dir + "S_HQ30_IST(Subset).t3s")
-        self.ui.tableWidget.setItem(0, 0, item1)
-        
-        item2 = QtGui.QTableWidgetItem()
-        item2.setText("HQ30 IST [m]")
-        self.ui.tableWidget.setItem(0, 1, item2)
-
-        item3 = QtGui.QTableWidgetItem()
-        item3.setText(dir + "S_HQ100_IST(Subset).t3s")
-        self.ui.tableWidget.setItem(1, 0, item3)
-
-        item4 = QtGui.QTableWidgetItem()
-        item4.setText("HQ100 IST [m]")
-        self.ui.tableWidget.setItem(1, 1, item4)
-
-        initCol = item2.backgroundColor()
-        initCol.setRed(255)
-        initCol.setGreen(127)
-        initCol.setBlue(223)
-        item5 = QtGui.QTableWidgetItem()
-        item5.setBackground(initCol)
-        item5.setFlags(QtCore.Qt.ItemIsEnabled)
-        item5.setText(str(initCol.red()) + ", " + str(initCol.green()) + ", " + str(initCol.blue()))
-        self.ui.tableWidget.setItem(0, 2, item5)
-
-        initCol = item4.backgroundColor()
-        initCol.setRed(0)
-        initCol.setGreen(191)
-        initCol.setBlue(255)
-        item6 = QtGui.QTableWidgetItem()
-        item6.setBackground(initCol)
-        item6.setFlags(QtCore.Qt.ItemIsEnabled)
-        item6.setText(str(initCol.red()) + ", " + str(initCol.green()) + ", " + str(initCol.blue()))
-        self.ui.tableWidget.setItem(1, 2, item6)
-        
-        uih.setEnabledInitialize(self.ui.checkBoxOutputProfiles, self.ui.pushButtonOutputProfiles, self.ui.lineEditOutputProfiles)
-        self.ui.lineEditOutputProfiles.setText(dir + "profiles.dxf")
-        
-        
-#        import os
-#        abs_path = os.path.abspath('.')
-#        dir = os.path.join(abs_path, 'examples/').replace('\\', '/')
+#        dir = "C:/opentelemac/simulation/sulz/Profile/"
 #  
 #        ###   ~   module ProfilesDXF   ~   ###
 #
-#        self.ui.lineEditInputProfiles.setText(dir + "example_15/profiles.i2s")
-#        self.ui.lineEditInputReach.setText(dir + "example_15/reach.i2s")
-#        self.ui.lineEditInputBottom.setText(dir + "example_15/BOTTOM_Case_A.t3s")
-#        self.ui.lineEditInputReachName.setText("Donau")
-#
+#        self.ui.lineEditInputProfiles.setText(dir + "profiles.i2s")
+#        self.ui.lineEditInputReach.setText(dir + "reach.i2s")
+#        self.ui.lineEditInputBottom.setText(dir + "BOTTOM(Subset).t3s")
+#        self.ui.lineEditInputReachName.setText("Glawoggenbach")
+#        self.ui.spinBoxScale.setValue(200)
+#        self.ui.doubleSpinBoxSuperelevation.setValue(2.0)
+#        
 #        self.ui.tableWidget.setRowCount(0)
 #        self.add()
 #        self.add()
 #        
 #        item1 = QtGui.QTableWidgetItem()
-#        item1.setText(self.directory + "C:/ChEsher/examples/example_15/FREE SURFACE_S161_Case_A.t3s")
+#        item1.setText(dir + "S_HQ30_IST(Subset).t3s")
 #        self.ui.tableWidget.setItem(0, 0, item1)
 #        
 #        item2 = QtGui.QTableWidgetItem()
-#        item2.setText("HQ100 Case A")
+#        item2.setText("HQ30 IST [m]")
 #        self.ui.tableWidget.setItem(0, 1, item2)
 #
 #        item3 = QtGui.QTableWidgetItem()
-#        item3.setText(self.directory + "C:/ChEsher/examples/example_15/FREE SURFACE_S161_Case_B.t3s")
+#        item3.setText(dir + "S_HQ100_IST(Subset).t3s")
 #        self.ui.tableWidget.setItem(1, 0, item3)
 #
 #        item4 = QtGui.QTableWidgetItem()
-#        item4.setText("HQ100 Case B")
+#        item4.setText("HQ100 IST [m]")
 #        self.ui.tableWidget.setItem(1, 1, item4)
 #
 #        initCol = item2.backgroundColor()
 #        initCol.setRed(255)
-#        initCol.setGreen(0)
-#        initCol.setBlue(127)
+#        initCol.setGreen(127)
+#        initCol.setBlue(223)
 #        item5 = QtGui.QTableWidgetItem()
 #        item5.setBackground(initCol)
 #        item5.setFlags(QtCore.Qt.ItemIsEnabled)
@@ -503,8 +452,8 @@ class WrapProfilesDXF():
 #        self.ui.tableWidget.setItem(0, 2, item5)
 #
 #        initCol = item4.backgroundColor()
-#        initCol.setRed(29)
-#        initCol.setGreen(29)
+#        initCol.setRed(0)
+#        initCol.setGreen(191)
 #        initCol.setBlue(255)
 #        item6 = QtGui.QTableWidgetItem()
 #        item6.setBackground(initCol)
@@ -513,4 +462,69 @@ class WrapProfilesDXF():
 #        self.ui.tableWidget.setItem(1, 2, item6)
 #        
 #        uih.setEnabledInitialize(self.ui.checkBoxOutputProfiles, self.ui.pushButtonOutputProfiles, self.ui.lineEditOutputProfiles)
-#        self.ui.lineEditOutputProfiles.setText(self.directory + "C:/ChEsher/examples/example_15/output/profiles.dxf")
+#        self.ui.lineEditOutputProfiles.setText(dir + "profiles.dxf")
+#        
+        
+        import os
+        abs_path = os.path.abspath('.')
+        dir = os.path.join(abs_path, 'examples/').replace('\\', '/')
+  
+        ###   ~   module ProfilesDXF   ~   ###
+
+        self.ui.lineEditInputProfiles.setText(dir + "example_15/profiles.i2s")
+        self.ui.lineEditInputReach.setText(dir + "example_15/reach.i2s")
+        self.ui.lineEditInputBottom.setText(dir + "example_15/BOTTOM_Case_A.t3s")
+        self.ui.lineEditInputReachName.setText("Donau")
+
+        self.ui.tableWidget.setRowCount(0)
+        self.add()
+        self.add()
+        
+        item1 = QtGui.QTableWidgetItem()
+        item1.setText(self.directory + "C:/ChEsher/examples/example_15/FREE SURFACE_S161_Case_A.t3s")
+        self.ui.tableWidget.setItem(0, 0, item1)
+        
+        item2 = QtGui.QTableWidgetItem()
+        item2.setText("HQ100 Case A")
+        self.ui.tableWidget.setItem(0, 1, item2)
+
+        item3 = QtGui.QTableWidgetItem()
+        item3.setText(self.directory + "C:/ChEsher/examples/example_15/FREE SURFACE_S161_Case_B.t3s")
+        self.ui.tableWidget.setItem(1, 0, item3)
+
+        item4 = QtGui.QTableWidgetItem()
+        item4.setText("HQ100 Case B")
+        self.ui.tableWidget.setItem(1, 1, item4)
+
+        initCol = item2.backgroundColor()
+        initCol.setRed(255)
+        initCol.setGreen(0)
+        initCol.setBlue(127)
+        item5 = QtGui.QTableWidgetItem()
+        item5.setBackground(initCol)
+        item5.setFlags(QtCore.Qt.ItemIsEnabled)
+        item5.setText(str(initCol.red()) + ", " + str(initCol.green()) + ", " + str(initCol.blue()))
+        self.ui.tableWidget.setItem(0, 2, item5)
+
+        initCol = item4.backgroundColor()
+        initCol.setRed(29)
+        initCol.setGreen(29)
+        initCol.setBlue(255)
+        item6 = QtGui.QTableWidgetItem()
+        item6.setBackground(initCol)
+        item6.setFlags(QtCore.Qt.ItemIsEnabled)
+        item6.setText(str(initCol.red()) + ", " + str(initCol.green()) + ", " + str(initCol.blue()))
+        self.ui.tableWidget.setItem(1, 2, item6)
+        
+        uih.setEnabledInitialize(self.ui.checkBoxOutputProfiles, self.ui.pushButtonOutputProfiles, self.ui.lineEditOutputProfiles)
+        self.ui.lineEditOutputProfiles.setText(self.directory + "C:/ChEsher/examples/example_15/output/profiles.dxf")
+        
+    def getOpenFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getOpenFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)
+
+    def getSaveFileName(self, title, fileFormat, lineEdit):
+        filename = QFileDialog.getSaveFileName(self.widget, title, self.directory, fileFormat)
+        if filename != "":
+            lineEdit.setText(filename)

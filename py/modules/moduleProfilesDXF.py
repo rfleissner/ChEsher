@@ -229,7 +229,7 @@ class WrapProfilesDXF():
     def getCrossSections(self, mesh, idx):
         # intersection between triangular mesh and linestrings using Rtree
 
-        crossSections = dict((key, np.array([])) for key in proArranged)
+        crossSections = dict((key, np.array([])) for key in self.proArranged)
 
         for pID in self.proArranged:
 
@@ -481,7 +481,7 @@ class WrapProfilesDXF():
         self.add()
         
         item1 = QtGui.QTableWidgetItem()
-        item1.setText(self.directory + "C:/ChEsher/examples/example_15/FREE SURFACE_S161_Case_A.t3s")
+        item1.setText(dir + "example_15/FREE SURFACE_S161_Case_A.t3s")
         self.ui.tableWidget.setItem(0, 0, item1)
         
         item2 = QtGui.QTableWidgetItem()
@@ -489,7 +489,7 @@ class WrapProfilesDXF():
         self.ui.tableWidget.setItem(0, 1, item2)
 
         item3 = QtGui.QTableWidgetItem()
-        item3.setText(self.directory + "C:/ChEsher/examples/example_15/FREE SURFACE_S161_Case_B.t3s")
+        item3.setText(dir + "example_15/FREE SURFACE_S161_Case_B.t3s")
         self.ui.tableWidget.setItem(1, 0, item3)
 
         item4 = QtGui.QTableWidgetItem()
@@ -517,7 +517,7 @@ class WrapProfilesDXF():
         self.ui.tableWidget.setItem(1, 2, item6)
         
         uih.setEnabledInitialize(self.ui.checkBoxOutputProfiles, self.ui.pushButtonOutputProfiles, self.ui.lineEditOutputProfiles)
-        self.ui.lineEditOutputProfiles.setText(self.directory + "C:/ChEsher/examples/example_15/output/profiles.dxf")
+        self.ui.lineEditOutputProfiles.setText(dir + "example_15/output/profiles.dxf")
         
     def getOpenFileName(self, title, fileFormat, lineEdit):
         filename = QFileDialog.getOpenFileName(self.widget, title, self.directory, fileFormat)

@@ -17,6 +17,7 @@
 __author__="Reinhard Fleissner"
 __date__ ="$18.05.2016 22:38:30$"
 
+import os
 import functools
 import sys
 from PyQt4 import QtCore, QtGui
@@ -51,7 +52,8 @@ class WrapProfilesDXF():
         self.widget = QtGui.QWidget()
         self.ui = Ui_ProfilesDXF()
         self.ui.setupUi(self.widget)
-
+        self.directory = os.path.abspath('.')
+        
 #        # inputs
 #        self.points = {}
 #        self.nodReach = {}

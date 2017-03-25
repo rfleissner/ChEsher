@@ -17,6 +17,7 @@
 __author__="Reinhard Fleissner"
 __date__ ="$18.05.2016 22:38:30$"
 
+import os
 import functools
 import sys
 
@@ -51,6 +52,7 @@ class WrapCont2DXF():
         self.widget = QtGui.QWidget()
         self.ui = Ui_Cont2DXF()
         self.ui.setupUi(self.widget)
+        self.directory = os.path.abspath('.')
         
 # module Cont2DXF
 
@@ -90,8 +92,8 @@ class WrapCont2DXF():
         self.directory = directory
         
     def setColour(self):
-        row = self.ui.tableWidgetCont2DXF.currentRow()
-        item1 = self.ui.tableWidgetCont2DXF.item(row, 2)
+        row = self.ui.tableWidget.currentRow()
+        item1 = self.ui.tableWidget.item(row, 2)
         initCol = item1.backgroundColor()
         coldia = QtGui.QColorDialog()
         col = coldia.getColor(initCol)
@@ -100,7 +102,7 @@ class WrapCont2DXF():
             item.setBackground(col)
             item.setFlags(QtCore.Qt.ItemIsEnabled)
             item.setText(str(col.red()) + ", " + str(col.green()) + ", " + str(col.blue()))
-            self.ui.tableWidgetCont2DXF.setItem(row, 2, item)
+            self.ui.tableWidget.setItem(row, 2, item)
         else:
             return
         

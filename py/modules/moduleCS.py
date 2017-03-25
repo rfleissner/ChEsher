@@ -17,6 +17,7 @@
 __author__="Reinhard Fleissner"
 __date__ ="$18.05.2016 22:38:30$"
 
+import os
 import functools
 
 from PyQt4 import QtCore, QtGui
@@ -42,7 +43,8 @@ class WrapCS():
         self.widget = QtGui.QWidget()
         self.ui = Ui_CS()
         self.ui.setupUi(self.widget)
-        
+        self.directory = os.path.abspath('.')
+                
 # module CS
 
         self.callbackCSOpenMeshFile = functools.partial(self.getOpenFileName, "Open T3S-file", "2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s)", self.ui.lineEditInputMesh)

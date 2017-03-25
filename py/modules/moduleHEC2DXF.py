@@ -17,6 +17,7 @@
 __author__="Reinhard Fleissner"
 __date__ ="$18.05.2016 22:38:30$"
 
+import os
 import sys
 import functools
 from PyQt4 import QtCore, QtGui
@@ -45,7 +46,8 @@ class WrapHEC2DXF():
         self.widget = QtGui.QWidget()
         self.ui = Ui_HEC2DXF()
         self.ui.setupUi(self.widget)
-
+        self.directory = os.path.abspath('.')
+        
         self.settings = {}
         self.settings["Frame"] = True
         self.settings["Band"] = True

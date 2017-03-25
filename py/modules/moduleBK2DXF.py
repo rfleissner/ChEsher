@@ -17,6 +17,7 @@
 __author__="Reinhard Fleissner"
 __date__ ="$18.05.2016 22:38:30$"
 
+import os
 import functools
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QFileDialog, QMessageBox
@@ -41,7 +42,8 @@ class WrapBK2DXF():
         self.widget = QtGui.QWidget()
         self.ui = Ui_BK2DXF()
         self.ui.setupUi(self.widget)
-
+        self.directory = os.path.abspath('.')
+        
         # module BK2DXF
         
         self.callbackOpenMeshFile = functools.partial(self.getOpenFileName, "Open T3S-file", "2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s)", self.ui.lineEditInputMesh)

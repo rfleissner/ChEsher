@@ -17,6 +17,7 @@
 __author__="Reinhard Fleissner"
 __date__ ="$18.05.2016 22:38:30$"
 
+import os
 import dxfgrabber
 import functools
 from PyQt4 import QtCore, QtGui
@@ -41,7 +42,8 @@ class WrapDXF2BK():
         self.widget = QtGui.QWidget()
         self.ui = Ui_DXF2BK()
         self.ui.setupUi(self.widget)
-
+        self.directory = os.path.abspath('.')
+        
 # module DXF2BK
 
         self.callbackOpenDXFFile = functools.partial(self.getOpenFileName, "Open DXF-file", "Drawing Interchange File (*.dxf)", self.ui.lineEditInput)

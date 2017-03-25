@@ -17,6 +17,7 @@
 __author__="Reinhard Fleissner"
 __date__ ="$18.05.2016 22:38:30$"
 
+import os
 import functools
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QMessageBox, QFileDialog
@@ -44,7 +45,8 @@ class WrapMesh():
         self.widget = QtGui.QWidget()
         self.ui = Ui_Mesh()
         self.ui.setupUi(self.widget)
-
+        self.directory = os.path.abspath('.')
+        
 # module Mesh
 
         self.callbackOpenProfilesFile = functools.partial(self.getOpenFileName, "Open Profiles File", "Line Sets (*.i3s)", self.ui.lineEditProfiles)

@@ -222,7 +222,8 @@ class ChEsher(QtGui.QMainWindow):
 #        self.setHEC2DXF()
 #        self.setXYZ2Profiles()
 #        self.setProfilesDXF()
-#        self.initialize()
+        self.setXYZ2DXF()
+        self.initialize()
 
     def setType(self):
         self.calcDischarge()
@@ -254,8 +255,10 @@ class ChEsher(QtGui.QMainWindow):
         makedir(self.directory + "example_08/output/")
         makedir(self.directory + "example_09/output/")
         makedir(self.directory + "example_10/output/")
+        makedir(self.directory + "example_11/output/")
         makedir(self.directory + "example_12/output/")
         makedir(self.directory + "example_13/output/")
+        makedir(self.directory + "example_14/output/")
         
         self.moduleDXF2BK.initialize()
         self.moduleBK2DXF.initialize()
@@ -268,8 +271,9 @@ class ChEsher(QtGui.QMainWindow):
         self.moduleCont2DXF.initialize()
         self.moduleTube.initialize()
         self.moduleXYZ2Profiles.initialize()
-        self.moduleHEC2DXF.initialize()
         self.moduleProfilesDXF.initialize()
+        self.moduleHEC2DXF.initialize()
+        self.moduleXYZ2DXF.initialize()
         
     def setDXF2BK(self):
         self.ui.labelModule.setText("~   Module DXF2BK   ~")

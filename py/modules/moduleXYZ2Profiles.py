@@ -17,6 +17,7 @@
 __author__="Reinhard Fleissner"
 __date__ ="$18.05.2016 22:38:30$"
 
+import os
 import sys
 import math
 import functools
@@ -48,7 +49,8 @@ class WrapXYZ2Profiles():
         self.widget = QtGui.QWidget()
         self.ui = Ui_XYZ2Profiles()
         self.ui.setupUi(self.widget)
-
+        self.directory = os.path.abspath('.')
+        
         self.settings = {}
         self.settings["Frame"] = True
         self.settings["Band"] = True

@@ -17,6 +17,7 @@
 __author__="Reinhard Fleissner"
 __date__ ="$18.05.2016 22:38:30$"
 
+import os
 import sys
 import functools
 
@@ -43,7 +44,7 @@ class Wrap2DM2BK():
         self.widget = QtGui.QWidget()
         self.ui = Ui_TwoDM2BK()
         self.ui.setupUi(self.widget)
-        
+        self.directory = os.path.abspath('.')
 # module 2DM2BK
 
         self.callbackOpen2dmInput = functools.partial(self.getOpenFileName, "Open 2D Mesh File", "SMS 2d Mesh File (*.2dm)", self.ui.lineEditInput)

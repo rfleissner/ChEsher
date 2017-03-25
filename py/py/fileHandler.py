@@ -977,74 +977,113 @@ def writeI3S(nodes, profiles, fname, dim=3):
                 file.write(str(nodes[nID][0]) + ' ' + str(nodes[nID][1]) + ' ' + str(nodes[nID][2]) + '\n')
     file.close()
 
-def writeScalarDXF(nodes, SMin, SMax, eps, scale, symbol, useMono, fname):
+def writeXYZ2DXF(nodes, dec, scale, symbol, fname, colRGBSymbol, colRGBText, blockName, attributeName):
 
-    colMono = 7
-    colPos = 1
-    colNeg = 3
-
-    hLine = [(-0.75,0.0), (0.75, 0.0)]
-    vLine = [(0.0,-0.75), (0.0,0.75)]
     rad = 0.375
 
-    dwg = dxf.drawing(fname)
+    dwg = ezdxf.new(dxfversion='AC1018')
+    msp = dwg.modelspace()
 
     # create block
-    scalarsymbol = dxf.block(name='symbol')
+    scalarsymbol = dwg.blocks.new(name=str(blockName))
+
     if symbol != 0 and symbol != 3:
-        scalarsymbol.add( dxf.polyline(hLine, color=0) )
-        scalarsymbol.add( dxf.polyline(vLine, color=0) )
+        hline = scalarsymbol.add_line([-0.75,0.0],[0.75, 0.0])
+        hline.rgb = colRGBSymbol
+        vline = scalarsymbol.add_line([0.0,-0.75], [0.0,0.75])
+        vline.rgb = colRGBSymbol
     if symbol != 1 and symbol != 3:
-        scalarsymbol.add( dxf.circle(radius=rad, color=0) )
-
+        circle = scalarsymbol.add_circle([0.0, 0.0], rad)
+        circle.rgb = colRGBSymbol
+        
     # define some attributes
-    scalarsymbol.add( dxf.attdef(insert=(0.5, 0.5), tag='VAL1', height=1.0, color=0) )
-    scalarsymbol.add( dxf.attdef(insert=(0.5, -1.5), tag='VAL2', height=1.0, color=0) )
+    v1 = scalarsymbol.add_attdef(str(attributeName), (0.5, 0.5), {'height': 1.0})
+    v1.rgb = colRGBText
 
-    # add block definition to the drawing
-    dwg.blocks.add(scalarsymbol)
-    
-    nOfScalars = 0
-    
     for nID in nodes:
         x = nodes[nID][0]
         y = nodes[nID][1]
-        val1 = nodes[nID][2]
-        val2 = nodes[nID][3]
+        val = nodes[nID][2]
 
-        values = {}
-        if val2 is None:
-            values = {'VAL1': "%.2f" % val1, 'VAL2': ""}
-        else:
-            if val2 < eps and val2 > -eps:
-                values = {'VAL1': "%.2f" % val1, 'VAL2': ""}
-            else:
-                values = {'VAL1': "%.2f" % val1, 'VAL2': "%.2f" % val2}
-                
-        # define color
-        col = 0
-        if useMono is True:
-            col = colMono
-        else:
-            if val1 >= 0:
-                col = colPos
-            else:
-                col = colNeg
+        values = {str(attributeName): "%.{0}f".format(dec) % val}
 
-        if val1 >= SMin and val1 <= SMax:
-            if val1 < eps and val1 > -eps:
-                continue
-            else:
-                dwg.add(dxf.insert2(blockdef=scalarsymbol, insert=(x, y),
-                                    attribs=values,
-                                    xscale=scale,
-                                    yscale=scale,
-                                    layer='0',
-                                    color = col))
-                nOfScalars += 1
-    dwg.save()
+        # add block definition to the drawing
+        msp.add_auto_blockref(str(blockName), (x,y) ,values, dxfattribs={
+            'xscale': scale/100.0,
+            'yscale': scale/100.0,
+            'rotation': 0.0})
+
+    dwg.saveas(str(fname))
     
-    return nOfScalars
+#DXFWRITE
+#def writeScalarDXF(nodes, SMin, SMax, eps, scale, symbol, useMono, fname):
+#
+#    colMono = 7
+#    colPos = 1
+#    colNeg = 3
+#
+#    hLine = [(-0.75,0.0), (0.75, 0.0)]
+#    vLine = [(0.0,-0.75), (0.0,0.75)]
+#    rad = 0.375
+#
+#    dwg = dxf.drawing(fname)
+#
+#    # create block
+#    scalarsymbol = dxf.block(name='symbol')
+#    if symbol != 0 and symbol != 3:
+#        scalarsymbol.add( dxf.polyline(hLine, color=0) )
+#        scalarsymbol.add( dxf.polyline(vLine, color=0) )
+#    if symbol != 1 and symbol != 3:
+#        scalarsymbol.add( dxf.circle(radius=rad, color=0) )
+#
+#    # define some attributes
+#    scalarsymbol.add( dxf.attdef(insert=(0.5, 0.5), tag='VAL1', height=1.0, color=0) )
+#    scalarsymbol.add( dxf.attdef(insert=(0.5, -1.5), tag='VAL2', height=1.0, color=0) )
+#
+#    # add block definition to the drawing
+#    dwg.blocks.add(scalarsymbol)
+#    
+#    nOfScalars = 0
+#    
+#    for nID in nodes:
+#        x = nodes[nID][0]
+#        y = nodes[nID][1]
+#        val1 = nodes[nID][2]
+#        val2 = nodes[nID][3]
+#
+#        values = {}
+#        if val2 is None:
+#            values = {'VAL1': "%.2f" % val1, 'VAL2': ""}
+#        else:
+#            if val2 < eps and val2 > -eps:
+#                values = {'VAL1': "%.2f" % val1, 'VAL2': ""}
+#            else:
+#                values = {'VAL1': "%.2f" % val1, 'VAL2': "%.2f" % val2}
+#                
+#        # define color
+#        col = 0
+#        if useMono is True:
+#            col = colMono
+#        else:
+#            if val1 >= 0:
+#                col = colPos
+#            else:
+#                col = colNeg
+#
+#        if val1 >= SMin and val1 <= SMax:
+#            if val1 < eps and val1 > -eps:
+#                continue
+#            else:
+#                dwg.add(dxf.insert2(blockdef=scalarsymbol, insert=(x, y),
+#                                    attribs=values,
+#                                    xscale=scale,
+#                                    yscale=scale,
+#                                    layer='0',
+#                                    color = col))
+#                nOfScalars += 1
+#    dwg.save()
+#    
+#    return nOfScalars
     
 def writeVectorDXF(nodes, VMin, VMax, eps, scale, fname):
 

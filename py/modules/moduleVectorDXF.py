@@ -17,6 +17,7 @@
 __author__="Reinhard Fleissner"
 __date__ ="$18.05.2016 22:38:30$"
 
+import os
 import functools
 from math import ceil, floor
 import numpy as np
@@ -47,6 +48,7 @@ class WrapVectorDXF():
         self.widget = QtGui.QWidget()
         self.ui = Ui_VectorDXF()
         self.ui.setupUi(self.widget)
+        self.directory = os.path.abspath('.')
         
 # module VectorDXF
 

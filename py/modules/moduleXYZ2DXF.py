@@ -18,16 +18,14 @@ __author__="Reinhard Fleissner"
 __date__ ="$18.05.2016 22:38:30$"
 
 import os
-import sys
 from colourHandler import Colour
 import functools
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QMessageBox, QFileDialog, QColor
+from PyQt4.QtGui import QMessageBox, QFileDialog
 
 # modules and classes
 from uiXYZ2DXF import Ui_XYZ2DXF
 import fileHandler as fh
-from dxfwrite import DXFEngine as dxf
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -84,13 +82,12 @@ class WrapXYZ2DXF():
     def create(self):
         info = "Input data:\n"
 
-        self.points = fh.readXYZ(self.ui.lineEditInputXYZ.text())
-#        try:
-#            self.points = fh.readXYZ(self.ui.lineEditInputXYZ.text())
-#            info += " - Points:\t\t{0}\n".format(len(self.points))
-#        except Exception, e:
-#            QMessageBox.critical(self.widget, "Error", "Not able to load points file!\nCheck filename or content!" + "\n\n" + str(e))
-#            return
+        try:
+            self.points = fh.readXYZ(self.ui.lineEditInputXYZ.text())
+            info += " - Points:\t{0}\n".format(len(self.points))
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to load points file!\nCheck filename or content!" + "\n\n" + str(e))
+            return
 
         dec = self.ui.spinBoxDecimal.value()
         scale = self.ui.spinBoxScale.value()
@@ -103,60 +100,15 @@ class WrapXYZ2DXF():
         ct = Colour(self.ui.labelTextColour.text().split(","))
         ct.create()
         colRGBText = ct.getRGB()        
-        fh.writeXYZ2DXF(self.points, dec, scale, self.scalarSymbol, fname, colRGBSymbol, colRGBText, blockName, attributeName)
-        
-#        try:
-#            nOfValues = fh.writeScalarDXF(self.points, -10000, 10000, 0.0, 10.0, self.scalarSymbol, True, fname)
-#            info += "\n - {0} values written to {1}".format(nOfValues, fname)
-#        except Exception, e:
-#            QMessageBox.critical(self.widget, "Error", "Not able to write DXF file!" + "\n\n" + str(e))
-#            return
-        
-        
-#        try:
-#            self.writeDXF()
-#            info += " - DXF file created.\n"
-#        except:
-#            info += " - ERROR: Not able to write DXF file!\n"
-#            info += "\n"
-#            info += str(sys.exc_info())
-#            info += "\n"
-        
-    def writeDXF(self):
-        
-        fname = self.ui.lineEditOutputDXF.text()
-        file = open(fname, 'w')
-        
-        rad = 0.25
-        scale = 1.0
-        col = 7
-        dec = self.ui.spinBoxDecimal.value()
-        dwg = dxf.drawing(fname)
-           
-        # create block
-        scalarsymbol = dxf.block(name='symbol')
-        scalarsymbol.add( dxf.circle(radius=rad, color=0) )
 
-        # define some attributes
-        scalarsymbol.add( dxf.attdef(insert=(1.25, -1.25), tag='VAL1', height=1.25, color=0) )
-
-        # add block definition to the drawing
-        dwg.blocks.add(scalarsymbol)
-
-        for nID in self.points:
-            x = self.points[nID][0]
-            y = self.points[nID][1]
-            val1 = self.points[nID][2]
-            values = {'VAL1': "%.{0}f".format(dec) % val1}
-            
-            dwg.add(dxf.insert2(blockdef=scalarsymbol, insert=(x, y),
-                                attribs=values,
-                                xscale=scale,
-                                yscale=scale,
-                                layer='0',
-                                color = col))
-
-        dwg.save()
+        try:
+            fh.writeXYZ2DXF(self.points, dec, scale, self.scalarSymbol, fname, colRGBSymbol, colRGBText, blockName, attributeName)
+            info += "\nOutput:"
+            info += "\n - {0} points written to {1}".format(len(self.points), fname)
+            QMessageBox.information(self.widget, "Module XYZ2DXF", info)
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to write DXF file!" + "\n\n" + str(e))
+            return    
 
     def getOpenFileName(self, title, fileFormat, lineEdit):
         filename = QFileDialog.getOpenFileName(self.widget, title, self.directory, fileFormat)
@@ -176,7 +128,7 @@ class WrapXYZ2DXF():
         abs_path = os.path.abspath('.')
         dir = os.path.join(abs_path, 'examples/').replace('\\', '/')
   
-        ###   ~   module ScalarDXF   ~   ###
+        ###   ~   module XYZ2DXF   ~   ###
 
         self.ui.lineEditInputXYZ.setText(dir + "example_14/points.xyz")
         self.ui.spinBoxScale.setValue(100)
@@ -184,7 +136,12 @@ class WrapXYZ2DXF():
         self.ui.radioButtonCircle.setChecked(False)
         self.ui.radioButtonCrosshairs.setChecked(True)
         self.setSymbol(2)
+    
+        self.ui.labelSymbolColour.setStyleSheet("QLabel { background-color: rgb(0, 0, 0); }")
+        self.ui.labelTextColour.setStyleSheet("QLabel { background-color: rgb(0, 0, 0); }")
         
+        self.ui.labelSymbolColour.setText("0, 0, 0")
+        self.ui.labelTextColour.setText("0, 0, 0")
         self.ui.lineEditOutputDXF.setText(dir + "example_14/output/points.dxf")        
 
     def setColour(self, label):

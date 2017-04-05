@@ -10,6 +10,7 @@ sys.path.append('C:/ChEsher/py/py')
 import fileHandler as fh
 import profileOrganizer as po
 
+
 start_time_total = timeit.default_timer()
 
 start_time_read_input = timeit.default_timer()

@@ -140,6 +140,7 @@ class WrapCont2DXF():
     def deleteLevel(self):
         row = self.ui.tableWidget.currentRow()
         self.ui.tableWidget.removeRow(row)
+        
     def defaultLegend(self):
         
         def RGB2HEX(RGB):
@@ -156,7 +157,7 @@ class WrapCont2DXF():
         # water depth
         if legend == 0:
 
-            levels = [0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 100.0]
+            levels = [0.01, 0.1, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 100.0]
             col_RGB = [[190,232,255],[116,179,255],[55,141,255],[18,107,238],[0,77,168],[232,190,255],[202,123,245],[161,91,137],[130,39,100],[230,0,0]]
             col_HEX = RGB2HEX(col_RGB)
             

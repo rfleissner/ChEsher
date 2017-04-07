@@ -61,6 +61,8 @@ class WrapScalarDXF():
         self.callbackScalarScalar = functools.partial(self.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutput)
         QtCore.QObject.connect(self.ui.pushButtonOutput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackScalarScalar)
         
+        self.ui.spinBoxScale.valueChanged.connect(self.setScale)
+                
         self.scalarSymbol = 0
         
         self.callbackCircle = functools.partial(self.setSymbol, 0)
@@ -186,6 +188,17 @@ class WrapScalarDXF():
     def setSymbol(self, i):
         self.scalarSymbol = i
 
+    def setScale(self):
+
+        scale = self.ui.spinBoxScale.value()
+        d = scale/100.0
+        size_factor = scale*3.0/2000.0
+        
+        self.ui.doubleSpinBoxDX.setValue(d)
+        self.ui.doubleSpinBoxDY.setValue(d)
+                
+        self.ui.doubleSpinBoxSizeFactor.setValue(size_factor)
+        
     def getOpenFileName(self, title, fileFormat, lineEdit):
         filename = QFileDialog.getOpenFileName(self.widget, title, self.directory, fileFormat)
         if filename != "":

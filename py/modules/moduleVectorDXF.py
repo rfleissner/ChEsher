@@ -58,12 +58,24 @@ class WrapVectorDXF():
         self.callbackScalarVector = functools.partial(self.getSaveFileName, "Save DXF-file As", "Drawing Interchange File (*.dxf)", self.ui.lineEditOutput)
         QtCore.QObject.connect(self.ui.pushButtonOutput, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackScalarVector)    
         
+        self.ui.spinBoxScale.valueChanged.connect(self.setScale)
+                
         QtCore.QObject.connect(self.ui.pushButtonCreate, QtCore.SIGNAL("clicked()"), self.create)
 
     def setDir(self, directory):
         self.directory = directory
-        print "set", self.directory
     
+    def setScale(self):
+
+        scale = self.ui.spinBoxScale.value()
+        d = scale/100.0
+        size_factor = scale/100.0
+        
+        self.ui.doubleSpinBoxDX.setValue(d)
+        self.ui.doubleSpinBoxDY.setValue(d)
+                
+        self.ui.doubleSpinBoxSizeFactor.setValue(size_factor)
+        
     def initialize(self):
         
         import os
@@ -90,6 +102,8 @@ class WrapVectorDXF():
         VMax = self.ui.doubleSpinBoxVMax.value()
         
         scale = self.ui.doubleSpinBoxScale.value()
+        
+        useUniform = self.ui.checkBoxUniform.isCecked()
         
         eps = self.ui.doubleSpinBoxLessThan.value()
         
@@ -137,7 +151,7 @@ class WrapVectorDXF():
         try:
             fname = self.ui.lineEditOutput.text()
             info += "\n - Number of interpolated values: {0}".format(len(vectorNodes))
-            nOfVectors= fh.writeVectorDXF(vectorNodes, VMin, VMax, eps, scale, fname)
+            nOfVectors= fh.writeVectorDXF(vectorNodes, VMin, VMax, eps, scale, useUniform, fname)
             info += "\n - {0} values written to {1}".format(nOfVectors, fname)
         except Exception, e:
             QMessageBox.critical(self.widget, "Error", "Not able to write DXF file!" + "\n\n" + str(e))

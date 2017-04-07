@@ -14,146 +14,14 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="16" column="1">
-    <widget class="QPushButton" name="pushButtonOutput">
-     <property name="minimumSize">
-      <size>
-       <width>20</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>40</width>
-       <height>16777215</height>
-      </size>
-     </property>
+   <item row="12" column="2">
+    <widget class="QRadioButton" name="radioButtonCross">
      <property name="text">
-      <string>...</string>
-     </property>
-    </widget>
-   </item>
-   <item row="16" column="0">
-    <widget class="QLabel" name="label_30">
-     <property name="text">
-      <string>DXF grid file:</string>
-     </property>
-     <property name="indent">
-      <number>18</number>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label_23">
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-       <underline>true</underline>
-      </font>
-     </property>
-     <property name="text">
-      <string>Inputs:</string>
-     </property>
-     <property name="indent">
-      <number>-4</number>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_21">
-     <property name="text">
-      <string>Major 2D T3 Scalar Mesh:</string>
-     </property>
-     <property name="indent">
-      <number>18</number>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QPushButton" name="pushButtonInputT3SMajor">
-     <property name="minimumSize">
-      <size>
-       <width>20</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>40</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>...</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="2" colspan="3">
-    <widget class="QLineEdit" name="lineEditInputT3SMajor"/>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_34">
-     <property name="text">
-      <string>Minor 2D T3 Scalar Mesh:</string>
-     </property>
-     <property name="indent">
-      <number>18</number>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QPushButton" name="pushButtonInputT3SMinor">
-     <property name="minimumSize">
-      <size>
-       <width>20</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>40</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>...</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="2" colspan="3">
-    <widget class="QLineEdit" name="lineEditInputT3SMinor"/>
-   </item>
-   <item row="6" column="0">
-    <widget class="QLabel" name="label_32">
-     <property name="text">
-      <string>Size factor:</string>
-     </property>
-     <property name="indent">
-      <number>18</number>
+      <string>Cross</string>
      </property>
     </widget>
    </item>
    <item row="3" column="0">
-    <widget class="QLabel" name="label_24">
-     <property name="text">
-      <string>X-Spacing:</string>
-     </property>
-     <property name="indent">
-      <number>18</number>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_25">
-     <property name="text">
-      <string>Y-Spacing:</string>
-     </property>
-     <property name="indent">
-      <number>18</number>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0" colspan="2">
     <widget class="QLabel" name="label_26">
      <property name="text">
       <string>Minimum and maximum value of scalar:</string>
@@ -163,66 +31,44 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="0">
-    <widget class="QLabel" name="label_22">
-     <property name="text">
-      <string>Ignore values less than (±):</string>
-     </property>
-     <property name="indent">
-      <number>18</number>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0" colspan="2">
-    <widget class="QCheckBox" name="checkBoxMonochrome">
-     <property name="toolTip">
-      <string>monochrome symbols and values, otherwise red for positive values and green for negative values</string>
-     </property>
-     <property name="text">
-      <string>Use monochrome colors</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="0" colspan="2">
-    <widget class="QLabel" name="label_33">
-     <property name="text">
-      <string>Symbol for grid points:</string>
-     </property>
-     <property name="indent">
-      <number>18</number>
-     </property>
-    </widget>
-   </item>
-   <item row="14" column="0" colspan="5">
-    <spacer name="verticalSpacer_11">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
+   <item row="3" column="3">
+    <widget class="QDoubleSpinBox" name="doubleSpinBoxSMax">
+     <property name="minimumSize">
       <size>
-       <width>618</width>
-       <height>83</height>
+       <width>100</width>
+       <height>0</height>
       </size>
      </property>
-    </spacer>
-   </item>
-   <item row="15" column="0">
-    <widget class="QLabel" name="label_29">
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-       <underline>true</underline>
-      </font>
+     <property name="maximumSize">
+      <size>
+       <width>100</width>
+       <height>16777215</height>
+      </size>
      </property>
-     <property name="text">
-      <string>Outputs:</string>
+     <property name="toolTip">
+      <string>higher values are ignored</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="decimals">
+      <number>3</number>
+     </property>
+     <property name="minimum">
+      <double>-99999999.000000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>99999999.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>1.000000000000000</double>
+     </property>
+     <property name="value">
+      <double>100.000000000000000</double>
      </property>
     </widget>
    </item>
-   <item row="7" column="2">
+   <item row="4" column="2">
     <widget class="QDoubleSpinBox" name="doubleSpinBoxLessThan">
      <property name="toolTip">
       <string>ignore values less than given difference from zero</string>
@@ -231,7 +77,7 @@
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
      <property name="decimals">
-      <number>4</number>
+      <number>3</number>
      </property>
      <property name="maximum">
       <double>99999999.000000000000000</double>
@@ -240,11 +86,11 @@
       <double>0.005000000000000</double>
      </property>
      <property name="value">
-      <double>0.005000000000000</double>
+      <double>0.010000000000000</double>
      </property>
     </widget>
    </item>
-   <item row="4" column="2">
+   <item row="8" column="2">
     <widget class="QDoubleSpinBox" name="doubleSpinBoxDY">
      <property name="minimumSize">
       <size>
@@ -274,81 +120,7 @@
       <double>1.000000000000000</double>
      </property>
      <property name="value">
-      <double>100.000000000000000</double>
-     </property>
-    </widget>
-   </item>
-   <item row="18" column="0" colspan="5">
-    <widget class="QPushButton" name="pushButtonCreate">
-     <property name="text">
-      <string>Let's go!</string>
-     </property>
-    </widget>
-   </item>
-   <item row="17" column="0" colspan="5">
-    <spacer name="verticalSpacer_12">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>618</width>
-       <height>82</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="16" column="2" colspan="3">
-    <widget class="QLineEdit" name="lineEditOutput"/>
-   </item>
-   <item row="12" column="2">
-    <widget class="QRadioButton" name="radioButtonCrosshairs">
-     <property name="text">
-      <string>Crosshairs</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="2">
-    <widget class="QRadioButton" name="radioButtonCircle">
-     <property name="text">
-      <string>Circle</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="2">
-    <widget class="QDoubleSpinBox" name="doubleSpinBoxDX">
-     <property name="minimumSize">
-      <size>
-       <width>100</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>100</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="toolTip">
-      <string>grid interval in x-direction</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-     <property name="decimals">
-      <number>3</number>
-     </property>
-     <property name="maximum">
-      <double>99999999.000000000000000</double>
-     </property>
-     <property name="singleStep">
-      <double>1.000000000000000</double>
-     </property>
-     <property name="value">
-      <double>100.000000000000000</double>
+      <double>10.000000000000000</double>
      </property>
     </widget>
    </item>
@@ -385,11 +157,177 @@
       <double>0.500000000000000</double>
      </property>
      <property name="value">
-      <double>2.000000000000000</double>
+      <double>1.500000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QPushButton" name="pushButtonInputT3SMinor">
+     <property name="minimumSize">
+      <size>
+       <width>20</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>40</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>...</string>
      </property>
     </widget>
    </item>
    <item row="5" column="2">
+    <widget class="QSpinBox" name="spinBoxScale">
+     <property name="minimumSize">
+      <size>
+       <width>100</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>100</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="toolTip">
+      <string>text size</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="maximum">
+      <number>100000</number>
+     </property>
+     <property name="value">
+      <number>1000</number>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="2">
+    <widget class="QRadioButton" name="radioButtonCircle">
+     <property name="text">
+      <string>Circle</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="18" column="0" colspan="5">
+    <spacer name="verticalSpacer_12">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>618</width>
+       <height>82</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_22">
+     <property name="text">
+      <string>Ignore values less than (±):</string>
+     </property>
+     <property name="indent">
+      <number>18</number>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QPushButton" name="pushButtonInputT3SMajor">
+     <property name="minimumSize">
+      <size>
+       <width>20</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>40</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="2">
+    <widget class="QDoubleSpinBox" name="doubleSpinBoxDX">
+     <property name="minimumSize">
+      <size>
+       <width>100</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>100</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="toolTip">
+      <string>grid interval in x-direction</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="decimals">
+      <number>3</number>
+     </property>
+     <property name="maximum">
+      <double>99999999.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>1.000000000000000</double>
+     </property>
+     <property name="value">
+      <double>10.000000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="15" column="0" colspan="5">
+    <spacer name="verticalSpacer_11">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>618</width>
+       <height>83</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="label_24">
+     <property name="text">
+      <string>X-Spacing:</string>
+     </property>
+     <property name="indent">
+      <number>18</number>
+     </property>
+    </widget>
+   </item>
+   <item row="17" column="0">
+    <widget class="QLabel" name="label_30">
+     <property name="text">
+      <string>DXF grid file:</string>
+     </property>
+     <property name="indent">
+      <number>18</number>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
     <widget class="QDoubleSpinBox" name="doubleSpinBoxSMin">
      <property name="minimumSize">
       <size>
@@ -426,56 +364,156 @@
      </property>
     </widget>
    </item>
-   <item row="11" column="2">
-    <widget class="QRadioButton" name="radioButtonCross">
+   <item row="19" column="0" colspan="5">
+    <widget class="QPushButton" name="pushButtonCreate">
      <property name="text">
-      <string>Cross</string>
+      <string>Let's go!</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_34">
+     <property name="text">
+      <string>Minor 2D T3 Scalar Mesh:</string>
+     </property>
+     <property name="indent">
+      <number>18</number>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_32">
+     <property name="text">
+      <string>Size factor:</string>
+     </property>
+     <property name="indent">
+      <number>18</number>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_21">
+     <property name="text">
+      <string>Major 2D T3 Scalar Mesh:</string>
+     </property>
+     <property name="indent">
+      <number>18</number>
+     </property>
+    </widget>
+   </item>
+   <item row="16" column="0">
+    <widget class="QLabel" name="label_29">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+       <underline>true</underline>
+      </font>
+     </property>
+     <property name="text">
+      <string>Outputs:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_25">
+     <property name="text">
+      <string>Y-Spacing:</string>
+     </property>
+     <property name="indent">
+      <number>18</number>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_35">
+     <property name="text">
+      <string>Scale:</string>
+     </property>
+     <property name="indent">
+      <number>18</number>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QCheckBox" name="checkBoxMonochrome">
+     <property name="toolTip">
+      <string>monochrome symbols and values, otherwise red for positive values and green for negative values</string>
+     </property>
+     <property name="text">
+      <string>Use monochrome colors</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_23">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+       <underline>true</underline>
+      </font>
+     </property>
+     <property name="text">
+      <string>Inputs:</string>
+     </property>
+     <property name="indent">
+      <number>-4</number>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLabel" name="label_33">
+     <property name="text">
+      <string>Symbol for grid points:</string>
+     </property>
+     <property name="indent">
+      <number>18</number>
      </property>
     </widget>
    </item>
    <item row="13" column="2">
+    <widget class="QRadioButton" name="radioButtonCrosshairs">
+     <property name="text">
+      <string>Crosshairs</string>
+     </property>
+    </widget>
+   </item>
+   <item row="14" column="2">
     <widget class="QRadioButton" name="radioButtonNone">
      <property name="text">
       <string>None</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="3">
-    <widget class="QDoubleSpinBox" name="doubleSpinBoxSMax">
+   <item row="17" column="1">
+    <widget class="QPushButton" name="pushButtonOutput">
      <property name="minimumSize">
       <size>
-       <width>100</width>
+       <width>20</width>
        <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>100</width>
+       <width>40</width>
        <height>16777215</height>
       </size>
      </property>
-     <property name="toolTip">
-      <string>higher values are ignored</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-     <property name="decimals">
-      <number>3</number>
-     </property>
-     <property name="minimum">
-      <double>-99999999.000000000000000</double>
-     </property>
-     <property name="maximum">
-      <double>99999999.000000000000000</double>
-     </property>
-     <property name="singleStep">
-      <double>1.000000000000000</double>
-     </property>
-     <property name="value">
-      <double>10000.000000000000000</double>
+     <property name="text">
+      <string>...</string>
      </property>
     </widget>
+   </item>
+   <item row="17" column="2" colspan="3">
+    <widget class="QLineEdit" name="lineEditOutput"/>
+   </item>
+   <item row="2" column="2" colspan="3">
+    <widget class="QLineEdit" name="lineEditInputT3SMinor"/>
+   </item>
+   <item row="1" column="2" colspan="3">
+    <widget class="QLineEdit" name="lineEditInputT3SMajor"/>
    </item>
   </layout>
  </widget>

@@ -87,7 +87,7 @@ class WrapVectorDXF():
         self.ui.lineEditInput.setText(dir + "example_06/VELOCITY UV_S161_Case_A.t3v")
         self.ui.doubleSpinBoxDX.setValue(25.0)
         self.ui.doubleSpinBoxDY.setValue(25.0)
-        self.ui.doubleSpinBoxScale.setValue(40)
+        self.ui.spinBoxScale.setValue(40)
         
         self.ui.lineEditOutput.setText(dir + "example_06/output/velocity.dxf")         
 

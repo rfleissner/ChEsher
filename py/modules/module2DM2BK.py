@@ -225,10 +225,10 @@ class Wrap2DM2BK():
                     if material not in SMS_materials:
                         SMS_materials[material] = 0.0
                         material_added = True
-                    
-                BK_materials[MAP_node_id[node_0]] = SMS_materials[material]
-                BK_materials[MAP_node_id[node_1]] = SMS_materials[material]
-                BK_materials[MAP_node_id[node_2]] = SMS_materials[material]
+                if material != impermeableMaterialID:
+                    BK_materials[MAP_node_id[node_0]] = SMS_materials[material]
+                    BK_materials[MAP_node_id[node_1]] = SMS_materials[material]
+                    BK_materials[MAP_node_id[node_2]] = SMS_materials[material]
                 
                 if self.ui.checkBoxImpermeable.isChecked():
                     if material != impermeableMaterialID:
@@ -237,7 +237,7 @@ class Wrap2DM2BK():
                 else:
                     i += 1
                     BK_elements[i] = [MAP_node_id[node_0], MAP_node_id[node_1], MAP_node_id[node_2]]
-                        
+
             elif len(SMS_elements[key]) == 5:
                 node_0 = SMS_elements[key][0]
                 node_1 = SMS_elements[key][1]
@@ -249,11 +249,11 @@ class Wrap2DM2BK():
                     if material not in SMS_materials:
                         SMS_materials[material] = 0.0
                         material_added = True
-                        
-                BK_materials[MAP_node_id[node_0]] = SMS_materials[material]
-                BK_materials[MAP_node_id[node_1]] = SMS_materials[material]
-                BK_materials[MAP_node_id[node_2]] = SMS_materials[material]
-                BK_materials[MAP_node_id[node_3]] = SMS_materials[material]
+                if material != impermeableMaterialID:        
+                    BK_materials[MAP_node_id[node_0]] = SMS_materials[material]
+                    BK_materials[MAP_node_id[node_1]] = SMS_materials[material]
+                    BK_materials[MAP_node_id[node_2]] = SMS_materials[material]
+                    BK_materials[MAP_node_id[node_3]] = SMS_materials[material]
                 
                 if self.ui.checkBoxImpermeable.isChecked():
                     if material != impermeableMaterialID:
@@ -271,15 +271,17 @@ class Wrap2DM2BK():
             i = 1
             profiles = {}
             bk_profiles = {}
+            bk_attributes = {}
             for key in strings:
                 profiles[i] = allstrings[key]
                 bk_profiles[i] = []
+                bk_attributes[i] = strings[key]
                 i += 1
             for pID in profiles:
                 for nID in profiles[pID]:
                     bk_profiles[pID].append(MAP_node_id[nID])
 
-            return bk_profiles
+            return bk_profiles, bk_attributes
         
         info = ""
     
@@ -356,9 +358,9 @@ class Wrap2DM2BK():
                 info += "\n"
                                                                                         
         if self.ui.checkBoxNS1.isChecked():
-            profiles = getStrings(SMS_strings, SMS_bc_strings_1)
+            profiles, attributes = getStrings(SMS_strings, SMS_bc_strings_1)
             try:
-                fh.writeI2S(BK_nodes, profiles, self.ui.lineEditNS1.text())
+                fh.writeI2S(BK_nodes, profiles, self.ui.lineEditNS1.text(), attributes)
                 info += " - Node string 1 created with {0} strings.\n".format(len(profiles)) 
             except:
                 info += " - ERROR: Not able to write node string 1!\n"
@@ -367,9 +369,9 @@ class Wrap2DM2BK():
                 info += "\n"
                 
         if self.ui.checkBoxNS2.isChecked():
-            profiles = getStrings(SMS_strings, SMS_bc_strings_2)
+            profiles, attributes = getStrings(SMS_strings, SMS_bc_strings_2)
             try:
-                fh.writeI2S(BK_nodes, profiles, self.ui.lineEditNS2.text())
+                fh.writeI2S(BK_nodes, profiles, self.ui.lineEditNS2.text(), attributes)
                 info += " - Node string 2 created with {0} strings.\n".format(len(profiles)) 
             except:
                 info += " - ERROR: Not able to write node string 2!\n"      
@@ -378,9 +380,9 @@ class Wrap2DM2BK():
                 info += "\n"
                 
         if self.ui.checkBoxNS3.isChecked():
-            profiles = getStrings(SMS_strings, SMS_bc_strings_3)
+            profiles, attributes = getStrings(SMS_strings, SMS_bc_strings_3)
             try:
-                fh.writeI2S(BK_nodes, profiles, self.ui.lineEditNS3.text())
+                fh.writeI2S(BK_nodes, profiles, self.ui.lineEditNS3.text(), attributes)
                 info += " - Node string 3 created with {0} strings.\n".format(len(profiles)) 
             except:
                 info += " - ERROR: Not able to write node string 3!\n"
@@ -389,9 +391,9 @@ class Wrap2DM2BK():
                 info += "\n"
                 
         if self.ui.checkBoxNS4.isChecked():
-            profiles = getStrings(SMS_strings, SMS_bc_strings_4)
+            profiles, attributes = getStrings(SMS_strings, SMS_bc_strings_4)
             try:
-                fh.writeI2S(BK_nodes, profiles, self.ui.lineEditNS4.text())
+                fh.writeI2S(BK_nodes, profiles, self.ui.lineEditNS4.text(), attributes)
                 info += " - Node string 4 created with {0} strings.\n".format(len(profiles)) 
             except:
                 info += " - ERROR: Not able to write node string 4!\n"
@@ -400,9 +402,9 @@ class Wrap2DM2BK():
                 info += "\n"
                 
         if self.ui.checkBoxNS5.isChecked():
-            profiles = getStrings(SMS_strings, SMS_bc_strings_5)
+            profiles, attributes = getStrings(SMS_strings, SMS_bc_strings_5)
             try:
-                fh.writeI2S(BK_nodes, profiles, self.ui.lineEditNS5.text())
+                fh.writeI2S(BK_nodes, profiles, self.ui.lineEditNS5.text(), attributes)
                 info += " - Node string 5 created with {0} strings.\n".format(len(profiles)) 
             except:
                 info += " - ERROR: Not able to write node string 5!\n"
@@ -411,9 +413,9 @@ class Wrap2DM2BK():
                 info += "\n"
                 
         if self.ui.checkBoxNS6.isChecked():
-            profiles = getStrings(SMS_strings, SMS_bc_strings_6)
+            profiles, attributes = getStrings(SMS_strings, SMS_bc_strings_6)
             try:
-                fh.writeI2S(BK_nodes, profiles, self.ui.lineEditNS6.text())
+                fh.writeI2S(BK_nodes, profiles, self.ui.lineEditNS6.text(), attributes)
                 info += " - Node string 6 created with {0} strings.\n".format(len(profiles)) 
             except:
                 info += " - ERROR: Not able to write node string 6!\n"
@@ -422,9 +424,9 @@ class Wrap2DM2BK():
                 info += "\n"
                 
         if self.ui.checkBoxNS7.isChecked():
-            profiles = getStrings(SMS_strings, SMS_bc_strings_7)
+            profiles, attributes = getStrings(SMS_strings, SMS_bc_strings_7)
             try:
-                fh.writeI2S(BK_nodes, profiles, self.ui.lineEditNS7.text())
+                fh.writeI2S(BK_nodes, profiles, self.ui.lineEditNS7.text(), attributes)
                 info += " - Node string 7 created with {0} strings.\n".format(len(profiles)) 
             except:
                 info += " - ERROR: Not able to write node string 7!\n"

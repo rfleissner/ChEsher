@@ -148,42 +148,24 @@ def read2DM(filename):
 
             type = int(values[2])
             string_id = int(values[1])
-
+            val_vec = []
+            for i in range(len(values)-1):
+                i += 1
+                val_vec.append(values[i])
             if type == 1:
-                val_vec = []
-                val_vec.append(float(values[3]))
-                val_vec.append(float(values[4]))
                 SMS_bc_strings_1[string_id] = val_vec
             elif type == 2:
-                val_vec = []
-                val_vec.append(float(values[3]))
                 SMS_bc_strings_2[string_id] = val_vec
             elif type == 3:
-                val_vec = []
-                val_vec.append(int(values[3]))
                 SMS_bc_strings_3[string_id] = val_vec
             elif type == 4:
-                val_vec = []
-                val_vec.append(float(values[3]))
-                val_vec.append(float(values[4]))
-                val_vec.append(float(values[5]))
-                val_vec.append(float(values[6]))
-                val_vec.append(float(values[7]))
-                val_vec.append(float(values[8]))
                 SMS_bc_strings_4[string_id] = val_vec
             elif type == 5:
-                val_vec = []
-                val_vec.append(float(values[3]))
                 SMS_bc_strings_5[string_id] = val_vec
             elif type == 6:
-                val_vec = []
-                val_vec.append(float(values[3]))
-                val_vec.append(float(values[4]))
-                val_vec.append(float(values[5]))
-                val_vec.append(float(values[6]))
                 SMS_bc_strings_6[string_id] = val_vec
             elif type == 7:
-                SMS_bc_strings_7[string_id] = None
+                SMS_bc_strings_7[string_id] = val_vec
         if keyword == "TIME":
             break
         else:
@@ -958,17 +940,30 @@ def writeXYZ(nodes, fname):
         file.write(str(nodes[nID][0]) + ' ' + str(nodes[nID][1]) + ' ' + str(nodes[nID][2]) + '\n')
     file.close()
     
-def writeI2S(nodes, profiles, fname):
-    writeI3S(nodes, profiles, fname, 2)
+def writeI2S(nodes, profiles, fname, attributes=None):
+    writeI3S(nodes, profiles, fname, 2, attributes)
 
-def writeI3S(nodes, profiles, fname, dim=3):
+def writeI3S(nodes, profiles, fname, dim=3, attributes=None):
+        
     file = open(fname, 'w')
     file.write(':FileType\ti{0}s ASCII EnSim 1.0\n'.format(dim))
     file.write(':WrittenBy\tChEsher 1.0\n')
-    file.write(':AttributeUnits 1 m\n')
+    if attributes[1] is not None:
+        att_len = len(attributes[1])
+        for i in range(att_len):
+            file.write(':AttributeUnits %i\n' % int(i+1))
+    else:
+        file.write(':AttributeUnits 1 m\n')
     file.write(':EndHeader\n')
     for pID in profiles:
-        file.write(str(len(profiles[pID])) + ' 0\n')
+        att = " "
+        if attributes is not None:
+            for i in range(len(attributes[pID])):
+                att += attributes[pID][i]
+                att += " "
+        else:
+            att += "0"
+        file.write(str(len(profiles[pID])) + att + '\n')
         for i in range(len(profiles[pID])):
             nID = profiles[pID][i]
             if dim == 2:

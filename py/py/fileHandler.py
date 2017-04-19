@@ -726,6 +726,7 @@ def readT3STriangulation(filename):
     x = []
     y = []
     z = []
+    boundaries = []
     triangles = []
 
     file = open(filename, 'r')
@@ -762,12 +763,30 @@ def readT3STriangulation(filename):
                 
                 elif elementcounter < elementcount:
                     triangles.append([int(values[0])-1, int(values[1])-1, int(values[2])-1])
-                    elementcounter += 1                 
-                        
+                    elementcounter += 1
+                    
+                    e1 = [int(values[0])-1, int(values[1])-1]
+                    e2 = [int(values[1])-1, int(values[2])-1]
+                    e3 = [int(values[2])-1, int(values[0])-1]
+
+                    #print e1, e1[::-1]
+                    if e1[::-1] in boundaries:
+                        del boundaries[boundaries.index(e1[::-1])]
+                    else:
+                        boundaries.append(e1)
+                    if e2[::-1] in boundaries:
+                        del boundaries[boundaries.index(e2[::-1])]
+                    else:
+                        boundaries.append(e2)
+                    if e3[::-1] in boundaries:
+                        del boundaries[boundaries.index(e3[::-1])]
+                    else:
+                        boundaries.append(e3)
+                    
             if keyword == ':EndHeader':
                 endheader = True
 
-    return x, y, z, triangles
+    return x, y, z, triangles, boundaries
 
 def readT3S(filename):
     nodesT3S = {}

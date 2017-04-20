@@ -1165,6 +1165,22 @@ def writeT3S(nodes, mesh, fname):
         file.write('{0} {1} {2}\n'.format(mesh[eID][0], mesh[eID][1], mesh[eID][2]))
     file.close()
 
+def writeT3Slist(x, y, z, mesh, fname):
+    file = open(fname, 'w')
+    file.write(':FileType\tt3s ASCII EnSim 1.0\n')
+    file.write(':WrittenBy\tChEsher 1.0\n')
+    file.write(':AttributeName 1 Elevation\n')
+    file.write(':NodeCount {0}\n'.format(len(x)))
+    file.write(':ElementCount {0}\n'.format(len(mesh)))
+    file.write(':ElementType T3\n')
+    file.write(':EndHeader\n')
+
+    for nID in range(len(x)):
+        file.write('{0} {1} {2}\n'.format(x[nID], y[nID], z[nID]))
+    for eID in range(len(mesh)):
+        file.write('{0} {1} {2}\n'.format(mesh[eID][0]+1, mesh[eID][1]+1, mesh[eID][2]+1))
+    file.close()
+    
 def writeEWS(content, view, fname):
     file = open(fname, 'w')
     file.write(':FileType ews ASCII EnSim 1.0\n')

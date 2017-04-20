@@ -375,7 +375,7 @@ class WrapCont2DXF():
         
         # read input meshes
         try:
-            x, y, z, triangles = fh.readT3STriangulation(self.ui.lineEditInput.text())
+            x, y, z, triangles, edges = fh.readT3STriangulation(self.ui.lineEditInput.text())
             triang = tri.Triangulation(x, y, triangles)
         except Exception, e:
             QMessageBox.critical(self.widget, "Error", "Not able to load mesh file!\nCheck filename or content!" + "\n\n" + str(e))
@@ -475,7 +475,7 @@ class WrapCont2DXF():
                 contours.append(t)
             else:
                 contours.append(None)
-                
+            print geometry
 # plot triangulation using matplotlib
 #            plt.figure(1)
 #            ax1 = plt.subplot(111, aspect='equal')

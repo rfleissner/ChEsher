@@ -17,8 +17,6 @@ import profileOrganizer as po
 offset = 1.0
 
 start_time_total = timeit.default_timer()
-
-
 start_time_read_input = timeit.default_timer()
 
 print "read mesh"
@@ -29,8 +27,11 @@ x_submesh, y_submesh, z_submesh, submesh, boundaries_submesh = fh.readT3STriangu
     
 print("Time for reading input: " + str(timeit.default_timer() - start_time_read_input))
 
+start_time = timeit.default_timer()
+
 # sort boundary edge points to ordered sequence (necesarry for using shapely's Polygon)
 boundaries_sorted = []
+
 boundaries_sorted.append(boundaries_submesh[0])
 for i in range(len(boundaries_submesh)-1):
     for j in range(len(boundaries_submesh)):
@@ -45,25 +46,33 @@ for i in range(len(boundaries_sorted)):
     coords.append((x_submesh[boundaries_sorted[i][1]], y_submesh[boundaries_sorted[i][1]]))
 coords.append((x_submesh[boundaries_sorted[0][1]], y_submesh[boundaries_sorted[0][1]]))
 boundary_submesh_real = LineString(coords)
-# apply offset
-boundary_submesh_linestring = boundary_submesh_real.parallel_offset(1.0, 'right')
+boundary_submesh_polygon = Polygon(boundary_submesh_real) # just used for detecting hole point
+# apply offset for detecting intersection
+boundary_submesh_linestring = boundary_submesh_real.parallel_offset(offset, 'right')
 boundary_submesh = Polygon(boundary_submesh_linestring)
 
 # check if triangle of mesh intersects polygon submesh
 nodes_inner_mesh = []
 nodes_outer_mesh = []
 edges_inner_mesh = []
+
+# loop over mesh triangles
 for tID in range(len(mesh)):
+    
     # collect coordinates from actual triangle
     coords_triangle = []
     coords_triangle.append((x_mesh[mesh[tID][0]], y_mesh[mesh[tID][0]]))
     coords_triangle.append((x_mesh[mesh[tID][1]], y_mesh[mesh[tID][1]]))
     coords_triangle.append((x_mesh[mesh[tID][2]], y_mesh[mesh[tID][2]]))
     coords_triangle.append((x_mesh[mesh[tID][0]], y_mesh[mesh[tID][0]]))
+    
     # create polygon out of triangle
     triang = Polygon(coords_triangle)
-    # cjeck intersection between triangle and boundary polygon of submesh
+    
+    # check intersection between triangle and boundary polygon of submesh
     inters = boundary_submesh.intersects(triang)
+
+    # if triangle intersects boundary mesh, append triangle to inner mesh
     if inters is True:
         
         # write node-ids of intersecting triangles to list
@@ -83,13 +92,13 @@ for tID in range(len(mesh)):
             del edges_inner_mesh[edges_inner_mesh.index(e3[::-1])]
         else:
             edges_inner_mesh.append(e3)
-        
         nodes_inner_mesh.append(mesh[tID])
+    # if triangle does not intersect boundary mesh, append triangle to outer mesh
     else:
         nodes_outer_mesh.append(mesh[tID])
 
 # triangulate mesh between submesh and outer mesh
-# instantiate the dictionary for the triangulation
+# instantiate the dictionary for the triangulation with package triangle
 geometry = {}
 geometry["vertices"] = []
 geometry["segments"] = []
@@ -97,7 +106,7 @@ geometry["holes"] = []
 
 vert_counter = 0
 
-# get vertices and segments from inner mesh
+# get vertices and segments from inner mesh (outer boundary of intersection mesh)
 nIDs = []
 for i in range(len(edges_inner_mesh)):
     s1 = 0
@@ -121,7 +130,7 @@ for i in range(len(edges_inner_mesh)):
 
     geometry["segments"].append([s1,s2])
 
-# get vertices and segments from submesh
+# get vertices and segments from submesh (inner boundary of intersection mesh)
 for i in range(len(boundaries_submesh)):
     s1 = 0
     s2 = 0
@@ -150,10 +159,11 @@ while True:
     randX = uniform(bounds[0], bounds[2])
     randY = uniform(bounds[1], bounds[3])
     randPoint = Point(randX,randY)
-    if randPoint.within(boundary_submesh):
+    if randPoint.within(boundary_submesh_polygon):
         geometry["holes"].append([randX,randY])
         break
 
+# triangulate intersection mesh with package triangle
 t = triangle.triangulate(geometry, 'p')
 
 # plot triangulation using matplotlib
@@ -163,21 +173,21 @@ triangle.plot.plot(ax1, **t)
 plt.show()
 
 # write outer mesh
-fh.writeT3Slist(x_mesh, y_mesh, z_mesh, nodes_outer_mesh, "./output/BOTTOM.t3s")
+fh.writeT3Slist(x_mesh, y_mesh, z_mesh, nodes_outer_mesh, "./output/BOTTOM_OUTSIDE.t3s")
 
-# write between mesh
-x = []
-y = []
-z = []
+# write intersection mesh
+x_intersectionmesh = []
+y_intersectionmesh = []
+z_intersectionmesh = []
 
 for i in range(len(t["vertices"])):
-    x.append(t["vertices"][i][0])
-    y.append(t["vertices"][i][1])
-    z.append(0.0)
+    x_intersectionmesh.append(t["vertices"][i][0])
+    y_intersectionmesh.append(t["vertices"][i][1])
+    z_intersectionmesh.append(0.0)
     
-fh.writeT3Slist(x, y, z, t["triangles"], "./output/BOTTOM_DIFF.t3s")
+fh.writeT3Slist(x_intersectionmesh, y_intersectionmesh, z_intersectionmesh, t["triangles"], "./output/BOTTOM_INTERSECTION.t3s")
 
-# write total mesh
+# apply submesh to total mesh
 x_tot = x_mesh
 y_tot = y_mesh
 z_tot = z_mesh
@@ -188,11 +198,30 @@ for i in range(len(x_submesh)):
     x_tot.append(x_submesh[i])
     y_tot.append(y_submesh[i])
     z_tot.append(z_submesh[i])
+for i in range(len(submesh)):    
     mesh_tot.append([submesh[i][0]+n_vertices, submesh[i][1]+n_vertices, submesh[i][2]+n_vertices])
 
+# apply intersection mesh to total mesh
+# find ids from intersection mesh vertices in total mesh
+a = np.array([x_tot, y_tot])
+b = np.reshape(a, (2*len(x_tot)), order='F')
+mesh_coords = np.reshape(b, (len(x_tot), 2))
+
+map_ids = []
+for i in range(len(t["vertices"])):
+    p = np.array(t["vertices"][i])
+    temp = mesh_coords - p
+    norm = np.linalg.norm(temp, axis = 1)
+    I = np.argmin(norm)+1
+    map_ids.append(I)
+
+for i in range(len(t["triangles"])):
+    id1 = map_ids[t["triangles"][i][0]]-1
+    id2 = map_ids[t["triangles"][i][1]]-1
+    id3 = map_ids[t["triangles"][i][2]]-1
+    mesh_tot.append([id1, id2, id3])
+
 fh.writeT3Slist(x_tot, y_tot, z_tot, mesh_tot, "./output/BOTTOM_TOTAL.t3s")
-                    
-start_time = timeit.default_timer()
 
 print("Time for intersecting triangles: " + str(timeit.default_timer() - start_time))
 print("Time total: " + str(timeit.default_timer() - start_time_total))

@@ -769,7 +769,6 @@ def readT3STriangulation(filename):
                     e2 = [int(values[1])-1, int(values[2])-1]
                     e3 = [int(values[2])-1, int(values[0])-1]
 
-                    #print e1, e1[::-1]
                     if e1[::-1] in boundaries:
                         del boundaries[boundaries.index(e1[::-1])]
                     else:

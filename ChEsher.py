@@ -45,6 +45,7 @@ from moduleXYZ2Profiles import WrapXYZ2Profiles
 from moduleHEC2DXF import WrapHEC2DXF
 from moduleXYZ2DXF import WrapXYZ2DXF
 from moduleProfilesDXF import WrapProfilesDXF
+from moduleMergeMesh import WrapMergeMesh
 
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QFileDialog, QAction, QMessageBox, QIcon, QMessageBox
@@ -154,9 +155,14 @@ class ChEsher(QtGui.QMainWindow):
         self.ui.stackedWidget.insertWidget(13, self.widgetXYZ2DXF)                
 
         # setup instance of module HyDesign
+        self.moduleMergeMesh = WrapMergeMesh()
+        self.widgetMergeMesh = self.moduleMergeMesh.widget
+        self.ui.stackedWidget.insertWidget(14, self.widgetMergeMesh)
+        
+        # setup instance of module HyDesign
         self.moduleHyDesign = WrapHyDesign()
         self.widgetHyDesign = self.moduleHyDesign.widget
-        self.ui.stackedWidget.insertWidget(14, self.widgetHyDesign)
+        self.ui.stackedWidget.insertWidget(15, self.widgetHyDesign)
         
         # actions in menu
         self.fileSetDirectory = self.createAction("Set working directory", slot=self.setDirectory)
@@ -177,7 +183,8 @@ class ChEsher(QtGui.QMainWindow):
         self.setProfilesAction = self.createAction("XYZ2Profiles", slot=self.setXYZ2Profiles)
         self.setProfilesDXFAction = self.createAction("ProfilesDXF", slot=self.setProfilesDXF)
         self.setHEC2DXFAction = self.createAction("HEC2DXF", slot=self.setHEC2DXF)
-        self.setXYZ2DXFAction = self.createAction("XYZ2DXF", slot=self.setXYZ2DXF)        
+        self.setXYZ2DXFAction = self.createAction("XYZ2DXF", slot=self.setXYZ2DXF) 
+        self.setMergeMeshAction = self.createAction("MergeMesh", slot=self.setMergeMesh)       
         self.setHyDesignAction = self.createAction("HyDesign", slot=self.setHyDesign)
         
         self.helpAboutAction = self.createAction("&About", \
@@ -211,6 +218,7 @@ class ChEsher(QtGui.QMainWindow):
             self.setProfilesDXFAction,
             self.setHEC2DXFAction,
             self.setXYZ2DXFAction,
+            self.setMergeMeshAction,
             self.setHyDesignAction
             ))
             
@@ -223,7 +231,8 @@ class ChEsher(QtGui.QMainWindow):
 #        self.setXYZ2Profiles()
 #        self.setProfilesDXF()
 #        self.setXYZ2DXF()
-#        self.initialize()
+        self.initialize()
+        self.setMergeMesh()
 
     def setType(self):
         self.calcDischarge()
@@ -274,6 +283,7 @@ class ChEsher(QtGui.QMainWindow):
         self.moduleProfilesDXF.initialize()
         self.moduleHEC2DXF.initialize()
         self.moduleXYZ2DXF.initialize()
+        self.moduleMergeMesh.initialize()
         
     def setDXF2BK(self):
         self.ui.labelModule.setText("~   Module DXF2BK   ~")
@@ -331,9 +341,13 @@ class ChEsher(QtGui.QMainWindow):
         self.ui.labelModule.setText("~   XYZ2DXF   ~")
         self.ui.stackedWidget.setCurrentIndex(13)
  
+    def setMergeMesh(self):
+        self.ui.labelModule.setText("~   Module MergeMesh   ~")
+        self.ui.stackedWidget.setCurrentIndex(14)
+        
     def setHyDesign(self):
         self.ui.labelModule.setText("~   Module HyDesign   ~")
-        self.ui.stackedWidget.setCurrentIndex(14)
+        self.ui.stackedWidget.setCurrentIndex(15)
 
     def setDirectory(self):
         
@@ -355,6 +369,7 @@ class ChEsher(QtGui.QMainWindow):
             self.moduleHEC2DXF.setDir(dir)
             self.moduleXYZ2DXF.setDir(dir)
             self.moduleXYZ2Profiles.setDir(dir)
+            self.moduleMergeMesh.setDir(dir)
             
             self.directory = dir
 

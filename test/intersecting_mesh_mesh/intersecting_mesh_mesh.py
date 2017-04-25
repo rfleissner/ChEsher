@@ -14,16 +14,25 @@ sys.path.append('C:/ChEsher/py/py')
 import fileHandler as fh
 import profileOrganizer as po
 
-offset = 1.0
+offset = 0.5
+
+filename_input_mesh = "K:/10-051_FA19B_HW_ Heimschuh_Leibnitz-Sulm_Daemme_erhoehen/Wasserbau/Plaene/Heimschuh/2017/Hydraulik/Geometrie/MergeMesh/BOTTOM_8_TOTAL.t3s"
+filename_input_submesh = "K:/10-051_FA19B_HW_ Heimschuh_Leibnitz-Sulm_Daemme_erhoehen/Wasserbau/Plaene/Heimschuh/2017/Hydraulik/Geometrie/MergeMesh/Massnahme_7.t3s"
+
+filename_output_outer = "K:/10-051_FA19B_HW_ Heimschuh_Leibnitz-Sulm_Daemme_erhoehen/Wasserbau/Plaene/Heimschuh/2017/Hydraulik/Geometrie/MergeMesh/BOTTOM_9_OUTSIDE.t3s"
+filename_output_intersection = "K:/10-051_FA19B_HW_ Heimschuh_Leibnitz-Sulm_Daemme_erhoehen/Wasserbau/Plaene/Heimschuh/2017/Hydraulik/Geometrie/MergeMesh/BOTTOM_9_INTERSECTION.t3s"
+filename_output_total = "K:/10-051_FA19B_HW_ Heimschuh_Leibnitz-Sulm_Daemme_erhoehen/Wasserbau/Plaene/Heimschuh/2017/Hydraulik/Geometrie/MergeMesh/BOTTOM_9_TOTAL.t3s"
 
 start_time_total = timeit.default_timer()
 start_time_read_input = timeit.default_timer()
 
 print "read mesh"
-x_mesh, y_mesh, z_mesh, mesh, boundaries_mesh = fh.readT3STriangulation("./input/mesh.t3s")
+#x_mesh, y_mesh, z_mesh, mesh, boundaries_mesh = fh.readT3STriangulation("./input/BOTTOM.t3s")
+x_mesh, y_mesh, z_mesh, mesh, boundaries_mesh = fh.readT3STriangulation(filename_input_mesh)
 
 print "read submesh"
-x_submesh, y_submesh, z_submesh, submesh, boundaries_submesh = fh.readT3STriangulation("./input/submesh.t3s")
+#x_submesh, y_submesh, z_submesh, submesh, boundaries_submesh = fh.readT3STriangulation("./input/Massnahme_1.t3s")
+x_submesh, y_submesh, z_submesh, submesh, boundaries_submesh = fh.readT3STriangulation(filename_input_submesh)
     
 print("Time for reading input: " + str(timeit.default_timer() - start_time_read_input))
 
@@ -173,7 +182,7 @@ triangle.plot.plot(ax1, **t)
 plt.show()
 
 # write outer mesh
-fh.writeT3Slist(x_mesh, y_mesh, z_mesh, nodes_outer_mesh, "./output/BOTTOM_OUTSIDE.t3s")
+fh.writeT3Slist(x_mesh, y_mesh, z_mesh, nodes_outer_mesh, filename_output_outer)
 
 # write intersection mesh
 x_intersectionmesh = []
@@ -185,7 +194,7 @@ for i in range(len(t["vertices"])):
     y_intersectionmesh.append(t["vertices"][i][1])
     z_intersectionmesh.append(0.0)
     
-fh.writeT3Slist(x_intersectionmesh, y_intersectionmesh, z_intersectionmesh, t["triangles"], "./output/BOTTOM_INTERSECTION.t3s")
+fh.writeT3Slist(x_intersectionmesh, y_intersectionmesh, z_intersectionmesh, t["triangles"], filename_output_intersection)
 
 # apply submesh to total mesh
 x_tot = x_mesh
@@ -221,7 +230,7 @@ for i in range(len(t["triangles"])):
     id3 = map_ids[t["triangles"][i][2]]-1
     mesh_tot.append([id1, id2, id3])
 
-fh.writeT3Slist(x_tot, y_tot, z_tot, mesh_tot, "./output/BOTTOM_TOTAL.t3s")
+fh.writeT3Slist(x_tot, y_tot, z_tot, mesh_tot, filename_output_total)
 
 print("Time for intersecting triangles: " + str(timeit.default_timer() - start_time))
 print("Time total: " + str(timeit.default_timer() - start_time_total))

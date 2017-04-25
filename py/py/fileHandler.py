@@ -966,7 +966,7 @@ def writeI3S(nodes, profiles, fname, dim=3, attributes=None):
     file = open(fname, 'w')
     file.write(':FileType\ti{0}s ASCII EnSim 1.0\n'.format(dim))
     file.write(':WrittenBy\tChEsher 1.0\n')
-    if attributes[1] is not None:
+    if attributes is not None:
         att_len = len(attributes[1])
         for i in range(att_len):
             file.write(':AttributeUnits %i\n' % int(i+1))

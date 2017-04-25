@@ -82,7 +82,7 @@ class WrapTube():
         
         # read input meshes
         try:
-            x, y, z, triangles = fh.readT3STriangulation(self.ui.lineEditInputMesh.text())
+            x, y, z, triangles, boundaries = fh.readT3STriangulation(self.ui.lineEditInputMesh.text())
             info += " - Mesh loaded with {0} nodes and {1} elements.\n".format(len(x), len(triangles))
         except Exception, e:
             QMessageBox.critical(self, "Error", "Not able to load mesh file!\nCheck filename or content!" + "\n\n" + str(e))

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'uiChEsher.ui'
 #
-# Created: Sat Nov 05 23:02:52 2016
+# Created: Sat May 06 23:31:14 2017
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -75,7 +75,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(_translate("MainWindow", "ChEsher 1.0", None))
+        MainWindow.setWindowTitle(_translate("MainWindow", "ChEsher 1.1", None))
         self.actionReset.setText(_translate("MainWindow", "Reset", None))
         self.actionClose.setText(_translate("MainWindow", "Close", None))
         self.actionChEsher.setText(_translate("MainWindow", "ChEsher ", None))

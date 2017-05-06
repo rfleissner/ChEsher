@@ -288,7 +288,14 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="0">
+   <item row="8" column="0" colspan="3">
+    <widget class="QCheckBox" name="checkBoxOutputSubmesh">
+     <property name="text">
+      <string>Write results after each submesh</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
     <widget class="QCheckBox" name="checkBoxOutputTotalMesh">
      <property name="text">
       <string>Total mesh:</string>
@@ -298,7 +305,7 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="1">
+   <item row="9" column="1">
     <widget class="QPushButton" name="pushButtonOutputTotalMesh">
      <property name="enabled">
       <bool>true</bool>
@@ -320,21 +327,21 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="2" colspan="2">
+   <item row="9" column="2" colspan="2">
     <widget class="QLineEdit" name="lineEditOutputTotalMesh">
      <property name="enabled">
       <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="9" column="0">
+   <item row="10" column="0">
     <widget class="QCheckBox" name="checkBoxOutputIntersectionMesh">
      <property name="text">
       <string>Intersection mesh:</string>
      </property>
     </widget>
    </item>
-   <item row="9" column="1">
+   <item row="10" column="1">
     <widget class="QPushButton" name="pushButtonOutputIntersectionMesh">
      <property name="enabled">
       <bool>false</bool>
@@ -356,21 +363,21 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="2" colspan="2">
+   <item row="10" column="2" colspan="2">
     <widget class="QLineEdit" name="lineEditOutputIntersectionMesh">
      <property name="enabled">
       <bool>false</bool>
      </property>
     </widget>
    </item>
-   <item row="10" column="0">
+   <item row="11" column="0">
     <widget class="QCheckBox" name="checkBoxOutputInnerMesh">
      <property name="text">
       <string>Inner mesh:</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="1">
+   <item row="11" column="1">
     <widget class="QPushButton" name="pushButtonOutputInnerMesh">
      <property name="enabled">
       <bool>false</bool>
@@ -392,21 +399,21 @@
      </property>
     </widget>
    </item>
-   <item row="10" column="2" colspan="2">
+   <item row="11" column="2" colspan="2">
     <widget class="QLineEdit" name="lineEditOutputInnerMesh">
      <property name="enabled">
       <bool>false</bool>
      </property>
     </widget>
    </item>
-   <item row="11" column="0">
+   <item row="12" column="0">
     <widget class="QCheckBox" name="checkBoxOutputOuterMesh">
      <property name="text">
       <string>Outer mesh:</string>
      </property>
     </widget>
    </item>
-   <item row="11" column="1">
+   <item row="12" column="1">
     <widget class="QPushButton" name="pushButtonOutputOuterMesh">
      <property name="enabled">
       <bool>false</bool>
@@ -428,14 +435,14 @@
      </property>
     </widget>
    </item>
-   <item row="11" column="2" colspan="2">
+   <item row="12" column="2" colspan="2">
     <widget class="QLineEdit" name="lineEditOutputOuterMesh">
      <property name="enabled">
       <bool>false</bool>
      </property>
     </widget>
    </item>
-   <item row="12" column="0" colspan="4">
+   <item row="13" column="0" colspan="4">
     <spacer name="verticalSpacer_30">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -448,7 +455,7 @@
      </property>
     </spacer>
    </item>
-   <item row="13" column="0" colspan="4">
+   <item row="14" column="0" colspan="4">
     <widget class="QPushButton" name="pushButtonCreate">
      <property name="text">
       <string>Let's go!</string>

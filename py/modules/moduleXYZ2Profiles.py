@@ -389,18 +389,18 @@ class WrapXYZ2Profiles():
   
         ###   ~   module Profiles   ~   ###   
         
-        self.ui.lineEditInputProfiles.setText(dir + "example_12/profiles.i2s")
-        self.ui.lineEditInputReach.setText(dir + "example_12/reach.i2s")
-        self.ui.lineEditInputPoints.setText(dir + "example_12/points.xyz")
+        self.ui.lineEditInputProfiles.setText(dir + "example_11/profiles.i2s")
+        self.ui.lineEditInputReach.setText(dir + "example_11/reach.i2s")
+        self.ui.lineEditInputPoints.setText(dir + "example_11/points.xyz")
         
         uih.setEnabledInitialize(self.ui.checkBoxOutputTextfile, self.ui.pushButtonOutputTextfile, self.ui.lineEditOutputTextfile)
-        self.ui.lineEditOutputTextfile.setText(dir + "example_12/output/points.txt")
+        self.ui.lineEditOutputTextfile.setText(dir + "example_11/output/points.txt")
         
         uih.setEnabledInitialize(self.ui.checkBoxOutputDXF, self.ui.pushButtonOutputDXF, self.ui.lineEditOutputDXF)
-        self.ui.lineEditOutputDXF.setText(dir + "example_12/output/points.dxf")
+        self.ui.lineEditOutputDXF.setText(dir + "example_11/output/points.dxf")
 
         uih.setEnabledInitialize(self.ui.checkBoxOutputHECRAS, self.ui.pushButtonOutputHECRAS, self.ui.lineEditOutputHECRAS)
-        self.ui.lineEditOutputHECRAS.setText(dir + "example_12/output/points.geo")       
+        self.ui.lineEditOutputHECRAS.setText(dir + "example_11/output/points.geo")       
 
     def setSettings(self):
 

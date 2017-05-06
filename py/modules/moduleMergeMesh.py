@@ -19,7 +19,6 @@ __date__ ="$23.04.2017 00:18:42$"
 
 import os
 import functools
-import sys
 import copy
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QFileDialog, QMessageBox
@@ -32,7 +31,6 @@ import fileHandler as fh
 from random import uniform
 import triangle
 import triangle.plot
-import matplotlib.pyplot as plt
 import numpy as np
 from shapely.geometry import LineString, Point, Polygon
 
@@ -53,7 +51,7 @@ class WrapMergeMesh():
         self.ui.setupUi(self.widget)
         self.directory = os.path.abspath('.')
         
-# module MergeMesh
+        # module MergeMesh
 
         self.callbackOpenInputMesh = functools.partial(self.getOpenFileName, "Open T3S-file", "2D T3 Scalar Mesh (ASCII SingleFrame) (*.t3s)", self.ui.lineEditInputMesh)
         QtCore.QObject.connect(self.ui.pushButtonInputMesh, QtCore.SIGNAL(_fromUtf8("clicked()")), self.callbackOpenInputMesh)
@@ -242,15 +240,9 @@ class WrapMergeMesh():
             if randPoint.within(boundary_submesh_polygon):
                 geometry["holes"].append([randX,randY])
                 break
+                
         # triangulate intersection mesh with package triangle
         t = triangle.triangulate(geometry, 'p')       
-
-        # plot triangulation using matplotlib
-        print "plot"
-        plt.figure(1)
-        ax1 = plt.subplot(111, aspect='equal')
-        triangle.plot.plot(ax1, **t)
-        plt.show()
 
         # get intersection mesh
         x_intersectionmesh = []
@@ -305,9 +297,9 @@ class WrapMergeMesh():
                 
     def create(self):
 
-        info = "Input data:\n"
+        info = ""
+        
         filename_input_mesh = self.ui.lineEditInputMesh.text()
-        print "read mesh"
         try:
             x_mesh, y_mesh, z_mesh, mesh, boundaries_mesh = fh.readT3STriangulation(filename_input_mesh)
             info += " - Mesh loaded with {0} nodes and {1} elements.\n".format(len(x_mesh), len(mesh))
@@ -315,92 +307,93 @@ class WrapMergeMesh():
             QMessageBox.critical(self.widget, "Error", "Not able to load mesh!\nCheck filename or content!" + "\n\n" + str(e))
             return
         
+        info += "\n"
+        
         rows = self.ui.tableWidget.rowCount()
         offset = self.ui.doubleSpinBoxOffset.value()
-        for row in range(rows):        
-#            try:
+        for row in range(rows):  
+            # read submesh
+            try:
+                filename_input_submesh = self.ui.tableWidget.item(row, 0).text()
+                x_submesh, y_submesh, z_submesh, submesh, boundaries_submesh = fh.readT3STriangulation(filename_input_submesh)
+                info += " - Submesh {0} loaded with {1} nodes and {2} elements.\n".format(row+1, len(x_submesh), len(submesh))
+            except Exception, e:
+                QMessageBox.critical(self.widget, "Error", "Not able to load mesh!\nCheck filename or content!" + "\n\n" + str(e))
+                return 
+            # do merging
+            try:
+                innermesh, outermesh, \
+                x_intersectionmesh, y_intersectionmesh, z_intersectionmesh, intersectionmesh,\
+                x_totalmesh, y_totalmesh, z_totalmesh, totalmesh = self.mergeMesh(offset, x_mesh, y_mesh, z_mesh, mesh, boundaries_mesh, x_submesh, y_submesh, z_submesh, submesh, boundaries_submesh)
+                info += " - Merging of mesh and submesh {0} done.\n".format(row+1)
+                info += "\n"
+            except Exception, e:
+                QMessageBox.critical(self.widget, "Error", "Not able to merge mesh and submesh {0}. Check filename or content of files!".format(row+1) + "\n\n" + str(e))
+                return
 
-            filename_input_submesh = self.ui.tableWidget.item(row, 0).text()
-            x_submesh, y_submesh, z_submesh, submesh, boundaries_submesh = fh.readT3STriangulation(filename_input_submesh)
-            info += " - Submesh loaded with {0} nodes and {1} elements.\n".format(len(x_submesh), len(submesh))
-            innermesh, outermesh, \
-            x_intersectionmesh, y_intersectionmesh, z_intersectionmesh, intersectionmesh,\
-            x_totalmesh, y_totalmesh, z_totalmesh, totalmesh = self.mergeMesh(offset, x_mesh, y_mesh, z_mesh, mesh, boundaries_mesh, x_submesh, y_submesh, z_submesh, submesh, boundaries_submesh)
-
-#            except Exception, e:
-#                QMessageBox.critical(self.widget, "Error", "Check filename or content of files!" + "\n\n" + str(e))
-#                return
-        
-            # write inner, outer, total, intersection
-
+            if self.ui.checkBoxOutputSubmesh.isChecked() is False and row < rows-1:
+                x_mesh = x_totalmesh
+                y_mesh = y_totalmesh
+                z_mesh = z_totalmesh
+                mesh = totalmesh
+                continue
+                
+            # write output total mesh
             if self.ui.checkBoxOutputTotalMesh.isChecked():
                 try:
                     file = self.ui.lineEditOutputTotalMesh.text().split(".")
-                    filename_output_total = file[0]+"_"+str(row)+"."+file[1]
+                    filename_output_total = file[0]+"_"+str(row+1)+"."+file[1]
                     fh.writeT3Slist(x_totalmesh, y_totalmesh, z_totalmesh, totalmesh, filename_output_total)
+                    info += " - Total mesh after merging submesh {0} written to file {1}.\n".format(row+1, filename_output_total)
                 except Exception, e:
                     QMessageBox.critical(self.widget, "Error", "Not able to write total mesh!" + "\n\n" + str(e))
+            
+            # write output intersection mesh
             if self.ui.checkBoxOutputIntersectionMesh.isChecked():
                 try:
                     file = self.ui.lineEditOutputIntersectionMesh.text().split(".")
-                    filename_output_intersection = file[0]+"_"+str(row)+"."+file[1]
+                    filename_output_intersection = file[0]+"_"+str(row+1)+"."+file[1]
                     fh.writeT3Slist(x_intersectionmesh, y_intersectionmesh, z_intersectionmesh, intersectionmesh, filename_output_intersection)
+                    info += " - Intersection mesh after merging submesh {0} written to file {1}.\n".format(row+1, filename_output_intersection)
                 except Exception, e:
                     QMessageBox.critical(self.widget, "Error", "Not able to write intersection mesh!" + "\n\n" + str(e))
+            
+            # write output inner mesh
             if self.ui.checkBoxOutputInnerMesh.isChecked():
                 try:
                     file = self.ui.lineEditOutputInnerMesh.text().split(".")
-                    filename_output_inner = file[0]+"_"+str(row)+"."+file[1]
+                    filename_output_inner = file[0]+"_"+str(row+1)+"."+file[1]
                     fh.writeT3Slist(x_mesh, y_mesh, z_mesh, innermesh, filename_output_inner)
+                    info += " - Inner mesh after merging submesh {0} written to file {1}.\n".format(row+1, filename_output_inner)
                 except Exception, e:
-                    QMessageBox.critical(self.widget, "Error", "Not able to write outer mesh!" + "\n\n" + str(e))
+                    QMessageBox.critical(self.widget, "Error", "Not able to write inner mesh!" + "\n\n" + str(e))
+            
+            # write output outer mesh
             if self.ui.checkBoxOutputOuterMesh.isChecked():
                 try:
                     file = self.ui.lineEditOutputOuterMesh.text().split(".")
-                    filename_output_outer = file[0]+"_"+str(row)+"."+file[1]
+                    filename_output_outer = file[0]+"_"+str(row+1)+"."+file[1]
                     fh.writeT3Slist(x_mesh, y_mesh, z_mesh, outermesh, filename_output_outer)
+                    info += " - Outer mesh after merging submesh {0} written to file {1}.\n".format(row+1, filename_output_outer)
                 except Exception, e:
                     QMessageBox.critical(self.widget, "Error", "Not able to write outer mesh!" + "\n\n" + str(e))
         
+            info += "\n"
+            
             x_mesh = x_totalmesh
             y_mesh = y_totalmesh
             z_mesh = z_totalmesh
             mesh = totalmesh
-        info += "\nOutput data:\n"
-        
-#        if self.ui.checkBoxOutputProfiles.isChecked():             
-#            try:        
-#                cs = ProfileWriter(self.ui.lineEditOutputProfiles.text(),\
-#                    bottomCrossSections,
-#                    self.reachStation,
-#                    self.profileStation,
-#                    scale,
-#                    superelevation,
-#                    self.settings,
-#                    self.ui.lineEditInputReachName.text())
-#
-#                cs.drawBottom()
-#                cs.drawWaterSurface(wsCrossSections, colRGB)
-#                cs.saveDXF()
-#
-#                info += " - DXF file written to {0}.\n".format(self.ui.lineEditOutputProfiles.text())
-#            except:
-#                info += " - ERROR: Not able to write profiles!"
-#                info += "\n"
-#                info += str(sys.exc_info())
-#                info += "\n"
 
         QMessageBox.information(self.widget, "Module MergeMesh", info)     
-        print "finish"
         
     def add(self):
         row = self.ui.tableWidget.currentRow()
         item = QtGui.QTableWidgetItem()
-        item.setFlags(QtCore.Qt.ItemIsEnabled)
         if row == -1:
             row = 0
         self.ui.tableWidget.insertRow(row)
-        self.ui.tableWidget.setItem(row, 2, item)
+        self.ui.tableWidget.setItem(row, 0, item)
 
     def delete(self):
         row = self.ui.tableWidget.currentRow()
@@ -459,31 +452,32 @@ class WrapMergeMesh():
   
         ###   ~   module MergeMesh   ~   ###
 
-        self.ui.lineEditInputMesh.setText(dir + "example_16/mesh.t3s")
-
+        self.ui.lineEditInputMesh.setText(dir + "example_15/bottom.t3s")
+        self.ui.doubleSpinBoxOffset.setValue(0.50)
+        
         self.ui.tableWidget.setRowCount(0)
         self.add()
         self.add()
         
         item1 = QtGui.QTableWidgetItem()
-        item1.setText(dir + "example_16/submesh_1.t3s")
+        item1.setText(dir + "example_15/main_channel.t3s")
         self.ui.tableWidget.setItem(0, 0, item1)
 
         item2 = QtGui.QTableWidgetItem()
-        item2.setText(dir + "example_16/submesh_3.t3s")
+        item2.setText(dir + "example_15/side_channel.t3s")
         self.ui.tableWidget.setItem(1, 0, item2)
 
         uih.setEnabledInitialize(self.ui.checkBoxOutputTotalMesh, self.ui.pushButtonOutputTotalMesh, self.ui.lineEditOutputTotalMesh)
-        self.ui.lineEditOutputTotalMesh.setText(dir + "example_16/output/mesh_total.t3s")
+        self.ui.lineEditOutputTotalMesh.setText(dir + "example_15/output/mesh_total.t3s")
 
-        uih.setEnabledInitialize(self.ui.checkBoxOutputIntersectionMesh, self.ui.pushButtonOutputIntersectionMesh, self.ui.lineEditOutputIntersectionMesh)
-        self.ui.lineEditOutputIntersectionMesh.setText(dir + "example_16/output/mesh_intersection.t3s")
+#        uih.setEnabledInitialize(self.ui.checkBoxOutputIntersectionMesh, self.ui.pushButtonOutputIntersectionMesh, self.ui.lineEditOutputIntersectionMesh)
+#        self.ui.lineEditOutputIntersectionMesh.setText(dir + "example_16/output/mesh_intersection.t3s")
         
-        uih.setEnabledInitialize(self.ui.checkBoxOutputInnerMesh, self.ui.pushButtonOutputInnerMesh, self.ui.lineEditOutputInnerMesh)
-        self.ui.lineEditOutputInnerMesh.setText(dir + "example_16/output/mesh_inner.t3s")
+#        uih.setEnabledInitialize(self.ui.checkBoxOutputInnerMesh, self.ui.pushButtonOutputInnerMesh, self.ui.lineEditOutputInnerMesh)
+#        self.ui.lineEditOutputInnerMesh.setText(dir + "example_16/output/mesh_inner.t3s")
 
-        uih.setEnabledInitialize(self.ui.checkBoxOutputOuterMesh, self.ui.pushButtonOutputOuterMesh, self.ui.lineEditOutputOuterMesh)
-        self.ui.lineEditOutputOuterMesh.setText(dir + "example_16/output/mesh_outer.t3s")
+#        uih.setEnabledInitialize(self.ui.checkBoxOutputOuterMesh, self.ui.pushButtonOutputOuterMesh, self.ui.lineEditOutputOuterMesh)
+#        self.ui.lineEditOutputOuterMesh.setText(dir + "example_16/output/mesh_outer.t3s")
         
     def getOpenFileName(self, title, fileFormat, lineEdit):
         filename = QFileDialog.getOpenFileName(self.widget, title, self.directory, fileFormat)

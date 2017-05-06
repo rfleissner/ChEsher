@@ -11,10 +11,10 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ChEsher 1.0</string>
+   <string>ChEsher 1.1</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resource.qrc">
+   <iconset>
     <normaloff>:/resource/resource/icon.ico</normaloff>:/resource/resource/icon.ico</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">

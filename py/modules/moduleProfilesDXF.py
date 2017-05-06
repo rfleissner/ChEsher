@@ -411,61 +411,6 @@ class WrapProfilesDXF():
             self.ui.tableWidget.setItem(row, 0, item)
         
     def initialize(self):
-
-#        dir = "C:/opentelemac/simulation/sulz/Profile/"
-#  
-#        ###   ~   module ProfilesDXF   ~   ###
-#
-#        self.ui.lineEditInputProfiles.setText(dir + "profiles.i2s")
-#        self.ui.lineEditInputReach.setText(dir + "reach.i2s")
-#        self.ui.lineEditInputBottom.setText(dir + "BOTTOM(Subset).t3s")
-#        self.ui.lineEditInputReachName.setText("Glawoggenbach")
-#        self.ui.spinBoxScale.setValue(200)
-#        self.ui.doubleSpinBoxSuperelevation.setValue(2.0)
-#        
-#        self.ui.tableWidget.setRowCount(0)
-#        self.add()
-#        self.add()
-#        
-#        item1 = QtGui.QTableWidgetItem()
-#        item1.setText(dir + "S_HQ30_IST(Subset).t3s")
-#        self.ui.tableWidget.setItem(0, 0, item1)
-#        
-#        item2 = QtGui.QTableWidgetItem()
-#        item2.setText("HQ30 IST [m]")
-#        self.ui.tableWidget.setItem(0, 1, item2)
-#
-#        item3 = QtGui.QTableWidgetItem()
-#        item3.setText(dir + "S_HQ100_IST(Subset).t3s")
-#        self.ui.tableWidget.setItem(1, 0, item3)
-#
-#        item4 = QtGui.QTableWidgetItem()
-#        item4.setText("HQ100 IST [m]")
-#        self.ui.tableWidget.setItem(1, 1, item4)
-#
-#        initCol = item2.backgroundColor()
-#        initCol.setRed(255)
-#        initCol.setGreen(127)
-#        initCol.setBlue(223)
-#        item5 = QtGui.QTableWidgetItem()
-#        item5.setBackground(initCol)
-#        item5.setFlags(QtCore.Qt.ItemIsEnabled)
-#        item5.setText(str(initCol.red()) + ", " + str(initCol.green()) + ", " + str(initCol.blue()))
-#        self.ui.tableWidget.setItem(0, 2, item5)
-#
-#        initCol = item4.backgroundColor()
-#        initCol.setRed(0)
-#        initCol.setGreen(191)
-#        initCol.setBlue(255)
-#        item6 = QtGui.QTableWidgetItem()
-#        item6.setBackground(initCol)
-#        item6.setFlags(QtCore.Qt.ItemIsEnabled)
-#        item6.setText(str(initCol.red()) + ", " + str(initCol.green()) + ", " + str(initCol.blue()))
-#        self.ui.tableWidget.setItem(1, 2, item6)
-#        
-#        uih.setEnabledInitialize(self.ui.checkBoxOutputProfiles, self.ui.pushButtonOutputProfiles, self.ui.lineEditOutputProfiles)
-#        self.ui.lineEditOutputProfiles.setText(dir + "profiles.dxf")
-#        
         
         import os
         abs_path = os.path.abspath('.')
@@ -473,9 +418,9 @@ class WrapProfilesDXF():
   
         ###   ~   module ProfilesDXF   ~   ###
 
-        self.ui.lineEditInputProfiles.setText(dir + "example_15/profiles.i2s")
-        self.ui.lineEditInputReach.setText(dir + "example_15/reach.i2s")
-        self.ui.lineEditInputBottom.setText(dir + "example_15/BOTTOM_Case_A.t3s")
+        self.ui.lineEditInputProfiles.setText(dir + "example_12/profiles.i2s")
+        self.ui.lineEditInputReach.setText(dir + "example_12/reach.i2s")
+        self.ui.lineEditInputBottom.setText(dir + "example_12/BOTTOM_Case_A.t3s")
         self.ui.lineEditInputReachName.setText("Donau")
 
         self.ui.tableWidget.setRowCount(0)
@@ -483,7 +428,7 @@ class WrapProfilesDXF():
         self.add()
         
         item1 = QtGui.QTableWidgetItem()
-        item1.setText(dir + "example_15/FREE SURFACE_S161_Case_A.t3s")
+        item1.setText(dir + "example_12/FREE SURFACE_S161_Case_A.t3s")
         self.ui.tableWidget.setItem(0, 0, item1)
         
         item2 = QtGui.QTableWidgetItem()
@@ -491,7 +436,7 @@ class WrapProfilesDXF():
         self.ui.tableWidget.setItem(0, 1, item2)
 
         item3 = QtGui.QTableWidgetItem()
-        item3.setText(dir + "example_15/FREE SURFACE_S161_Case_B.t3s")
+        item3.setText(dir + "example_12/FREE SURFACE_S161_Case_B.t3s")
         self.ui.tableWidget.setItem(1, 0, item3)
 
         item4 = QtGui.QTableWidgetItem()
@@ -519,7 +464,7 @@ class WrapProfilesDXF():
         self.ui.tableWidget.setItem(1, 2, item6)
         
         uih.setEnabledInitialize(self.ui.checkBoxOutputProfiles, self.ui.pushButtonOutputProfiles, self.ui.lineEditOutputProfiles)
-        self.ui.lineEditOutputProfiles.setText(dir + "example_15/output/profiles.dxf")
+        self.ui.lineEditOutputProfiles.setText(dir + "example_12/output/profiles.dxf")
         
     def getOpenFileName(self, title, fileFormat, lineEdit):
         filename = QFileDialog.getOpenFileName(self.widget, title, self.directory, fileFormat)

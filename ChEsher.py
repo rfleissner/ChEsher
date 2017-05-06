@@ -170,29 +170,32 @@ class ChEsher(QtGui.QMainWindow):
             shortcut="Ctrl+Q")
         self.fileSetExamples = self.createAction("Initialize examples", slot=self.initializeModules)
         self.helpAction = self.createAction("Help", slot=self.help, shortcut="F1")
-        self.setDXFtoBKAction = self.createAction("DXF2BK", slot=self.setDXF2BK)
-        self.setBK2DXFAction = self.createAction("BK2DXF", slot=self.setBK2DXF)
-        self.setMeshAction = self.createAction("Mesh", slot=self.setMesh)
-        self.setXMLAction = self.createAction("LandXML", slot=self.setLandXML)
-        self.setScalarAction = self.createAction("ScalarDXF", slot=self.setScalarDXF)
-        self.setVectorAction = self.createAction("VectorDXF", slot=self.setVectorDXF)
-        self.setCSAction = self.createAction("CS", slot=self.setCS)
-        self.set2DMAction = self.createAction("2DM2BK", slot=self.set2DM2BK)
-        self.setCont2DXFAction = self.createAction("Cont2DXF", slot=self.setCont2DXF)
-        self.setTubeAction = self.createAction("Tube", slot=self.setTube)
-        self.setProfilesAction = self.createAction("XYZ2Profiles", slot=self.setXYZ2Profiles)
-        self.setProfilesDXFAction = self.createAction("ProfilesDXF", slot=self.setProfilesDXF)
-        self.setHEC2DXFAction = self.createAction("HEC2DXF", slot=self.setHEC2DXF)
-        self.setXYZ2DXFAction = self.createAction("XYZ2DXF", slot=self.setXYZ2DXF) 
-        self.setMergeMeshAction = self.createAction("MergeMesh", slot=self.setMergeMesh)       
-        self.setHyDesignAction = self.createAction("HyDesign", slot=self.setHyDesign)
-        
+        # modules
+        self.setDXFtoBKAction = self.createAction("1 DXF2BK", slot=self.setDXF2BK)
+        self.setBK2DXFAction = self.createAction("2 BK2DXF", slot=self.setBK2DXF)
+        self.setMeshAction = self.createAction("3 Mesh", slot=self.setMesh)
+        self.setXMLAction = self.createAction("4 LandXML", slot=self.setLandXML)
+        self.setScalarAction = self.createAction("5 ScalarDXF", slot=self.setScalarDXF)
+        self.setVectorAction = self.createAction("6 VectorDXF", slot=self.setVectorDXF)
+        self.setCSAction = self.createAction("7 CS", slot=self.setCS)
+        self.set2DMAction = self.createAction("8 2DM2BK", slot=self.set2DM2BK)
+        self.setCont2DXFAction = self.createAction("9 Cont2DXF", slot=self.setCont2DXF)
+        self.setTubeAction = self.createAction("10 Tube", slot=self.setTube)
+        self.setProfilesAction = self.createAction("11 XYZ2Profiles", slot=self.setXYZ2Profiles)
+        self.setProfilesDXFAction = self.createAction("12 ProfilesDXF", slot=self.setProfilesDXF)
+        self.setHEC2DXFAction = self.createAction("13 HEC2DXF", slot=self.setHEC2DXF)
+        self.setXYZ2DXFAction = self.createAction("14 XYZ2DXF", slot=self.setXYZ2DXF) 
+        self.setMergeMeshAction = self.createAction("15 MergeMesh", slot=self.setMergeMesh)
+        # tools
+        self.setHyDesignAction = self.createAction("1 HyDesign", slot=self.setHyDesign)
+        # help
         self.helpAboutAction = self.createAction("&About", \
             self.helpAbout)
         
         # create menu
         self.fileMenu = self.menuBar().addMenu("ChEsher")
-        self.moduleMenu = self.menuBar().addMenu("Module")
+        self.modulesMenu = self.menuBar().addMenu("Modules")
+        self.toolsMenu = self.menuBar().addMenu("Tools")
         self.helpMenu = self.menuBar().addMenu("Help")
         
         # add actions to menu
@@ -203,7 +206,7 @@ class ChEsher(QtGui.QMainWindow):
             self.fileQuitAction
             ))
             
-        self.addActions(self.moduleMenu, ( \
+        self.addActions(self.modulesMenu, ( \
             self.setDXFtoBKAction, \
             self.setBK2DXFAction,
             self.setMeshAction, 
@@ -218,21 +221,24 @@ class ChEsher(QtGui.QMainWindow):
             self.setProfilesDXFAction,
             self.setHEC2DXFAction,
             self.setXYZ2DXFAction,
-            self.setMergeMeshAction,
-            self.setHyDesignAction
+            self.setMergeMeshAction
+            ))
+
+        self.addActions(self.toolsMenu, ( \
+            self.setHyDesignAction,
             ))
             
         self.addActions(self.helpMenu, (self.helpAction, None, self.helpAboutAction))
 
-#        self.setDXF2BK()
+        self.setDXF2BK()
 #        self.setCont2DXF()
 #        self.setTube()
 #        self.setHEC2DXF()
 #        self.setXYZ2Profiles()
 #        self.setProfilesDXF()
 #        self.setXYZ2DXF()
-        self.initialize()
-        self.setMergeMesh()
+#        self.initialize()
+#        self.setMergeMesh()
 
     def setType(self):
         self.calcDischarge()
@@ -268,6 +274,7 @@ class ChEsher(QtGui.QMainWindow):
         makedir(self.directory + "example_12/output/")
         makedir(self.directory + "example_13/output/")
         makedir(self.directory + "example_14/output/")
+        makedir(self.directory + "example_15/output/")
         
         self.moduleDXF2BK.initialize()
         self.moduleBK2DXF.initialize()
@@ -346,7 +353,7 @@ class ChEsher(QtGui.QMainWindow):
         self.ui.stackedWidget.setCurrentIndex(14)
         
     def setHyDesign(self):
-        self.ui.labelModule.setText("~   Module HyDesign   ~")
+        self.ui.labelModule.setText("~   Tool HyDesign   ~")
         self.ui.stackedWidget.setCurrentIndex(15)
 
     def setDirectory(self):
@@ -490,7 +497,7 @@ class ChEsher(QtGui.QMainWindow):
 
     def helpAbout(self):
         """Setup the About-dialog."""
-        msg = u"""<p><b>ChEsher</b> V 1.0</p>
+        msg = u"""<p><b>ChEsher</b> V 1.1</p>
                     <p>Additional tool to <a href="http://www.nrc-cnrc.gc.ca/eng/solutions/advisory/blue_kenue_index.html">Blue Kenue&trade;</a> that is a pre and post processing software for the <a href="http://www.opentelemac.org/">open TELEMAC-MASCARET</a> system - an integrated suite of solvers for use in the field of free-surface flow of hydraulic modeling. </p>
                     <p>Copyright \u00A9 2016 <a href="mailto:reinhard.fleissner@gmail.com?subject=ChEsher">Reinhard Flei\xdfner</a></p>
                     <hr/>

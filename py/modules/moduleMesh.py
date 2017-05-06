@@ -250,11 +250,11 @@ class WrapMesh():
             QMessageBox.critical(self.widget, "Error", "Not able to determine flow direction!\nCheck inputs!" + "\n\n" + str(e))
             return
         
-#        try:
-        info += self.mesh.normalizeProfiles()
-#        except Exception, e:
-#            QMessageBox.critical(self.widget, "Error", "Not able to normalize profiles!\nCheck inputs!" + "\n\n" + str(e))
-#            return
+        try:
+            info += self.mesh.normalizeProfiles()
+        except Exception, e:
+            QMessageBox.critical(self.widget, "Error", "Not able to normalize profiles!\nCheck inputs!" + "\n\n" + str(e))
+            return
         
         try:
             info += self.mesh.interpolateChannel()

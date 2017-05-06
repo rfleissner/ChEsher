@@ -14,24 +14,30 @@ sys.path.append('C:/ChEsher/py/py')
 import fileHandler as fh
 import profileOrganizer as po
 
-offset = 0.5
+offset = 0.0
 
-filename_input_mesh = "K:/10-051_FA19B_HW_ Heimschuh_Leibnitz-Sulm_Daemme_erhoehen/Wasserbau/Plaene/Heimschuh/2017/Hydraulik/Geometrie/MergeMesh/BOTTOM_8_TOTAL.t3s"
-filename_input_submesh = "K:/10-051_FA19B_HW_ Heimschuh_Leibnitz-Sulm_Daemme_erhoehen/Wasserbau/Plaene/Heimschuh/2017/Hydraulik/Geometrie/MergeMesh/Massnahme_7.t3s"
+##filename_input_mesh = "K:/10-051_FA19B_HW_ Heimschuh_Leibnitz-Sulm_Daemme_erhoehen/Wasserbau/Plaene/Heimschuh/2017/Hydraulik/Geometrie/MergeMesh/BOTTOM_8_TOTAL.t3s"
+##filename_input_submesh = "K:/10-051_FA19B_HW_ Heimschuh_Leibnitz-Sulm_Daemme_erhoehen/Wasserbau/Plaene/Heimschuh/2017/Hydraulik/Geometrie/MergeMesh/Massnahme_7.t3s"
+##
+##filename_output_outer = "K:/10-051_FA19B_HW_ Heimschuh_Leibnitz-Sulm_Daemme_erhoehen/Wasserbau/Plaene/Heimschuh/2017/Hydraulik/Geometrie/MergeMesh/BOTTOM_9_OUTSIDE.t3s"
+##filename_output_intersection = "K:/10-051_FA19B_HW_ Heimschuh_Leibnitz-Sulm_Daemme_erhoehen/Wasserbau/Plaene/Heimschuh/2017/Hydraulik/Geometrie/MergeMesh/BOTTOM_9_INTERSECTION.t3s"
+##filename_output_total = "K:/10-051_FA19B_HW_ Heimschuh_Leibnitz-Sulm_Daemme_erhoehen/Wasserbau/Plaene/Heimschuh/2017/Hydraulik/Geometrie/MergeMesh/BOTTOM_9_TOTAL.t3s"
 
-filename_output_outer = "K:/10-051_FA19B_HW_ Heimschuh_Leibnitz-Sulm_Daemme_erhoehen/Wasserbau/Plaene/Heimschuh/2017/Hydraulik/Geometrie/MergeMesh/BOTTOM_9_OUTSIDE.t3s"
-filename_output_intersection = "K:/10-051_FA19B_HW_ Heimschuh_Leibnitz-Sulm_Daemme_erhoehen/Wasserbau/Plaene/Heimschuh/2017/Hydraulik/Geometrie/MergeMesh/BOTTOM_9_INTERSECTION.t3s"
-filename_output_total = "K:/10-051_FA19B_HW_ Heimschuh_Leibnitz-Sulm_Daemme_erhoehen/Wasserbau/Plaene/Heimschuh/2017/Hydraulik/Geometrie/MergeMesh/BOTTOM_9_TOTAL.t3s"
+filename_input_mesh = "./input/mesh.t3s"
+filename_input_submesh = "./input/submesh_3.t3s"
+
+filename_output_outer = "./output/BOTTOM_OUTER.t3s"
+filename_output_inner = "./output/BOTTOM_INNER.t3s"
+filename_output_intersection = "./output/BOTTOM_INTERSECTION.t3s"
+filename_output_total = "./output/BOTTOM_TOTAL.t3s"
 
 start_time_total = timeit.default_timer()
 start_time_read_input = timeit.default_timer()
 
 print "read mesh"
-#x_mesh, y_mesh, z_mesh, mesh, boundaries_mesh = fh.readT3STriangulation("./input/BOTTOM.t3s")
 x_mesh, y_mesh, z_mesh, mesh, boundaries_mesh = fh.readT3STriangulation(filename_input_mesh)
 
 print "read submesh"
-#x_submesh, y_submesh, z_submesh, submesh, boundaries_submesh = fh.readT3STriangulation("./input/Massnahme_1.t3s")
 x_submesh, y_submesh, z_submesh, submesh, boundaries_submesh = fh.readT3STriangulation(filename_input_submesh)
     
 print("Time for reading input: " + str(timeit.default_timer() - start_time_read_input))
@@ -61,8 +67,8 @@ boundary_submesh_linestring = boundary_submesh_real.parallel_offset(offset, 'rig
 boundary_submesh = Polygon(boundary_submesh_linestring)
 
 # check if triangle of mesh intersects polygon submesh
-nodes_inner_mesh = []
-nodes_outer_mesh = []
+innermesh = []
+outermesh = []
 edges_inner_mesh = []
 
 # loop over mesh triangles
@@ -101,10 +107,10 @@ for tID in range(len(mesh)):
             del edges_inner_mesh[edges_inner_mesh.index(e3[::-1])]
         else:
             edges_inner_mesh.append(e3)
-        nodes_inner_mesh.append(mesh[tID])
+        innermesh.append(mesh[tID])
     # if triangle does not intersect boundary mesh, append triangle to outer mesh
     else:
-        nodes_outer_mesh.append(mesh[tID])
+        outermesh.append(mesh[tID])
 
 # triangulate mesh between submesh and outer mesh
 # instantiate the dictionary for the triangulation with package triangle
@@ -182,7 +188,10 @@ triangle.plot.plot(ax1, **t)
 plt.show()
 
 # write outer mesh
-fh.writeT3Slist(x_mesh, y_mesh, z_mesh, nodes_outer_mesh, filename_output_outer)
+fh.writeT3Slist(x_mesh, y_mesh, z_mesh, outermesh, filename_output_outer)
+
+# write inner mesh
+fh.writeT3Slist(x_mesh, y_mesh, z_mesh, innermesh, filename_output_inner)
 
 # write intersection mesh
 x_intersectionmesh = []
@@ -194,27 +203,29 @@ for i in range(len(t["vertices"])):
     y_intersectionmesh.append(t["vertices"][i][1])
     z_intersectionmesh.append(0.0)
     
-fh.writeT3Slist(x_intersectionmesh, y_intersectionmesh, z_intersectionmesh, t["triangles"], filename_output_intersection)
+intersectionmesh = t["triangles"]
+
+fh.writeT3Slist(x_intersectionmesh, y_intersectionmesh, z_intersectionmesh, intersectionmesh, filename_output_intersection)
 
 # apply submesh to total mesh
-x_tot = x_mesh
-y_tot = y_mesh
-z_tot = z_mesh
-mesh_tot = nodes_outer_mesh
+x_totalmesh = x_mesh
+y_totalmesh = y_mesh
+z_totalmesh = z_mesh
+totalmesh = outermesh
 n_vertices = len(x_mesh)
 
 for i in range(len(x_submesh)):
-    x_tot.append(x_submesh[i])
-    y_tot.append(y_submesh[i])
-    z_tot.append(z_submesh[i])
+    x_totalmesh.append(x_submesh[i])
+    y_totalmesh.append(y_submesh[i])
+    z_totalmesh.append(z_submesh[i])
 for i in range(len(submesh)):    
-    mesh_tot.append([submesh[i][0]+n_vertices, submesh[i][1]+n_vertices, submesh[i][2]+n_vertices])
+    totalmesh.append([submesh[i][0]+n_vertices, submesh[i][1]+n_vertices, submesh[i][2]+n_vertices])
 
 # apply intersection mesh to total mesh
 # find ids from intersection mesh vertices in total mesh
-a = np.array([x_tot, y_tot])
-b = np.reshape(a, (2*len(x_tot)), order='F')
-mesh_coords = np.reshape(b, (len(x_tot), 2))
+a = np.array([x_totalmesh, y_totalmesh])
+b = np.reshape(a, (2*len(x_totalmesh)), order='F')
+mesh_coords = np.reshape(b, (len(x_totalmesh), 2))
 
 map_ids = []
 for i in range(len(t["vertices"])):
@@ -228,9 +239,10 @@ for i in range(len(t["triangles"])):
     id1 = map_ids[t["triangles"][i][0]]-1
     id2 = map_ids[t["triangles"][i][1]]-1
     id3 = map_ids[t["triangles"][i][2]]-1
-    mesh_tot.append([id1, id2, id3])
+    totalmesh.append([id1, id2, id3])
 
-fh.writeT3Slist(x_tot, y_tot, z_tot, mesh_tot, filename_output_total)
+# write total mesh
+fh.writeT3Slist(x_totalmesh, y_totalmesh, z_totalmesh, totalmesh, filename_output_total)
 
 print("Time for intersecting triangles: " + str(timeit.default_timer() - start_time))
 print("Time total: " + str(timeit.default_timer() - start_time_total))

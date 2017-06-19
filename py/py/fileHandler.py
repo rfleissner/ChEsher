@@ -1021,14 +1021,93 @@ def writeXYZ2DXF(nodes, dec, scale, symbol, fname, colRGBSymbol, colRGBText, blo
         values = {str(attributeName): "%.{0}f".format(dec) % val}
 
         # add block definition to the drawing
-        msp.add_auto_blockref(str(blockName), (x,y) ,values, dxfattribs={
+        msp.add_auto_blockref(str(blockName), (x,y,val) ,values, dxfattribs={
             'xscale': scale/100.0,
             'yscale': scale/100.0,
             'rotation': 0.0})
 
     dwg.saveas(str(fname))
     
-#DXFWRITE
+# EZDXF
+#def writeScalarDXF(nodes, SMin, SMax, eps, scale, symbol, useMono, fname):
+#
+#    colMono = 7
+#    colPos = 1
+#    colNeg = 3
+#
+#    rad = 0.375
+#
+#    dwg = ezdxf.new(dxfversion='AC1018')
+#    msp = dwg.modelspace()
+#    dwg.layers.new(name='MyLines', dxfattribs={'color':7, 'lineweight': 13})
+#    
+#    # create block
+#    scalarsymbol = dwg.blocks.new(name="Scalar", layer='MyLines')
+#    if symbol != 0 and symbol != 3:
+#        hline = scalarsymbol.add_line([-0.75,0.0],[0.75, 0.0])
+#        vline = scalarsymbol.add_line([0.0,-0.75], [0.0,0.75])
+#        vline.lineweight(1)
+#    if symbol != 1 and symbol != 3:
+#        circle = scalarsymbol.add_circle([0.0, 0.0], rad)
+#
+#    # define some attributes
+#    v1 = scalarsymbol.add_attdef("VAL1", (0.5, 0.5), {'height': 1.0})
+#    v2 = scalarsymbol.add_attdef("VAL2", (0.5, -1.5), {'height': 1.0})
+#    
+##    scalarsymbol.add( dxf.attdef(insert=(0.5, 0.5), tag='VAL1', height=1.0, color=0) )
+##    scalarsymbol.add( dxf.attdef(insert=(0.5, -1.5), tag='VAL2', height=1.0, color=0) )
+#
+#    # add block definition to the drawing
+##    dwg.blocks.add(scalarsymbol)
+#    
+#    nOfScalars = 0
+#    
+#    for nID in nodes:
+#        x = nodes[nID][0]
+#        y = nodes[nID][1]
+#        val1 = nodes[nID][2]
+#        val2 = nodes[nID][3]
+#
+#        values = {}
+#        if val2 is None:
+#            values = {'VAL1': "%.2f" % val1, 'VAL2': ""}
+#        else:
+#            if val2 < eps and val2 > -eps:
+#                values = {'VAL1': "%.2f" % val1, 'VAL2': ""}
+#            else:
+#                values = {'VAL1': "%.2f" % val1, 'VAL2': "%.2f" % val2}
+#                
+#        # define color
+#        col = 0
+#        if useMono is True:
+#            col = colMono
+#        else:
+#            if val1 >= 0:
+#                col = colPos
+#            else:
+#                col = colNeg
+#
+#        if val1 >= SMin and val1 <= SMax:
+#            if val1 < eps and val1 > -eps:
+#                continue
+#            else:
+#                # add block definition to the drawing
+#                msp.add_auto_blockref("Scalar", (x,y) ,values, dxfattribs={
+#                    'xscale': scale,
+#                    'yscale': scale,
+#                    'rotation': 0.0})
+##                dwg.add(dxf.insert2(blockdef=scalarsymbol, insert=(x, y),
+##                                    attribs=values,
+##                                    xscale=scale,
+##                                    yscale=scale,
+##                                    layer='0',
+##                                    color = col))
+#                nOfScalars += 1
+#                
+#    dwg.saveas(str(fname))
+#    
+#    return nOfScalars
+
 def writeScalarDXF(nodes, SMin, SMax, eps, scale, symbol, useMono, fname):
 
     colMono = 7
@@ -1055,7 +1134,7 @@ def writeScalarDXF(nodes, SMin, SMax, eps, scale, symbol, useMono, fname):
 
     # add block definition to the drawing
     dwg.blocks.add(scalarsymbol)
-    
+
     nOfScalars = 0
     
     for nID in nodes:
@@ -1063,7 +1142,7 @@ def writeScalarDXF(nodes, SMin, SMax, eps, scale, symbol, useMono, fname):
         y = nodes[nID][1]
         val1 = nodes[nID][2]
         val2 = nodes[nID][3]
-
+        
         values = {}
         if val2 is None:
             values = {'VAL1': "%.2f" % val1, 'VAL2': ""}
@@ -1091,7 +1170,7 @@ def writeScalarDXF(nodes, SMin, SMax, eps, scale, symbol, useMono, fname):
                                     attribs=values,
                                     xscale=scale,
                                     yscale=scale,
-                                    layer='0',
+                                    layer='SCALAR',
                                     color = col))
                 nOfScalars += 1
     dwg.save()
@@ -1100,7 +1179,7 @@ def writeScalarDXF(nodes, SMin, SMax, eps, scale, symbol, useMono, fname):
     
 def writeVectorDXF(nodes, VMin, VMax, eps, scale, useUniform, fname):
 
-    colMono = 7
+    colMono = 1
 
     arrow = [(1.0,0.0),(0.6,-0.1),(0.6,0.1),(1.0,0.0)]
     arrowline = [(0.0,0.0),(0.6,0.0)]
@@ -1140,7 +1219,7 @@ def writeVectorDXF(nodes, VMin, VMax, eps, scale, useUniform, fname):
                 dwg.add(dxf.insert2(blockdef=vectorsymbol, insert= (x, y),
                                     xscale=blockScale,
                                     yscale=blockScale,
-                                    layer='0',
+                                    layer='VECTOR',
                                     color = colMono,
                                     rotation = phi))
                 nOfVectors += 1  

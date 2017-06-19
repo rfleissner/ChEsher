@@ -239,6 +239,7 @@ class ChEsher(QtGui.QMainWindow):
 #        self.setXYZ2DXF()
 #        self.initialize()
 #        self.setMergeMesh()
+#        self.setScalarDXF()
 
     def setType(self):
         self.calcDischarge()

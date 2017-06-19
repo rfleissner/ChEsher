@@ -1,10 +1,7 @@
-__author__ = "Reinhard Fleiﬂner"
-__date__ = "$01.02.2017 19:24:27$"
-
 from setuptools import setup, find_packages
 
 setup (
-       name='ChEsher',
+       name='NewPythonProject',
        version='0.1',
        packages=find_packages(),
 
@@ -13,10 +10,10 @@ setup (
 
        # Fill in these to make your Egg ready for upload to
        # PyPI
-       author='Reinhard Fleiﬂner',
+       author='rfleissner',
        author_email='',
 
-       summary='Just another Python package for the cheese shop',
+       #summary = 'Just another Python package for the cheese shop',
        url='',
        license='',
        long_description='Long description of the package',

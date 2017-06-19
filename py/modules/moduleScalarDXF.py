@@ -81,7 +81,7 @@ class WrapScalarDXF():
         print "set", self.directory
     
     def initialize(self):
-        
+       
         import os
         abs_path = os.path.abspath('.')
         dir = os.path.join(abs_path, 'examples/').replace('\\', '/')
@@ -118,7 +118,7 @@ class WrapScalarDXF():
         # read input meshes
         
         try:
-            x, y, zMajor, triangles = fh.readT3STriangulation(self.ui.lineEditInputT3SMajor.text())
+            x, y, zMajor, triangles, boundaries = fh.readT3STriangulation(self.ui.lineEditInputT3SMajor.text())
         except Exception, e:
             QMessageBox.critical(self, "Error", "Not able to load mesh file!\nCheck filename or content!" + "\n\n" + str(e))
             return
@@ -127,7 +127,7 @@ class WrapScalarDXF():
         if self.ui.lineEditInputT3SMinor.text() != "":
             minor = True
             try:
-                x, y, zMinor, triangles = fh.readT3STriangulation(self.ui.lineEditInputT3SMinor.text())
+                x, y, zMinor, triangles, boundaries = fh.readT3STriangulation(self.ui.lineEditInputT3SMinor.text())
             except Exception, e:
                 QMessageBox.critical(self.widget, "Error", "Not able to load mesh file!\nCheck filename or content!" + "\n\n" + str(e))
                 return            

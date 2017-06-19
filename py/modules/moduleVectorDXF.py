@@ -69,7 +69,7 @@ class WrapVectorDXF():
 
         scale = self.ui.spinBoxScale.value()
         d = scale/100.0
-        size_factor = scale/100.0
+        size_factor = scale/200.0
         
         self.ui.doubleSpinBoxDX.setValue(d)
         self.ui.doubleSpinBoxDY.setValue(d)
@@ -101,9 +101,9 @@ class WrapVectorDXF():
         VMin = self.ui.doubleSpinBoxVMin.value()
         VMax = self.ui.doubleSpinBoxVMax.value()
         
-        scale = self.ui.doubleSpinBoxScale.value()
+        scale = self.ui.doubleSpinBoxSizeFactor.value()
         
-        useUniform = self.ui.checkBoxUniform.isCecked()
+        useUniform = self.ui.checkBoxUniform.isChecked()
         
         eps = self.ui.doubleSpinBoxLessThan.value()
         

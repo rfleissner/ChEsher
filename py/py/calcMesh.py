@@ -72,7 +72,8 @@ class CalcMesh(object):
 
         profilecounter = 1
         direction = {}
-
+        
+        # loop over reach nodes
         for nID_reach in range(len(self.nodReach)):
             nID_reach += 1
 
@@ -141,6 +142,7 @@ class CalcMesh(object):
     def normalizeProfiles(self):
 
         def normalize(nID_a, nID_b, nodes):
+
             nID_i = 0
             nID_j = 0
             up = False
@@ -153,9 +155,7 @@ class CalcMesh(object):
                 nID_j = nID_a
                 up = False
             nodesTempNormalized = {}
-#            r0 = nodes[nID_i][0:2]
-#            r1 = nodes[nID_j][0:2]
-#            u = np.subtract(r1, r0)
+
             for i in range(nID_j - nID_i + 1):
                 nID = 0
                 if up is True:
@@ -163,10 +163,7 @@ class CalcMesh(object):
                 else:
                     nID = nID_j - i
                 nID = nID_i + i
-#                x = nodes[nID][0:2]
-#                Pg = r0 + np.dot(np.subtract(x, r0), u)/np.dot(u, u)*u
-#                temp = list(Pg)
-#                temp.append(nodes[nID][2])
+
                 nodesTempNormalized[nID] = nodes[nID][0:3]
             return nodesTempNormalized
 
@@ -183,6 +180,7 @@ class CalcMesh(object):
         nodesNormalized = {}
         startkey = 1
 
+        # loop over arranged profiles
         for pID in self.proArranged:
             nIDs = self.proArranged[pID]
             if self.nnL is not None and self.nnR is None:
@@ -330,16 +328,19 @@ class CalcMesh(object):
                                                     self.nodInterp[self.proInterp[pID][-1]],
                                                     self.nodInterp[self.proInterp[pID+1][-1]]
                                                     )
-
+            # left boundary
             zVec = []
             if len(tempLeftBoundary[1]) == 2:
+            # boundary is *.i2s, interpolate z values linear between profiles
                 zVec = np.linspace(self.nodInterp[self.proInterp[pID][0]][2], self.nodInterp[self.proInterp[pID+1][0]][2], num=nodeCount)
                 tempLeftBoundaryInterp = mc.interpolateNodeString2d(tempLeftBoundary, nodeCount)
                 for key in tempLeftBoundaryInterp:
                     tempLeftBoundaryInterp[key][2] = zVec[key-1]
             else:
+            # boundary is *.i3s
                 tempLeftBoundaryInterp = mc.interpolateNodeString3d(tempLeftBoundary, nodeCount)
 
+            # right boundary
             zVec = []
             if len(tempRightBoundary[1]) == 2:
                 zVec = np.linspace(self.nodInterp[self.proInterp[pID][-1]][2], self.nodInterp[self.proInterp[pID+1][-1]][2], num=nodeCount)
@@ -349,11 +350,12 @@ class CalcMesh(object):
             else:
                 tempRightBoundaryInterp = mc.interpolateNodeString3d(tempRightBoundary, nodeCount)
             
+            # apply temporary interpolated left boundary (between two profiles) to total left boundary
             for nID in range(len(tempLeftBoundaryInterp)-1):
                 self.LBOInterp[len(self.LBOInterp)+1] = tempLeftBoundaryInterp[nID+1]
             if pID == len(self.proInterp)-1:
                 self.LBOInterp[len(self.LBOInterp)+1] = tempLeftBoundaryInterp[len(tempLeftBoundaryInterp)]
-
+            # apply temporary interpolated right boundary (between two profiles) to total right boundary
             for nID in range(len(tempRightBoundaryInterp)-1):
                 self.RBOInterp[len(self.RBOInterp)+1] = tempRightBoundaryInterp[nID+1]
             if pID == len(self.proInterp)-1:
@@ -403,12 +405,15 @@ class CalcMesh(object):
                     if pID == len(self.proInterp)-1:
                         self.RBLInterp[len(self.RBLInterp)+1] = tempRightBreaklineInterp[len(tempRightBreaklineInterp)]
 
+            # interpolate channel from left boundary over left and right breakline to right boundary
             elementsInSegment = 0
             if i == (len(self.proInterp)-2):
                 elementsInSegment = len(tempLeftBoundaryInterp)
             else:
                 elementsInSegment = len(tempLeftBoundaryInterp)-1
 
+            
+##  ToDo: interpolate channel dependend on element width
             for j in range(elementsInSegment):
 
                 nID = j+1

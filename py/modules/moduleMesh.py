@@ -256,11 +256,11 @@ class WrapMesh():
             QMessageBox.critical(self.widget, "Error", "Not able to normalize profiles!\nCheck inputs!" + "\n\n" + str(e))
             return
         
-        try:
-            info += self.mesh.interpolateChannel()
-        except Exception, e:
-            QMessageBox.critical(self.widget, "Error", "Not able to interpolate channel!\nCheck inputs!" + "\n\n" + str(e))
-            return
+#        try:
+        info += self.mesh.interpolateChannel()
+#        except Exception, e:
+#        QMessageBox.critical(self.widget, "Error", "Not able to interpolate channel!\nCheck inputs!" + "\n\n" + str(e))
+#            return
         
         try:
             info += self.mesh.interpolateElevation()

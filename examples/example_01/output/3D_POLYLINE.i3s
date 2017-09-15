@@ -1,0 +1,9 @@
+:FileType	i3s ASCII EnSim 1.0
+:WrittenBy	ChEsher 1.0
+:AttributeUnits 1 m
+:EndHeader
+4 0
+0.0 0.0 0.0
+2.0 0.0 1.0
+4.0 -1.0 2.0
+2.0 -1.0 1.0

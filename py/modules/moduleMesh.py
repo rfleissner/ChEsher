@@ -26,7 +26,7 @@ from PyQt4.QtGui import QMessageBox, QFileDialog
 from uiMesh import Ui_Mesh
 import uiHandler as uih
 import fileHandler as fh
-from calcMesh import CalcMesh
+from calcMesh_new import CalcMesh
 import ewsEnSim as ws
 import macro as mc
 

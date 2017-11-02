@@ -1,4 +1,4 @@
-
+﻿
 1.	bestimme fließrichtung
 2.	normalisiere und interpoliere profile: interpoliere profile nach anzahl der vorgegebenen punkte fuer die bereiche l, c und r. resultat sind querprofile mit höheninformation in gleichmäßigen abständen.
 3.	interpolate channel: 

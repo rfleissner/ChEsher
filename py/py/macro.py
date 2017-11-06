@@ -90,6 +90,12 @@ def getNodeString2d(x, y, startkey):
         nodeString[startkey+i] = [x[i], y[i]]
     return nodeString
 
+def getVertices2d(nodeString):
+    vertices = []
+    for nID in nodeString:
+        vertices.append([nodeString[nID][0],nodeString[nID][1]])
+    return vertices
+
 def getXYZ(nodeString):
     x, y = getXY(nodeString)
     z = []

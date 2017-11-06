@@ -41,7 +41,7 @@ nodRBO = fh.readI3S(filename_input_RBO)[0]
 nnL = None
 nnC = 5
 nnR = None
-length = 1.0
+length = 3.0
 nodLBL = None
 nodRBL = None
 
@@ -51,6 +51,14 @@ mesh.determineFlowDirection()
 mesh.normalizeProfiles()
 mesh.interpolateChannel()
 
+t = triangle.triangulate(mesh.geometry, 'p')
+
+# plot triangulation using matplotlib
+plt.figure(1)
+ax1 = plt.subplot(111, aspect='equal')
+triangle.plot.plot(ax1, **t)
+plt.show()
+        
 
 
 
@@ -58,9 +66,7 @@ mesh.interpolateChannel()
 print "\n~+~ FINISH ~+~\n"
 
 
-
-
-
+pass
 
 
 # sort boundary edge points to ordered sequence (necesarry for using shapely's Polygon)

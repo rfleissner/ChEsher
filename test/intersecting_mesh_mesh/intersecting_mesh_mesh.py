@@ -178,6 +178,8 @@ while True:
         geometry["holes"].append([randX,randY])
         break
 
+print geometry
+
 # triangulate intersection mesh with package triangle
 t = triangle.triangulate(geometry, 'p')
 

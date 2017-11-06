@@ -30,7 +30,7 @@ class CalcMesh(object):
                     nodLBL=None, nodRBL=None, nodLBO=None, nodRBO=None, nnL=None, nnR=None):
         """Constructor for load case.
 
-        Keyword arguments:i
+        Keyword arguments:
         nodRaw -- raw nodes
         proRaw -- raw profiles
         ...
@@ -68,6 +68,11 @@ class CalcMesh(object):
         self.proMesh = {}
         self.mesh = {}
 
+        self.geometry = {}
+        self.geometry["vertices"] = []
+        self.geometry["segments"] = []
+        #self.geometry["holes"] = []
+        
     def determineFlowDirection(self):
 
         profilecounter = 1
@@ -275,12 +280,22 @@ class CalcMesh(object):
             return 2
         else:
             return num
-
+        
+    def getNodes(self, nodeString):
+        x = []
+        y = []
+        for nID in nodeString:
+            x.append(nodeString[nID][0])
+            y.append(nodeString[nID][1])
+        return x, y
+    
     def interpolateChannel(self):
 
         nodecounter = 0
+        nodecounter_triangle = 0
+        nodecounter_triangle_old = 0
         profilecounter = 0
-
+        
         if self.nodLBO is None:
             self.nodLBO = self.getNodesLeft(self.nodInterp, self.proInterp)
         if self.nodRBO is None:
@@ -491,9 +506,35 @@ class CalcMesh(object):
                     # number of elements
                     nnC = d1/e
                                         
-                    tempNodesInterp = mc.interpolateNodeString2d(temp, int(nnC)+1)
-#                    tempNodesInterp = mc.interpolateNodeString2d(temp, self.nnC)
+                    
+                    tempNodesInterp = mc.interpolateNodeString2d(temp, self.nnC)
                     xx, yy = mc.getXY(tempNodesInterp)
+
+                    tempNodesInterp_triangle = mc.interpolateNodeString2d(temp, int(nnC)+1)
+
+                    nodes_mesh_triangle = mc.getVertices2d(tempNodesInterp_triangle)
+
+
+                    self.geometry["vertices"].extend(nodes_mesh_triangle[:])
+                    nodecounter_triangle_old_old = nodecounter_triangle_old
+                    nodecounter_triangle_old = nodecounter_triangle
+                    nodecounter_triangle += len(nodes_mesh_triangle)
+                    
+                    print nodecounter_triangle_old, nodecounter_triangle
+                    print range(nodecounter_triangle_old,nodecounter_triangle)
+                    if i == 0 and j == 0:
+                        for k in range(nodecounter_triangle_old,nodecounter_triangle-1,1):
+                            self.geometry["segments"].append([k, k+1])
+                    else:
+                        self.geometry["segments"].append([nodecounter_triangle_old-1,nodecounter_triangle-1])
+                        self.geometry["segments"].append([nodecounter_triangle_old_old,nodecounter_triangle_old])
+                    if i == len(self.proInterp)-2 and j == elementsInSegment-1:
+                        for k in range(nodecounter_triangle_old,nodecounter_triangle-1,1):
+                            self.geometry["segments"].append([k, k+1])
+                        #self.geometry["segments"].append(range(nodecounter_triangle_old,nodecounter_triangle))
+                    
+                    
+                    
                     #print tempNodesInterp
                 zz = np.zeros(len(xx))
                 nodes = mc.getNodeString3d(xx, yy, zz, nodecounter+1)
@@ -511,9 +552,12 @@ class CalcMesh(object):
                     numberOfNodes = self.nnL+self.nnC+self.nnR-2
                 self.proMesh[profilecounter] = np.arange(nodecounter+1, nodecounter+numberOfNodes+1, 1)
                 nodecounter = nodecounter + len(xx)
-        
-        return "\nChannel nodes interpolated."
 
+        #print self.geometry
+        #print nodecounter_triangle, len(self.geometry["vertices"])
+
+        return "\nChannel nodes interpolated."
+    
     def interpolateElevation(self):
 
         for i in range(len(self.proInterp[1])):

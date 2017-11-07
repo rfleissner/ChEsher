@@ -19,6 +19,7 @@ filename_input_reach = "./input/AXIS.i2s"
 filename_input_LBO = "./input/LEFT_BOUNDARY.i3s"
 filename_input_profiles = "./input/PROFILES.i3s"
 filename_input_RBO = "./input/RIGHT_BOUNDARY.i3s"
+filename_input_HOLE = "./input/HOLE.i2s"
 
 filename_output_mesh_triangulation = "./output/MESH_TRIANGULATION.t3s"
 filename_output_mesh_elevation = "./output/MESH_ELEVATION.t3s"
@@ -35,23 +36,27 @@ nodLBO = fh.readI3S(filename_input_LBO)[0]
 print "read RBO"
 nodRBO = fh.readI3S(filename_input_RBO)[0]
 
+print "read hole"
+nodHole = fh.readI2S(filename_input_HOLE)[0]
 
-
+print nodHole
 
 nnL = None
 nnC = 5
 nnR = None
-length = 3.0
+length = 2.0
 nodLBL = None
 nodRBL = None
+delta = 2.0
 
-mesh = CalcMesh(nodRaw, proRaw, nodReach, nnC, length, nodLBL, nodRBL, nodLBO, nodRBO, nnL, nnR)
+mesh = CalcMesh(nodRaw, proRaw, nodReach, nnC, length, nodLBL, nodRBL, nodLBO, nodRBO, nnL, nnR, nodHole, delta)
 
 mesh.determineFlowDirection()
 mesh.normalizeProfiles()
 mesh.interpolateChannel()
+mesh.applySegments()
 
-t = triangle.triangulate(mesh.geometry, 'p')
+t = triangle.triangulate(mesh.geometry, 'pa')
 
 # plot triangulation using matplotlib
 plt.figure(1)

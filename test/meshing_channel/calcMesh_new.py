@@ -27,7 +27,7 @@ class CalcMesh(object):
     """
 
     def __init__(   self, nodRaw, proRaw, nodReach, nnC, length,
-                    nodLBL=None, nodRBL=None, nodLBO=None, nodRBO=None, nnL=None, nnR=None):
+                    nodLBL=None, nodRBL=None, nodLBO=None, nodRBO=None, nnL=None, nnR=None, nodSegments=None, delta=None):
         """Constructor for load case.
 
         Keyword arguments:
@@ -45,16 +45,21 @@ class CalcMesh(object):
         self.nodRBL = nodRBL
         self.nodLBO = nodLBO
         self.nodRBO = nodRBO
+        self.nodSegments = nodSegments
+        
         self.nnL = nnL
-
         if nnL is not None:
             self.nnL = int(nnL)
+            
         self.nnC = int(nnC)
+        
         self.nnR = nnR
         if nnR is not None:
             self.nnR = int(nnR)
+            
         self.length = length
-
+        self.delta = delta
+        
         # results
         self.nnS = {}
         self.LBLInterp = {}
@@ -66,6 +71,7 @@ class CalcMesh(object):
         self.proInterp = {}
         self.nodMesh = {}
         self.proMesh = {}
+        self.nodSegmentsResampled = {}
         self.mesh = {}
 
         self.geometry = {}
@@ -272,15 +278,7 @@ class CalcMesh(object):
                 self.proInterp[pID] = range(startkey-self.nnC, startkey)
 
         return "\nProfiles normalized."
-
-    def getNumberOfSegmentNodes(self, node_i, node_j, length):
-        tempLength = np.linalg.norm(np.subtract(node_j, node_i))
-        num = int(tempLength / length)+1
-        if num < 2:
-            return 2
-        else:
-            return num
-        
+     
     def getNodes(self, nodeString):
         x = []
         y = []
@@ -331,7 +329,7 @@ class CalcMesh(object):
                 id_i = 0
                 id_j = -1
 
-            nodeCount = self.getNumberOfSegmentNodes(self.nodReach[pID], self.nodReach[pID+1], self.length)
+            nodeCount = mc.getNodeCount(self.nodReach[pID], self.nodReach[pID+1], self.length)
 
             self.nnS[pID] = nodeCount
 
@@ -501,7 +499,7 @@ class CalcMesh(object):
                     d1 = np.linalg.norm(np.subtract(temp[1], temp[2]))
 
                     # element width
-                    e = 1.0
+                    e = 2.0
                     
                     # number of elements
                     nnC = d1/e
@@ -520,8 +518,8 @@ class CalcMesh(object):
                     nodecounter_triangle_old = nodecounter_triangle
                     nodecounter_triangle += len(nodes_mesh_triangle)
                     
-                    print nodecounter_triangle_old, nodecounter_triangle
-                    print range(nodecounter_triangle_old,nodecounter_triangle)
+                    #print nodecounter_triangle_old, nodecounter_triangle
+                    #print range(nodecounter_triangle_old,nodecounter_triangle)
                     if i == 0 and j == 0:
                         for k in range(nodecounter_triangle_old,nodecounter_triangle-1,1):
                             self.geometry["segments"].append([k, k+1])
@@ -558,6 +556,20 @@ class CalcMesh(object):
 
         return "\nChannel nodes interpolated."
     
+    def applySegments(self):
+        self.nodSegmentsResampled = mc.resampleNodeString2d(self.nodSegments, self.delta)
+        print self.geometry["segments"]
+        print len(self.geometry["vertices"])
+        nodeCounter = len(self.geometry["vertices"])
+        
+        for nID in range(len(self.nodSegmentsResampled)):
+            self.geometry["vertices"].append([self.nodSegmentsResampled[nID][0],self.nodSegmentsResampled[nID][1]])
+            if nID <= len(self.nodSegmentsResampled)-2:
+                self.geometry["segments"].append([nodeCounter, nodeCounter+1])
+            nodeCounter += 1
+        print self.geometry["segments"]
+        print len(self.geometry["vertices"])
+        
     def interpolateElevation(self):
 
         for i in range(len(self.proInterp[1])):

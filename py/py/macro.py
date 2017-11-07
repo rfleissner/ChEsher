@@ -45,6 +45,35 @@ def interpolateXYZ(xx, yy, zz, nodeCount, startkey=1):
 
     return nodeStringInterp
 
+def getNodeCount(node_i, node_j, length):
+    tempLength = np.linalg.norm(np.subtract(node_j, node_i))
+    num = int(tempLength / length)+1
+    if num < 2:
+        return 2
+    else:
+        return num
+        
+        
+def interpolateXY(xx, yy, nodeCount, startkey=1):
+#    print "x", xx
+#    print "y", yy
+    
+    ss = getRasterXYZ(xx, yy, np.zeros(len(xx)))
+#    print ss
+    vec = np.linspace(ss[0], ss[-1], nodeCount)
+
+    f1 = sp.interp1d(ss, xx, kind='linear')
+    f2 = sp.interp1d(ss, yy, kind='linear')
+    f3 = sp.interp1d(ss, zz, kind='linear')
+
+    xInterp = f1(vec)
+    yInterp = f2(vec)
+    zInterp = f3(vec)
+
+    nodeStringInterp = getNodeString3d(xInterp, yInterp, zInterp, startkey)
+
+    return nodeStringInterp
+
 def interpolateNodeString3d(nodeString, nodeCount, startkey=1):
 
     xx = []
@@ -56,6 +85,35 @@ def interpolateNodeString3d(nodeString, nodeCount, startkey=1):
     nodeStringInterp = interpolateXYZ(xx, yy, zz, nodeCount, startkey)
 
     return nodeStringInterp
+
+def resampleNodeString2d(nodeString, delta, startkey=1):
+
+    nodeStringResampled = {}
+    startkey = 0
+    for nID in range(len(nodeString)-1):
+        
+#        print "nID", nID
+        
+        nodeCount = getNodeCount(nodeString[nID+1], nodeString[nID+2], delta)
+#        print nodeCount
+    
+#        print nodeString[nID+1]
+#        print nodeString[nID+2]
+        
+        tempNodeString = {}
+        
+        tempNodeString[1] = nodeString[nID+1]
+        tempNodeString[2] = nodeString[nID+2]
+        
+#        print "tempNodeString", tempNodeString
+        tempNodeStringResampled = interpolateNodeString2d(tempNodeString, nodeCount, startkey)
+        startkey += nodeCount
+        startkey -= 1
+        nodeStringResampled.update(tempNodeStringResampled)
+        
+#    print nodeStringResampled
+        
+    return nodeStringResampled
 
 def interpolateNodeString2d(nodeString, nodeCount, startkey=1):
 

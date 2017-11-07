@@ -60,3 +60,4 @@ target/
 # temporary folder
 temp/
 plots/
+/test/meshing_channel/nbproject/private/

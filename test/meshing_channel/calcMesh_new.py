@@ -19,7 +19,13 @@ __date__ ="$29.08.2014 18:21:40$"
 
 import numpy as np
 import macro as mc
-
+from rtree import index
+import triangle
+import triangle.plot
+import matplotlib.pyplot as plt
+import matplotlib
+#matplotlib.use("Agg")
+import matplotlib.tri as tri
 
 class CalcMesh(object):
     """Create mesh.
@@ -27,7 +33,7 @@ class CalcMesh(object):
     """
 
     def __init__(   self, nodRaw, proRaw, nodReach, nnC, length,
-                    nodLBL=None, nodRBL=None, nodLBO=None, nodRBO=None, nnL=None, nnR=None, nodSegments=None, delta=None):
+                    nodLBL=None, nodRBL=None, nodLBO=None, nodRBO=None, nnL=None, nnR=None, nodHole=None, nodSegments=None, stringSegments=None, delta=None):
         """Constructor for load case.
 
         Keyword arguments:
@@ -45,7 +51,11 @@ class CalcMesh(object):
         self.nodRBL = nodRBL
         self.nodLBO = nodLBO
         self.nodRBO = nodRBO
+        self.nodHoles = nodHole
         self.nodSegments = nodSegments
+        self.stringSegments = stringSegments
+        # element width
+        self.e = 2.0
         
         self.nnL = nnL
         if nnL is not None:
@@ -73,11 +83,12 @@ class CalcMesh(object):
         self.proMesh = {}
         self.nodSegmentsResampled = {}
         self.mesh = {}
+        self.mesh_triangle = None
 
         self.geometry = {}
         self.geometry["vertices"] = []
         self.geometry["segments"] = []
-        #self.geometry["holes"] = []
+        self.geometry["holes"] = []
         
     def determineFlowDirection(self):
 
@@ -425,11 +436,6 @@ class CalcMesh(object):
             else:
                 elementsInSegment = len(tempLeftBoundaryInterp)-1
 
-            
-##      ToDo: interpolate channel dependend on element width
-##      replace for example self.nnL by element width
-##      save all points to triangulate mesh
-
             for j in range(elementsInSegment):
 
                 nID = j+1
@@ -490,54 +496,53 @@ class CalcMesh(object):
 
                     xx = np.concatenate([xleft[0:-1], xchannel[0:-1], xright])
                     yy = np.concatenate([yleft[0:-1], ychannel[0:-1], yright])
+                
+# todo: mesh triangle 
+                    
                 else:
                     temp = {}
                     temp[1] = tempLeftBoundaryInterp[nID]
                     temp[2] = tempRightBoundaryInterp[nID]
-                    
-                    # calculate length between left and right boundary
-                    d1 = np.linalg.norm(np.subtract(temp[1], temp[2]))
-
-                    # element width
-                    e = 2.0
-                    
-                    # number of elements
-                    nnC = d1/e
-                                        
-                    
+                                       
+                    # interpolate mesh nodes
                     tempNodesInterp = mc.interpolateNodeString2d(temp, self.nnC)
                     xx, yy = mc.getXY(tempNodesInterp)
 
+                    # calculate length between left and right boundary
+                    d1 = np.linalg.norm(np.subtract(temp[1], temp[2]))
+                    # number of elements
+                    nnC = d1/self.e
+                    # interpolate triangle's mesh nodes
                     tempNodesInterp_triangle = mc.interpolateNodeString2d(temp, int(nnC)+1)
-
                     nodes_mesh_triangle = mc.getVertices2d(tempNodesInterp_triangle)
 
+                # add nodes to triangle's geometry
+                self.geometry["vertices"].extend(nodes_mesh_triangle[:])
+                nodecounter_triangle_old_old = nodecounter_triangle_old
+                nodecounter_triangle_old = nodecounter_triangle
+                nodecounter_triangle += len(nodes_mesh_triangle)
 
-                    self.geometry["vertices"].extend(nodes_mesh_triangle[:])
-                    nodecounter_triangle_old_old = nodecounter_triangle_old
-                    nodecounter_triangle_old = nodecounter_triangle
-                    nodecounter_triangle += len(nodes_mesh_triangle)
-                    
-                    #print nodecounter_triangle_old, nodecounter_triangle
-                    #print range(nodecounter_triangle_old,nodecounter_triangle)
-                    if i == 0 and j == 0:
-                        for k in range(nodecounter_triangle_old,nodecounter_triangle-1,1):
-                            self.geometry["segments"].append([k, k+1])
-                    else:
-                        self.geometry["segments"].append([nodecounter_triangle_old-1,nodecounter_triangle-1])
-                        self.geometry["segments"].append([nodecounter_triangle_old_old,nodecounter_triangle_old])
-                    if i == len(self.proInterp)-2 and j == elementsInSegment-1:
-                        for k in range(nodecounter_triangle_old,nodecounter_triangle-1,1):
-                            self.geometry["segments"].append([k, k+1])
-                        #self.geometry["segments"].append(range(nodecounter_triangle_old,nodecounter_triangle))
-                    
-                    
-                    
-                    #print tempNodesInterp
+                # apply outline of mesh to triangle's geometry
+                if i == 0 and j == 0: #first profile
+                    for k in range(nodecounter_triangle_old,nodecounter_triangle-1,1):
+                        self.geometry["segments"].append([k, k+1])
+                else: # left and right segment each profile
+                    self.geometry["segments"].append([nodecounter_triangle_old-1,nodecounter_triangle-1])
+                    self.geometry["segments"].append([nodecounter_triangle_old_old,nodecounter_triangle_old])
+                if i == len(self.proInterp)-2 and j == elementsInSegment-1: # last profile
+                    for k in range(nodecounter_triangle_old,nodecounter_triangle-1,1):
+                        self.geometry["segments"].append([k, k+1])
+                    #self.geometry["segments"].append(range(nodecounter_triangle_old,nodecounter_triangle))
+                if i > 0 and j == 0: #input-profiles
+                    for k in range(nodecounter_triangle_old,nodecounter_triangle-1,1):
+                        self.geometry["segments"].append([k, k+1])              
+
+                # apply nodes of mesh
                 zz = np.zeros(len(xx))
                 nodes = mc.getNodeString3d(xx, yy, zz, nodecounter+1)
                 self.nodMesh = dict(self.nodMesh.items() + nodes.items())
 
+                # apply profiles of mesh
                 profilecounter = profilecounter + 1
                 numberOfNodes = 0
                 if self.nnL is None and self.nnR is not None:
@@ -551,24 +556,72 @@ class CalcMesh(object):
                 self.proMesh[profilecounter] = np.arange(nodecounter+1, nodecounter+numberOfNodes+1, 1)
                 nodecounter = nodecounter + len(xx)
 
-        #print self.geometry
-        #print nodecounter_triangle, len(self.geometry["vertices"])
-
         return "\nChannel nodes interpolated."
     
-    def applySegments(self):
-        self.nodSegmentsResampled = mc.resampleNodeString2d(self.nodSegments, self.delta)
-        print self.geometry["segments"]
-        print len(self.geometry["vertices"])
-        nodeCounter = len(self.geometry["vertices"])
+    def applyHoles(self):
+        for nID in self.nodHoles:
+            self.geometry["holes"].append([self.nodHoles[nID][0], self.nodHoles[nID][1]])
+        print self.geometry["holes"]
         
-        for nID in range(len(self.nodSegmentsResampled)):
-            self.geometry["vertices"].append([self.nodSegmentsResampled[nID][0],self.nodSegmentsResampled[nID][1]])
-            if nID <= len(self.nodSegmentsResampled)-2:
-                self.geometry["segments"].append([nodeCounter, nodeCounter+1])
-            nodeCounter += 1
-        print self.geometry["segments"]
-        print len(self.geometry["vertices"])
+    def applySegments(self):
+        
+        for pID in self.stringSegments:
+            tempSegment = {}
+            for nID in range(len(self.stringSegments[pID])):
+                tempSegment[nID+1] = self.nodSegments[self.stringSegments[pID][nID]]
+            print tempSegment
+            
+            self.nodSegmentsResampled = mc.resampleNodeString2d(tempSegment, self.delta)
+    #        print self.geometry["segments"]
+    #        print len(self.geometry["vertices"])
+            nodeCounter = len(self.geometry["vertices"])
+
+            for nID in range(len(self.nodSegmentsResampled)):
+                self.geometry["vertices"].append([self.nodSegmentsResampled[nID][0],self.nodSegmentsResampled[nID][1]])
+                if nID <= len(self.nodSegmentsResampled)-2:
+                    self.geometry["segments"].append([nodeCounter, nodeCounter+1])
+                nodeCounter += 1
+    #        print self.geometry["segments"]
+    #        print len(self.geometry["vertices"])
+
+    def applyElevation(self):
+        self.mesh_triangle = triangle.triangulate(self.geometry, 'pa')
+
+        # plot triangulation using matplotlib
+        plt.figure(1)
+        ax1 = plt.subplot(111, aspect='equal')
+        triangle.plot.plot(ax1, **self.mesh_triangle)
+        plt.show()
+
+        x = []
+        y = []
+        z = []
+        triangles = []
+        
+        for key in self.nodMesh:
+            x.append(self.nodMesh[key][0])
+            y.append(self.nodMesh[key][1])
+            z.append(self.nodMesh[key][2])
+        
+        for key in self.mesh:
+            triangles.append([self.mesh[key][0]-1, self.mesh[key][1]-1, self.mesh[key][2]-1])
+        
+        # create matplotlib triangulation
+        triang = tri.Triangulation(x, y, triangles)
+        # create matplotlib triangulation interpolator
+        interp = tri.LinearTriInterpolator(triang, z)
+        
+        # map z value to elevation mesh
+        x = []
+        y = []
+        for i in range(len(self.mesh_triangle["vertices"])):
+            x.append(self.mesh_triangle["vertices"][i][0])
+            y.append(self.mesh_triangle["vertices"][i][1])
+        zInterp = interp(x, y)
+        
+        a = np.array([x, y, zInterp])
+        b = np.reshape(a, (3*len(x)), order='F')
+        self.mesh_triangle["vertices"] = np.reshape(b, (len(x), 3))
         
     def interpolateElevation(self):
 

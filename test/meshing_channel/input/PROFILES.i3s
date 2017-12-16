@@ -1,15 +1,18 @@
 #########################################################################
 :FileType i3s  ASCII  EnSim 1.0
-# Canadian Hydraulics Centre/National Research Council (c) 1998-2012
-# DataType                 3D Line Set
+# National Research Council Canada (c) 1998-2017
+# DataType                3D Line Set
 #
 :Application              BlueKenue
-:Version                  3.3.4
+:Version                  3.8.4
 :WrittenBy                Reinhard Fleiﬂner
-:CreationDate             Mon, Nov 06, 2017 11:05 PM
+:CreationDate             Fri, Nov 10, 2017 10:36 PM
 #
 #------------------------------------------------------------------------
 #
+#
+#
+:AttributeCount 1
 :AttributeUnits 1 m
 :EndHeader
 3 0
@@ -49,11 +52,11 @@
 10.635786 0.000000 837.164214
 10.635786 -10.000000 837.164214
 3 0
-19.586000 12.000000 828.214466
+19.586000 30.000000 828.214466
 19.585534 0.000000 828.214466
 19.586000 -12.000000 828.214466
 3 0
-23.121000 12.000000 826.750000
+23.121000 30.000000 826.750000
 23.121068 0.000000 826.750000
 23.121000 -12.000000 826.750000
 3 0

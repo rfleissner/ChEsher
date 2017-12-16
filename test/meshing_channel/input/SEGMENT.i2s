@@ -1,16 +1,18 @@
 #########################################################################
 :FileType i2s  ASCII  EnSim 1.0
-# Canadian Hydraulics Centre/National Research Council (c) 1998-2012
-# DataType                 2D Line Set
+# National Research Council Canada (c) 1998-2017
+# DataType                2D Line Set
 #
 :Application              BlueKenue
-:Version                  3.3.4
+:Version                  3.8.4
 :WrittenBy                Reinhard Fleiﬂner
-:CreationDate             Tue, Nov 07, 2017 10:23 PM
+:CreationDate             Fri, Nov 10, 2017 10:19 PM
 #
 #------------------------------------------------------------------------
 #
 #
+#
+:AttributeCount 1
 :AttributeUnits 1 m
 :EndHeader
 5 0
@@ -20,5 +22,13 @@
 30.000000 -5.000000
 30.000000 5.000000
 2 0
-24.000000 2.000000
+20.000000 4.000000
 28.000000 -2.000000
+4 0
+20.000000 2.000000
+20.000000 -2.000000
+15.000000 0.000000
+20.000000 2.000000
+2 0
+20.000000 -4.000000
+28.000000 2.000000

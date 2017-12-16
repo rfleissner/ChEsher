@@ -1,0 +1,19 @@
+#########################################################################
+:FileType xyz  ASCII  EnSim 1.0
+# National Research Council Canada (c) 1998-2017
+# DataType                XYZ Point Set
+#
+:Application              BlueKenue
+:Version                  3.8.4
+:WrittenBy                Reinhard Fleiﬂner
+:CreationDate             Fri, Nov 10, 2017 10:19 PM
+#
+#------------------------------------------------------------------------
+#
+#
+:AttributeCount 1
+:AttributeUnits 1 m
+:EndHeader
+             35               0               0
+             17               0               0
+           19.8               0               0

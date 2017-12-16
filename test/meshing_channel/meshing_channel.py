@@ -4,9 +4,8 @@ import numpy as np
 from shapely.geometry import LineString, MultiLineString, Point, Polygon, MultiPolygon, LinearRing
 from shapely.ops import cascaded_union
 from rtree import index
-import triangle
-import triangle.plot
-import matplotlib.pyplot as plt
+
+
 from random import uniform
 
 sys.path.append('C:/ChEsher/py/py')
@@ -19,7 +18,8 @@ filename_input_reach = "./input/AXIS.i2s"
 filename_input_LBO = "./input/LEFT_BOUNDARY.i3s"
 filename_input_profiles = "./input/PROFILES.i3s"
 filename_input_RBO = "./input/RIGHT_BOUNDARY.i3s"
-filename_input_HOLE = "./input/HOLE.i2s"
+filename_input_HOLE = "./input/HOLE.xyz"
+filename_input_SEGMENT = "./input/SEGMENT.i2s"
 
 filename_output_mesh_triangulation = "./output/MESH_TRIANGULATION.t3s"
 filename_output_mesh_elevation = "./output/MESH_ELEVATION.t3s"
@@ -37,32 +37,36 @@ print "read RBO"
 nodRBO = fh.readI3S(filename_input_RBO)[0]
 
 print "read hole"
-nodHole = fh.readI2S(filename_input_HOLE)[0]
+nodHole = fh.readXYZ(filename_input_HOLE)
 
-print nodHole
+print "read segment"
+nodSegment, stringSegment = fh.readI2S(filename_input_SEGMENT)
+
+print nodSegment, stringSegment
+
+#print nodHole
 
 nnL = None
-nnC = 5
+nnC = 10
 nnR = None
 length = 2.0
 nodLBL = None
 nodRBL = None
 delta = 2.0
 
-mesh = CalcMesh(nodRaw, proRaw, nodReach, nnC, length, nodLBL, nodRBL, nodLBO, nodRBO, nnL, nnR, nodHole, delta)
+mesh = CalcMesh(nodRaw, proRaw, nodReach, nnC, length, nodLBL, nodRBL, nodLBO, nodRBO, nnL, nnR, nodHole, nodSegment, stringSegment, delta)
 
 mesh.determineFlowDirection()
 mesh.normalizeProfiles()
 mesh.interpolateChannel()
+mesh.interpolateElevation()
+mesh.interpolateElevationCorrection()
+mesh.createMesh()
 mesh.applySegments()
+mesh.applyHoles()
+mesh.applyElevation()
 
-t = triangle.triangulate(mesh.geometry, 'pa')
 
-# plot triangulation using matplotlib
-plt.figure(1)
-ax1 = plt.subplot(111, aspect='equal')
-triangle.plot.plot(ax1, **t)
-plt.show()
         
 
 

@@ -231,14 +231,14 @@ class ChEsher(QtGui.QMainWindow):
         self.addActions(self.helpMenu, (self.helpAction, None, self.helpAboutAction))
 
 #        self.setDXF2BK()
-        self.setMesh()
+#        self.setMesh()
 #        self.setCont2DXF()
 #        self.setTube()
 #        self.setHEC2DXF()
 #        self.setXYZ2Profiles()
-#        self.setProfilesDXF()
+        self.setProfilesDXF()
 #        self.setXYZ2DXF()
-        self.initialize()
+#        self.initialize()
 #        self.setMergeMesh()
 #        self.setScalarDXF()
 

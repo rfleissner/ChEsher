@@ -146,7 +146,7 @@ class WrapXYZ2Profiles():
             return
 
         self.proArranged, self.reachStation, self.profileStation, direction = po.determineFlowDirection(self.nodReach, self.nodProfiles, self.proProfiles)
-        
+                
         info += "\nProfile information:\n"
         for pID_Arranged in direction:
             info += ' - Profile {0}:\tFlow direction: {1}\tStation: {2}\t\n'.format(pID_Arranged, direction[pID_Arranged], round(self.reachStation[pID_Arranged], 2))

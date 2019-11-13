@@ -35,7 +35,7 @@ def determineFlowDirection(nodReach, nodProfiles, proProfiles):
     profileStation  ... profile stations of crossing reach
     proArranged     ... IDs of adjusted cross section nodes
     """
-    
+         
     reachStation = {}
     proArranged = {}
     profileStation = {}
@@ -73,7 +73,7 @@ def determineFlowDirection(nodReach, nodProfiles, proProfiles):
             profile_line = LineString([(ri, rj), (si, sj)])
             totLen += profile_line.length
         profileLength[pID] = totLen
-
+    print profileLength
     # loop over reach points
     for nID_reach in range(len(nodReach)-1):
         nID_reach += 1

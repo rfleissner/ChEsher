@@ -58,7 +58,7 @@ def determineFlowDirection(nodReach, nodProfiles, proProfiles):
 
         reach_line = LineString([(xa, ya), (xe, ye)])            
         reachlength += reach_line.length
-
+        
     # get total length of profiles
     profileLength = {}
     for pID in proProfiles:
@@ -73,7 +73,7 @@ def determineFlowDirection(nodReach, nodProfiles, proProfiles):
             profile_line = LineString([(ri, rj), (si, sj)])
             totLen += profile_line.length
         profileLength[pID] = totLen
-    print profileLength
+        
     # loop over reach points
     for nID_reach in range(len(nodReach)-1):
         nID_reach += 1
@@ -86,7 +86,7 @@ def determineFlowDirection(nodReach, nodProfiles, proProfiles):
         ye = nodReach[nID_j][1]
 
         reach_line = LineString([(xa, ya), (xe, ye)])
-
+        
         # reach point station (zero on last point)
         reachStation[nID_reach] = reachlength-station_reach
         station_reach += reach_line.length
@@ -105,7 +105,7 @@ def determineFlowDirection(nodReach, nodProfiles, proProfiles):
 
                 profile_line = LineString([(ri, rj), (si, sj)])
 
-                # if intersection between reach segment and profile segment?
+                # if intersection between reach segment and profile segment
                 if reach_line.intersects(profile_line) is True:
                     intersection = reach_line.intersection(profile_line)
 

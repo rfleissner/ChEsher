@@ -173,22 +173,22 @@ class Wrap2DM2BK():
         
     def create(self):
 
-        try:
-            SMS_elements, \
-                SMS_nodes,\
-                SMS_strings,\
-                SMS_materials,\
-                SMS_bc_nodes,\
-                SMS_bc_strings_1,\
-                SMS_bc_strings_2,\
-                SMS_bc_strings_3,\
-                SMS_bc_strings_4,\
-                SMS_bc_strings_5,\
-                SMS_bc_strings_6,\
-                SMS_bc_strings_7 = fh.read2DM(self.ui.lineEditInput.text())
-        except Exception, e:
-            QMessageBox.critical(self.widget, "Error", "Not able to load file!\nCheck filename or content!" + "\n\n" + str(e))
-            return
+#        try:
+        SMS_elements, \
+            SMS_nodes,\
+            SMS_strings,\
+            SMS_materials,\
+            SMS_bc_nodes,\
+            SMS_bc_strings_1,\
+            SMS_bc_strings_2,\
+            SMS_bc_strings_3,\
+            SMS_bc_strings_4,\
+            SMS_bc_strings_5,\
+            SMS_bc_strings_6,\
+            SMS_bc_strings_7 = fh.read2DM(self.ui.lineEditInput.text())
+#        except Exception, e:
+#            QMessageBox.critical(self.widget, "Error", "Not able to load file!\nCheck filename or content!" + "\n\n" + str(e))
+#            return
 
         # BK_materials = {BK_node_id: strickler's value}
         BK_materials = {}

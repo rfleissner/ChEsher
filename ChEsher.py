@@ -236,11 +236,12 @@ class ChEsher(QtGui.QMainWindow):
 #        self.setTube()
 #        self.setHEC2DXF()
 #        self.setXYZ2Profiles()
-        self.setProfilesDXF()
+#        self.setProfilesDXF()
 #        self.setXYZ2DXF()
 #        self.initialize()
 #        self.setMergeMesh()
 #        self.setScalarDXF()
+#        self.initialize()
 
     def setType(self):
         self.calcDischarge()

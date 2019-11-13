@@ -1312,6 +1312,8 @@ def readDXF(dxf, layer):
                 nodes[nodecounter] = convertTuple(point, 2)
                 strings[stringcounter].append(nodecounter)
                 nodecounter +=1
+            if e.is_closed == True:
+                strings[stringcounter].append(nodecounter-len(e.points))
             stringcounter += 1
         elif dxftype == 'POLYLINE':
             strings[stringcounter] = []
@@ -1322,6 +1324,8 @@ def readDXF(dxf, layer):
                     nodes[nodecounter] = convertTuple(point, 3)
                 strings[stringcounter].append(nodecounter)
                 nodecounter +=1
+            if e.is_closed == True:
+                strings[stringcounter].append(nodecounter-len(e.points))
             stringcounter += 1
     if len(pointstring) > 0:
         strings[len(strings)] = pointstring
